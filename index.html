@@ -3,304 +3,262 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ParlayWins | Prediksi Akurat</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>ParlayWins - Prediksi Parlay Modern</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Font Awesome untuk Ikon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    colors: {
-                        brand: {
-                            500: '#10b981', // Emerald 500
-                            600: '#059669', // Emerald 600
-                            900: '#064e3b'  // Emerald 900
-                        },
-                        dark: {
-                            700: '#334155',
-                            800: '#1e293b',
-                            950: '#0b0f19',
-                            900: '#0f172a'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
-        .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .prediction-blur {
-            filter: blur(5px);
-            user-select: none;
-        }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
-        
-        .loader {
-            border: 3px solid rgba(255,255,255,0.1);
-            border-top: 3px solid #10b981;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        /* Pulse for Live indicator */
-        .pulse-indicator {
-            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-            animation: pulse 1.5s infinite cubic-bezier(0.66, 0, 0, 1);
-        }
-        @keyframes pulse {
-            to { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-        }
-    </style>
+    <!-- Firebase SDK (Compat Version untuk kemudahan integrasi) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
-<body class="antialiased min-h-screen flex flex-col pb-20 md:pb-6">
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col selection:bg-emerald-500 selection:text-slate-950">
 
-    <nav class="glass-panel sticky top-0 z-50 px-4 py-3 shadow-lg">
-        <div class="max-w-5xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-2 cursor-pointer" onclick="switchView('home')">
-                <i class="fa-solid fa-futbol text-brand-500 text-2xl"></i>
-                <h1 class="text-xl font-black tracking-tight text-white uppercase italic">Parlay<span class="text-brand-500">Wins</span></h1>
-            </div>
-            
-            <div class="flex items-center gap-4">
-                <div id="userInfo" class="hidden flex items-center gap-3">
-                    <div class="text-right hidden sm:block">
-                        <p class="text-xs text-gray-400">Sisa Tiket VIP</p>
-                        <p class="text-sm font-bold text-brand-500" id="userTokens">0x Lihat</p>
-                    </div>
-                    <button onclick="openDepositModal()" class="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-                        <i class="fa-solid fa-wallet mr-1"></i> Deposit
-                    </button>
-                    <button id="btnAdminNav" onclick="switchView('admin')" class="hidden bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-lg text-sm transition">
-                        <i class="fa-solid fa-gear mr-1"></i> Admin
-                    </button>
+    <!-- HEADER -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-40 px-4 py-3">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="bg-emerald-500 text-slate-950 p-2 rounded-lg font-black tracking-wider text-xl shadow-lg shadow-emerald-500/20">
+                    <i class="fa-solid fa-futbol"></i>
                 </div>
-                <div id="authLoader" class="loader"></div>
+                <span class="text-xl font-black tracking-tight bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">PARLAY<span class="text-slate-100">WINS</span></span>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="openDepositModal()" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-950 font-bold px-4 py-2 rounded-xl text-sm transition-all shadow-md active:scale-95">
+                    <i class="fa-solid fa-wallet mr-1"></i> Deposit
+                </button>
             </div>
         </div>
-    </nav>
+    </header>
 
-    <main class="flex-grow max-w-5xl mx-auto w-full p-4">
+    <!-- MAIN CONTENT -->
+    <main class="max-w-4xl w-full mx-auto px-4 py-6 flex-grow space-y-6">
         
-        <!-- HOME VIEW (User Feed) -->
-        <div id="view-home" class="view-section fade-in">
-            <!-- Promo banner or statistics -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div class="col-span-full md:col-span-2 glass-panel p-5 rounded-2xl border border-gray-700/50 flex flex-col justify-between relative overflow-hidden">
-                    <div class="z-10">
-                        <span class="bg-brand-900/50 text-brand-500 text-xs font-bold px-2.5 py-1 rounded-full border border-brand-500/30 uppercase tracking-wide">🔥 Tips VIP Terbaik Hari Ini</span>
-                        <h2 class="text-2xl md:text-3xl font-black text-white mt-3 mb-2 italic">AKURASI PREDIKSI HINGGA 94.8%</h2>
-                        <p class="text-gray-300 text-sm max-w-md">Dapatkan analisis mendalam dari admin pro. Sisa saldo tiket Anda digunakan untuk membuka tebakan pemenang, over/under, BTTS, & skor tepat.</p>
-                    </div>
-                    <div class="mt-4 flex flex-wrap gap-2 z-10">
-                        <button onclick="openDepositModal()" class="bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs px-4 py-2 rounded-lg transition">Beli Tiket Sekarang</button>
-                        <button onclick="openChat()" class="bg-slate-700 hover:bg-slate-600 text-gray-200 text-xs px-3 py-2 rounded-lg transition"><i class="fa-solid fa-comments mr-1"></i> Tanya Admin</button>
-                    </div>
-                    <div class="absolute right-2 bottom-0 opacity-10 pointer-events-none transform translate-y-10 scale-150">
-                        <i class="fa-solid fa-trophy text-9xl text-brand-500"></i>
-                    </div>
-                </div>
-                <div class="glass-panel p-5 rounded-2xl border border-gray-700/50 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-gray-400 text-xs uppercase font-bold tracking-wider">Status Akun Anda</h3>
-                        <div class="flex items-center gap-3 mt-4">
-                            <div class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center border border-gray-700">
-                                <i class="fa-solid fa-user text-brand-500 text-xl"></i>
-                            </div>
-                            <div>
-                                <p class="text-white font-bold text-sm" id="userIdDisplay">User-Loading</p>
-                                <p class="text-brand-500 font-medium text-xs mt-0.5"><i class="fa-solid fa-circle text-[8px] mr-1 animate-pulse"></i> Aktif</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="border-t border-gray-700/60 pt-3 mt-4 flex justify-between items-center">
-                        <span class="text-gray-400 text-xs">Tiket Tersedia:</span>
-                        <span class="text-lg font-black text-brand-500" id="userTokensPanel">0 Tiket</span>
-                    </div>
-                </div>
-            </div>
+        <!-- HERO BANNER -->
+        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-800 p-6 shadow-xl">
+            <div class="absolute -right-10 -bottom-10 text-slate-700/10 text-9xl font-black"><i class="fa-solid fa-chart-line"></i></div>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold bg-emerald-500/10 text-emerald-400 rounded-full border border-emerald-500/20 mb-3">
+                <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span> TIPS VIP TERBAIK HARI INI
+            </span>
+            <h1 class="text-2xl md:text-4xl font-black tracking-tight leading-tight uppercase">Akurasi Prediksi <br><span class="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Hingga 94.8%</span></h1>
+            <p class="text-slate-400 text-sm mt-2 max-w-lg">Dapatkan analisis mendalam dari admin pro. Sisa saldo tiket Anda digunakan untuk membuka tebakan pemenang, over/under, BTTS, & skor tepat.</p>
+        </div>
 
-            <div class="mb-6 flex justify-between items-center">
+        <!-- STATUS AKUN -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex justify-between items-center shadow-md">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center text-slate-400 border border-slate-700">
+                    <i class="fa-solid fa-user"></i>
+                </div>
                 <div>
-                    <h2 class="text-xl font-bold text-white"><i class="fa-solid fa-calendar-day text-brand-500 mr-2"></i>Prediksi Pertandingan Terkini</h2>
-                    <p class="text-gray-400 text-xs mt-1">Gunakan tiket Anda untuk membuka informasi taruhan terlengkap.</p>
+                    <div id="user-display-id" class="font-bold text-sm text-slate-300">Memuat User...</div>
+                    <div class="text-xs text-emerald-400 flex items-center"><span class="w-2 h-2 bg-emerald-400 rounded-full mr-1.5"></span>Aktif</div>
                 </div>
             </div>
-            
-            <!-- Matches Container -->
-            <div id="matchesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="col-span-full text-center py-10 text-gray-500">
-                    <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-3"></i>
-                    <p>Memuat pertandingan...</p>
+            <div class="text-right">
+                <div class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Tiket Tersedia</div>
+                <div id="user-tokens" class="text-2xl font-black text-emerald-400">0 Tiket</div>
+            </div>
+        </div>
+
+        <!-- DAFTAR PERTANDINGAN -->
+        <div>
+            <div class="flex items-center space-x-2 mb-4">
+                <i class="fa-solid fa-calendar-days text-emerald-400"></i>
+                <h2 class="text-lg font-bold tracking-tight">Prediksi Pertandingan Terkini</h2>
+            </div>
+            <div id="match-container" class="space-y-4">
+                <!-- Loading State -->
+                <div class="text-center py-12 text-slate-500 flex flex-col items-center justify-center gap-3">
+                    <div class="w-8 h-8 border-4 border-emerald-500/25 border-t-emerald-500 rounded-full animate-spin"></div>
+                    <p class="text-sm">Memuat pertandingan...</p>
                 </div>
             </div>
         </div>
 
-        <!-- ADMIN VIEW -->
-        <div id="view-admin" class="view-section hidden fade-in">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
+    </main>
+
+    <!-- FOOTER & ADMIN ACCESS -->
+    <footer class="border-t border-slate-900 bg-slate-950 px-4 py-6 text-center text-xs text-slate-600">
+        <p>&copy; 2026 ParlayWins. All rights reserved.</p>
+        <button onclick="openAdminGate()" class="mt-4 text-slate-700 hover:text-emerald-500 transition-colors font-medium">Admin Panel</button>
+    </footer>
+
+    <!-- MODAL DEPOSIT -->
+    <div id="deposit-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+            <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+                <h3 class="font-bold text-lg text-slate-100 flex items-center gap-2"><i class="fa-solid fa-wallet text-emerald-400"></i> Form Isi Saldo / Deposit</h3>
+                <button onclick="closeDepositModal()" class="text-slate-400 hover:text-slate-100 w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-4 space-y-4 overflow-y-auto flex-grow">
+                <!-- Pilih Paket -->
                 <div>
-                    <h2 class="text-2xl font-black text-brand-500 tracking-tight flex items-center gap-2">
-                        <i class="fa-solid fa-shield-halved"></i> DASHBOARD ADMIN
-                    </h2>
-                    <p class="text-gray-400 text-xs">Kelola semua data pertandingan, persetujuan pembayaran, dan konfigurasi.</p>
-                </div>
-                <button onclick="switchView('home')" class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition">
-                    <i class="fa-solid fa-arrow-left mr-1"></i> Halaman Member
-                </button>
-            </div>
-
-            <!-- Admin Tabs Navigation -->
-            <div class="flex flex-wrap border-b border-gray-800 mb-6 gap-2">
-                <button onclick="switchAdminTab('matches')" id="tabBtn-matches" class="admin-tab-btn px-4 py-2 text-sm font-bold border-b-2 border-brand-500 text-brand-500 flex items-center gap-2">
-                    <i class="fa-solid fa-soccer-ball"></i> Pertandingan
-                </button>
-                <button onclick="switchAdminTab('deposits')" id="tabBtn-deposits" class="admin-tab-btn px-4 py-2 text-sm font-bold border-b-2 border-transparent text-gray-400 hover:text-white flex items-center gap-2 relative">
-                    <i class="fa-solid fa-money-bill-wave"></i> Persetujuan Deposit
-                    <span id="depositBadge" class="hidden bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full absolute -top-1.5 -right-1">0</span>
-                </button>
-                <button onclick="switchAdminTab('rekening')" id="tabBtn-rekening" class="admin-tab-btn px-4 py-2 text-sm font-bold border-b-2 border-transparent text-gray-400 hover:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-wallet"></i> Pengaturan Rekening
-                </button>
-                <button onclick="switchAdminTab('chats')" id="tabBtn-chats" class="admin-tab-btn px-4 py-2 text-sm font-bold border-b-2 border-transparent text-gray-400 hover:text-white flex items-center gap-2 relative">
-                    <i class="fa-solid fa-comments"></i> Inbox Live Chat
-                    <span id="chatBadge" class="hidden bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full absolute -top-1.5 -right-1">0</span>
-                </button>
-            </div>
-
-            <!-- TAB CONTENT: MATCHES -->
-            <div id="adminTab-matches" class="admin-tab-content grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Add Match Form -->
-                <div class="lg:col-span-1 glass-panel p-5 rounded-xl border border-gray-700/60 h-fit">
-                    <h3 class="text-base font-bold mb-4 border-b border-gray-700 pb-2 text-white">Tambah Pertandingan</h3>
-                    <form id="formAddMatch" onsubmit="handleCreateMatch(event)" class="space-y-4">
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="text-[11px] text-gray-400 block mb-1">Tim Kandang (A)</label>
-                                <input type="text" id="teamA" required class="w-full bg-dark-950 border border-gray-700 rounded-lg p-2 text-sm text-white focus:border-brand-500 outline-none">
-                            </div>
-                            <div>
-                                <label class="text-[11px] text-gray-400 block mb-1">Tim Tandang (B)</label>
-                                <input type="text" id="teamB" required class="w-full bg-dark-950 border border-gray-700 rounded-lg p-2 text-sm text-white focus:border-brand-500 outline-none">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="text-[11px] text-gray-400 block mb-1">Jadwal Kickoff</label>
-                            <input type="datetime-local" id="matchDate" required class="w-full bg-dark-950 border border-gray-700 rounded-lg p-2 text-sm text-white focus:border-brand-500 outline-none">
-                        </div>
-                        
-                        <div class="pt-3 border-t border-gray-800">
-                            <h4 class="text-xs font-bold text-brand-500 mb-2 uppercase tracking-wide">Prediksi Admin</h4>
-                            
-                            <div class="space-y-3">
-                                <div>
-                                    <label class="text-[11px] text-gray-400 block mb-1">Pemenang</label>
-                                    <select id="predWinner" class="w-full bg-dark-950 border border-gray-700 rounded-lg p-2 text-sm text-white focus:border-brand-500 outline-none">
-                                        <option value="Tim Kandang">Tim Kandang (A)</option>
-                                        <option value="Tim Tandang">Tim Tandang (B)</option>
-                                        <option value="Seri (Draw)">Seri (Draw)</option>
-                                    </select>
-                                </div>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div>
-                                        <label class="text-[11px] text-gray-400 block mb-1">Total Gol (O/U)</label>
-                                        <input type="text" id="predOU" placeholder="Cth: Over 2.5" required class="w-full bg-dark-950 border border-gray-700 rounded-lg p-2 text-sm text-white focus:border-brand-500 outline-none">
-                                    </div>
-                                    <div>
-                                        <label class="text-[11px] text-gray-400 block mb-1">Kedua Tim Gol (BTTS)</label>
-                                        <select id="predBTTS" class="w-full bg-dark-950 border border-gray-700 rounded-lg p-2 text-sm text-white focus:border-brand-500 outline-none">
-                                            <option value="Ya">Ya</option>
-                                            <option value="Tidak">Tidak</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="text-[11px] text-gray-400 block mb-1">Prediksi Skor Tepat</label>
-                                    <input type="text" id="predScore" placeholder="Cth: 2-1" required class="w-full bg-dark-950 border border-gray-700 rounded-lg p-2 text-sm text-white focus:border-brand-500 outline-none">
-                                </div>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-lg transition mt-4">
-                            Simpan Pertandingan
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Pilih Nominal Deposit</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="selectAmount(20000, 2)" class="deposit-amt-btn border border-emerald-500 bg-emerald-500/10 text-emerald-400 p-3 rounded-xl text-center active:scale-95 transition-all">
+                            <div class="font-black text-sm">20 Ribu</div>
+                            <div class="text-[10px] opacity-80">Dapat 2 Tiket</div>
                         </button>
-                    </form>
-                </div>
-
-                <!-- Admin Match List -->
-                <div class="lg:col-span-2 glass-panel p-5 rounded-xl border border-gray-700/60">
-                    <h3 class="text-base font-bold mb-4 border-b border-gray-700 pb-2 text-white">Daftar Pertandingan Aktif</h3>
-                    <div id="adminMatchesContainer" class="space-y-3 max-h-[500px] overflow-y-auto pr-2">
-                        <!-- Admin matches injected here -->
+                        <button onclick="selectAmount(50000, 5)" class="deposit-amt-btn border border-slate-800 bg-slate-800 text-slate-300 p-3 rounded-xl text-center active:scale-95 transition-all">
+                            <div class="font-black text-sm">50 Ribu</div>
+                            <div class="text-[10px] opacity-80">Dapat 5 Tiket</div>
+                        </button>
+                        <button onclick="selectAmount(100000, 11)" class="deposit-amt-btn border border-slate-800 bg-slate-800 text-slate-300 p-3 rounded-xl text-center active:scale-95 transition-all">
+                            <div class="font-black text-sm">100 Ribu</div>
+                            <div class="text-[10px] text-amber-400 font-bold">+Bonus 1 Tiket</div>
+                        </button>
                     </div>
                 </div>
+
+                <!-- Metode Pembayaran Tab -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Pilih Metode Pembayaran</label>
+                    <div class="flex border-b border-slate-800 text-sm">
+                        <button onclick="switchDepTab('qris')" id="tab-btn-qris" class="flex-1 py-2 font-bold text-emerald-400 border-b-2 border-emerald-500 text-center">QRIS</button>
+                        <button onclick="switchDepTab('bank')" id="tab-btn-bank" class="flex-1 py-2 font-bold text-slate-400 text-center">Transfer Bank</button>
+                        <button onclick="switchDepTab('ewallet')" id="tab-btn-ewallet" class="flex-1 py-2 font-bold text-slate-400 text-center">E-Wallet</button>
+                    </div>
+                    
+                    <!-- Detail Pembayaran -->
+                    <div class="bg-slate-950 p-4 rounded-xl mt-3 border border-slate-800">
+                        <!-- QRIS -->
+                        <div id="dep-panel-qris" class="space-y-3 text-center flex flex-col items-center">
+                            <p class="text-xs text-slate-400">Scan QRIS di bawah ini melalui aplikasi bank atau e-wallet Anda:</p>
+                            <div class="bg-white p-2 rounded-xl inline-block">
+                                <img id="display-qris" src="https://placehold.co/200x200/png?text=QRIS+ADMIN" alt="QRIS Admin" class="w-44 h-44 object-contain">
+                            </div>
+                        </div>
+                        <!-- BANK -->
+                        <div id="dep-panel-bank" class="hidden space-y-3">
+                            <p class="text-xs text-slate-400">Kirim transfer ke rekening resmi Admin:</p>
+                            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+                                <div>
+                                    <div class="text-[10px] text-slate-500 font-bold uppercase">Bank Tujuan</div>
+                                    <div class="font-black text-sm text-slate-200">BCA</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-[10px] text-slate-500 font-bold uppercase">Nomor Rekening</div>
+                                    <div class="font-mono text-sm font-bold text-emerald-400 flex items-center gap-1">
+                                        <span id="display-bank-rek">Belum Diatur</span>
+                                        <button onclick="copyTxt('display-bank-rek')" class="text-slate-400 hover:text-slate-200 p-1"><i class="fa-regular fa-copy"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- E-WALLET -->
+                        <div id="dep-panel-ewallet" class="hidden space-y-3">
+                            <p class="text-xs text-slate-400">Kirim saldo e-wallet ke nomor Admin:</p>
+                            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+                                <div>
+                                    <div class="text-[10px] text-slate-500 font-bold uppercase">E-Wallet</div>
+                                    <div class="font-black text-sm text-slate-200">DANA</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-[10px] text-slate-500 font-bold uppercase">Nomor HP</div>
+                                    <div class="font-mono text-sm font-bold text-emerald-400 flex items-center gap-1">
+                                        <span id="display-ewallet-rek">Belum Diatur</span>
+                                        <button onclick="copyTxt('display-ewallet-rek')" class="text-slate-400 hover:text-slate-200 p-1"><i class="fa-regular fa-copy"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Pengirim -->
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Nama Pengirim / Atas Nama</label>
+                    <input type="text" id="dep-sender-name" placeholder="Contoh: Budi Santoso" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div class="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 text-xs text-amber-400 flex gap-2">
+                    <i class="fa-solid fa-circle-info mt-0.5 shrink-0"></i>
+                    <p>Setelah transfer, klik tombol di bawah. Saldo tiket akan masuk otomatis setelah Admin menyetujui mutasi Anda.</p>
+                </div>
+            </div>
+            <div class="p-4 border-t border-slate-800 bg-slate-900/50">
+                <button onclick="submitDeposit()" id="submit-dep-btn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black py-3 rounded-xl text-center shadow-lg shadow-emerald-500/10 active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Konfirmasi Sudah Transfer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD ADMIN MODAL -->
+    <div id="admin-modal" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col p-4">
+        <div class="max-w-4xl w-full mx-auto flex flex-col h-full bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+            <!-- Admin Header -->
+            <div class="p-4 bg-slate-950 border-b border-slate-800 flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <span class="bg-red-500/10 text-red-400 px-2.5 py-1 rounded text-xs font-bold border border-red-500/20">CONTROL PANEL</span>
+                    <h3 class="font-black text-lg text-slate-100">Dashboard Admin ParlayWins</h3>
+                </div>
+                <button onclick="closeAdminDashboard()" class="text-slate-400 hover:text-slate-100 bg-slate-800 w-8 h-8 rounded-full flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <!-- TAB CONTENT: DEPOSIT APPROVALS -->
-            <div id="adminTab-deposits" class="admin-tab-content hidden glass-panel p-5 rounded-xl border border-gray-700/60">
-                <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-3">
-                    <h3 class="text-base font-bold text-white">Permohonan Persetujuan Deposit</h3>
-                    <span class="text-xs text-gray-400">Tekan centang hijau untuk menerima atau silang merah untuk menolak.</span>
-                </div>
-                <div id="adminDepositsList" class="space-y-3 max-h-[500px] overflow-y-auto pr-2">
-                    <!-- Deposit lists rendering dynamically -->
-                    <div class="text-center py-6 text-gray-500">Memuat riwayat permohonan deposit...</div>
-                </div>
+            <!-- Admin Nav Tabs -->
+            <div class="flex border-b border-slate-800 bg-slate-900 text-sm overflow-x-auto">
+                <button onclick="switchAdminTab('matches')" id="adm-tab-matches" class="px-6 py-3 font-bold text-emerald-400 border-b-2 border-emerald-500 whitespace-nowrap"><i class="fa-solid fa-gamepad mr-1"></i> Kelola Laga</button>
+                <button onclick="switchAdminTab('deposits')" id="adm-tab-deposits" class="px-6 py-3 font-bold text-slate-400 whitespace-nowrap flex items-center gap-1.5"><i class="fa-solid fa-receipt"></i> Persetujuan Deposit <span id="dep-badge" class="bg-amber-500 text-slate-950 text-[10px] font-black px-1.5 py-0.5 rounded-full hidden">0</span></button>
+                <button onclick="switchAdminTab('settings')" id="adm-tab-settings" class="px-6 py-3 font-bold text-slate-400 whitespace-nowrap"><i class="fa-solid fa-slidersmr-1"></i> Rekening & Chat</button>
             </div>
 
-            <!-- TAB CONTENT: ACCOUNT SETTINGS -->
-            <div id="adminTab-rekening" class="admin-tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Config Form -->
-                <div class="glass-panel p-5 rounded-xl border border-gray-700/60">
-                    <h3 class="text-base font-bold mb-4 border-b border-gray-700 pb-2 text-white">Konfigurasi Tujuan Pembayaran</h3>
-                    <form id="formSettings" onsubmit="handleSaveSettings(event)" class="space-y-4">
-                        <h4 class="text-xs font-bold text-brand-500 uppercase tracking-wide">1. Rekening Bank</h4>
-                        <div class="grid grid-cols-3 gap-2">
-                            <div class="col-span-1">
-                                <label class="text-[11px] text-gray-400 block mb-1">Nama Bank</label>
-                                <input type="text" id="bankName" placeholder="Cth: BCA" class="w-full bg-dark-950 border border-gray-700 rounded-lg p-2 text-sm text-white outline-none">
+            <!-- Admin Dynamic Panels -->
+            <div class="p-4 overflow-y-auto flex-grow space-y-6">
+                
+                <!-- PANEL KELOLA LAGA -->
+                <div id="adm-panel-matches" class="space-y-4">
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                        <h4 class="font-bold text-sm text-slate-200 uppercase tracking-wider border-b border-slate-800 pb-2"><i class="fa-solid fa-plus text-emerald-400 mr-1"></i> Tambah Pertandingan Baru</h4>
+                        <div class="grid grid-cols-2 gap-3">
+                            <input type="text" id="adm-team-a" placeholder="Nama Tim A (Home)" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-500">
+                            <input type="text" id="adm-team-b" placeholder="Nama Tim B (Away)" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <input type="text" id="adm-time" placeholder="Waktu Pertandingan (Contoh: Malam Ini, 23:00 WIB)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-500">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Prediksi Menang</label>
+                                <input type="text" id="adm-pred-winner" placeholder="Tim A / Seri" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500">
                             </div>
-                            <div class="col-span-2">
-                                <label class="text-[11px] text-gray-400 block mb-1">Nomor Rekening</label>
-                                <input type="text" id="bankNumber" placeholder="No Rekening" class="w-full bg-dark-950 border border-gray-700 rounded-lg p-2 text-sm text-white outline-none">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Over / Under</label>
+                                <input type="text" id="adm-pred-ou" placeholder="Over 2.5" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">BTTS (Skor Ya/Tidak)</label>
+                                <input type="text" id="adm-pred-btts" placeholder="Ya / Tidak" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Prediksi Skor Tepat</label>
+                                <input type="text" id="adm-pred-score" placeholder="2 - 1" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500">
                             </div>
                         </div>
-                        <div>
-                            <label class="text-[11px] text-gray-400 block mb-1">Atas Nama Bank</label>
-                            <input type="text" id="bankHolder" placeholder="Pemilik Rekening" class="w-full bg-dark-950 border border-gray-700 rounded-lg p-2 text-sm text-white outline-none">
-                        </div>
+                        <button onclick="saveMatch()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2 rounded-xl text-sm transition-all mt-2">Simpan Pertandingan</button>
+                    </div>
 
-                        <h4 class="text-xs font-bold text-brand-500 uppercase tracking-wide pt-2 border-t border-gray-800">2. Akun E-Wallet</h4>
-                        <div class="grid grid-cols-3 gap-2">
-                            <div class="col-span-1">
-                                <label class="text-[11px] text-gray-400 block mb-1">E-Wallet</label>
-                                <input type="text" id="walletName" placeholder="Cth: DANA" class="w-full bg-dark-950 border border-gray-700 rounded-lg p-2 text-sm text-white outline-none">
-                            </div>
-                            <div class="col-span-2">
-                                <label class="text-[11px] text-gray-400 block mb-1">Nomor Hp / ID</label>
-                                <input type="text" id="walletNumber" placeholder="No Wallet" class="w-full bg-dark-950 border border-gray-700 rounded-lg p-2 text-sm text-white outline-none">
-                            </div>
+                    <!-- List Laga Aktif Admin -->
+                    <div class="space-y-2">
+                        <h4 class="font-bold text-sm text-slate-400">Daftar Pertandingan Terpasang</h4>
+                        <div id="adm-match-list" class="space-y-2">
+                            <!-- Diisi Realtime JS -->
                         </div>
-                        <div>
-                            <label class="text-[11px] text-gray-400 block mb-1">Atas Nama E-Wallet</label>
-                            <input type="text" id="walletHolder" placeholder="Pemilik E-wallet" class="w-full bg-dark-950 border border-gray-700 rounded-lg p-2 text-sm text-white outline-none">
-                        </div>
+                    </div>
+                </div>
 
-                        <h4 class="text-xs font-bold text-brand-500 uppe
-                      
+                <!-- PANEL PERSETUJUAN DEPOSIT -->
+                <div id="adm-panel-deposits" class="hidden space-y-3">
+                    <h4 class="font-bold text-sm text-slate-400">Permintaan Deposit Member Mandiri</h4>
+                    <div id="adm-deposit-list" class="space-y-2">
+                        <!-- Diisi Realtime JS -->
+                    </div>
+                </div>
+
+                <!-- PANEL SETTINGS REKENING & LIVECHAT -->
+                <div id="adm-panel-settings" class="hidden space-y-4">
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-4">
+                        <h4 class="font-bold text-sm text-slate-200 uppercase tracking-wider border-b border-slate-800 pb-2">Konfigurasi Pembayaran & Saluran Chat</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1">Nomor Rekening BCA Admin</label>
+                     
