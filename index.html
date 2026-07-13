@@ -9,13 +9,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #0b1329; color: #f8fafc; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
-        .blur-vip { filter: blur(5px); select: none; pointer-events: none; }
+        .blur-vip { filter: blur(5px); user-select: none; pointer-events: none; }
     </style>
 </head>
 <body class="p-4 max-w-md mx-auto min-h-screen flex flex-col justify-between">
 
-    <!-- 1. GERBANG AUTHENTICATION (LOGIN / DAFTAR TAMPIL JIKA BELUM MASUK) -->
-    <div id="auth-container" class="my-auto w-full bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-5" style="display: none;">
+    <!-- 1. GERBANG AUTHENTICATION (TAMPIL SECARA DEFAULT - ANTI BLANK) -->
+    <div id="auth-container" class="my-auto w-full bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-5">
         <div class="text-center space-y-1.5">
             <div class="mx-auto bg-emerald-500 p-3 rounded-full text-slate-950 flex items-center justify-center w-12 h-12 shadow-lg shadow-emerald-500/20 mb-2">
                 <i class="fa-solid fa-user-lock text-xl"></i>
@@ -54,7 +54,7 @@
         </div>
     </div>
 
-    <!-- 2. INTERFACE UTAMA APLIKASI WEB (HANYA MUNCUL JIKA SUDAH LOGIN) -->
+    <!-- 2. INTERFACE UTAMA APLIKASI WEB (DISEMBUNYIKAN SEBELUM LOGIN) -->
     <div id="main-app-container" style="display: none;">
         <!-- Header Aplikasi -->
         <div class="flex justify-between items-center mb-6">
@@ -117,7 +117,7 @@
     <!-- SYSTEM WATERMARK FOOTER -->
     <div class="text-center text-[10px] text-slate-600 font-medium pt-12 pb-2 space-y-1">
         <div>&copy; 2026 ParlayWins Premium Studio. All rights reserved.</div>
-        <div class="text-emerald-500 font-mono text-[9px] tracking-widest uppercase font-bold">● ENGINE VERSI 6.0 SECURE RUNNING ●</div>
+        <div class="text-emerald-500 font-mono text-[9px] tracking-widest uppercase font-bold">● ENGINE VERSI 6.1 RESILIENT RUNNING ●</div>
     </div>
 
     <!-- MODAL POPUP: FORMULIR DEPOSIT -->
@@ -128,7 +128,6 @@
                 <button onclick="closeDepositModal()" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             
-            <!-- Peringatan Masalah Pembayaran -->
             <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-[11px] text-red-400 space-y-1">
                 <p class="font-bold uppercase"><i class="fa-solid fa-triangle-exclamation mr-1.5"></i>PENTING / PERINGATAN:</p>
                 <p>Kirim dana pas sebesar <b>Rp 20.000</b> untuk mendapatkan <b>2x Akses Tiket Buka Laga VIP</b>. Jika terjadi kendala sistem macet, harap hubungi admin melalui <a id="dep-warning-chatlink" href="#" target="_blank" class="underline font-bold text-slate-100">Hubungi Live Chat Admin <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a>.</p>
@@ -183,10 +182,9 @@
     <!-- PANEL ADMIN PANEL RAHASIA (CONTROL DASHBOARD) -->
     <div id="admin-dashboard-panel" class="fixed inset-0 bg-black/95 z-50 flex-col p-4" style="display: none;">
         <div class="w-full mx-auto flex flex-col h-full bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
-            <!-- Admin Topbar Header -->
             <div class="p-4 bg-slate-950 border-b border-slate-800 flex justify-between items-center">
                 <div class="flex items-center space-x-2">
-                    <span class="bg-red-500/10 text-red-400 px-2.5 py-1 rounded text-xs font-bold border border-red-500/20">CONTROL PANEL V6</span>
+                    <span class="bg-red-500/10 text-red-400 px-2.5 py-1 rounded text-xs font-bold border border-red-500/20">CONTROL PANEL V6.1</span>
                     <h3 class="font-black text-slate-100 text-sm">Dashboard Manajemen</h3>
                 </div>
                 <button onclick="closeAdminDashboard()" class="text-slate-400 bg-slate-800 w-8 h-8 rounded-full flex items-center justify-center hover:text-white">
@@ -194,16 +192,13 @@
                 </button>
             </div>
 
-            <!-- Admin Navigasi Tab Data Menu -->
             <div class="flex border-b border-slate-800 bg-slate-950/50 text-center">
                 <button id="btn-tab-matches" onclick="switchAdminTab('matches')" class="flex-1 py-3 text-xs font-bold border-b-2">Kelola Laga</button>
                 <button id="btn-tab-dep" onclick="switchAdminTab('dep')" class="flex-1 py-3 text-xs font-bold border-b-2">Deposit (<span id="admin-dep-count">0</span>)</button>
                 <button id="btn-tab-set" onclick="switchAdminTab('set')" class="flex-1 py-3 text-xs font-bold border-b-2">Settings Web</button>
             </div>
 
-            <!-- Area Konten Tab Admin -->
             <div class="p-4 overflow-y-auto flex-grow space-y-4">
-                
                 <!-- TAB 1: KELOLA DATA LAGA -->
                 <div id="panel-matches" style="display: none;" class="space-y-4">
                     <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
@@ -220,7 +215,6 @@
                             <input type="text" id="adm-pred-score" placeholder="Masukan Skor Jitu (Contoh: 3-1)" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
                             <input type="text" id="adm-pred-winner" placeholder="Masukan Tim Mana Yang Bakal Menang (Contoh: Real Madrid)" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
                             <input type="text" id="adm-pred-goals" placeholder="Masukan Jumlah Gol Dalam Pertandingan (Contoh: Over 2.5)" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
-                            
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Masukan Apakah Kedua Tim Mencetak Skor (BTTS)?</label>
                                 <select id="adm-pred-btts" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
@@ -245,21 +239,20 @@
 
                 <!-- TAB 3: SETTINGS UTAMA & DANA REKENING -->
                 <div id="panel-settings" style="display: none;" class="space-y-4">
-                    <!-- Pengaturan Teks Banner Utama -->
                     <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
                         <h4 class="font-bold text-xs text-emerald-400 uppercase"><i class="fa-solid fa-rectangle-ad mr-1"></i>Mengedit Iklan Halaman Utama</h4>
                         <input type="text" id="set-banner-title" placeholder="Judul Teks Banner Utama" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
                         <textarea id="set-banner-desc" rows="2" placeholder="Deskripsi Rincian Iklan Utama" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl"></textarea>
                     </div>
-
-                    <!-- Pengaturan Tautan Live Chat Direct -->
                     <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
                         <h4 class="font-bold text-xs text-emerald-400 uppercase"><i class="fa-solid fa-headset mr-1"></i>Memasukan URL Live Chat</h4>
                         <input type="text" id="set-livechat-url" placeholder="Contoh: https://wa.me/628123xxx" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
                     </div>
-
-                    <!-- Sistem Rekening Dan QRIS Terintegrasi Banyak Akun -->
                     <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
                         <h4 class="font-bold text-xs text-emerald-400 uppercase"><i class="fa-solid fa-credit-card mr-1"></i>Kelola Rincian Rekening / E-Wallet</h4>
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="text" id="set-rek
+                            <input type="text" id="set-rek-bca" placeholder="No Rekening BCA" class="bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
+                            <input type="text" id="set-rek-bri" placeholder="No Rekening BRI" class="bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="set-rek-mand
