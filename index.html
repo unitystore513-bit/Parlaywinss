@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ParlayWins - Prediksi Jitu</title>
-    <!-- Tailwind CSS & FontAwesome Stable -->
+    <!-- Tailwind CSS & FontAwesome -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -13,7 +13,7 @@
 </head>
 <body class="p-4 max-w-md mx-auto min-h-screen flex flex-col justify-between">
 
-    <!-- APP CONTENT CONTAINER -->
+    <!-- APP CONTAINER -->
     <div>
         <!-- Header -->
         <div class="flex justify-between items-center mb-6">
@@ -58,18 +58,18 @@
         <div>
             <h3 class="font-black text-base text-slate-200 mb-4 flex items-center"><i class="fa-solid fa-calendar-days text-emerald-400 mr-2"></i>Prediksi Pertandingan Terkini</h3>
             <div id="match-container" class="space-y-3">
-                <!-- Tempat data laga muncul -->
+                <!-- Data Laga -->
             </div>
         </div>
     </div>
 
-    <!-- FOOTER WITH VERSION VERIFICATION -->
+    <!-- FOOTER & TANDA VERIFIKASI AKTIF -->
     <div class="text-center text-[10px] text-slate-600 font-medium pt-8 pb-2 space-y-1">
         <div>&copy; 2026 ParlayWins. All rights reserved.</div>
-        <div class="text-emerald-500/40 font-mono text-[9px] tracking-widest uppercase">● Sistem Aktif Versi 3.0 Tersinkronisasi ●</div>
+        <div id="version-tag" class="text-red-500/60 font-mono text-[9px] tracking-widest uppercase font-bold">● TUNGGU UPDATE GITHUB... ●</div>
     </div>
 
-    <!-- MODAL POPUP: FORM DEPOSIT USER -->
+    <!-- MODAL DEPOSIT -->
     <div id="deposit-modal" class="fixed inset-0 bg-black/80 z-50 items-center justify-center p-4" style="display: none;">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-5 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-slate-800 pb-2">
@@ -83,175 +83,127 @@
             </div>
             <div class="space-y-3">
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Pengirim / Atas Nama</label>
-                    <input type="text" id="form-dep-name" placeholder="Contoh: Budi Santoso" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Pengirim</label>
+                    <input type="text" id="form-dep-name" placeholder="Contoh: Budi" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none">
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Jumlah Transfer (Rp)</label>
-                    <input type="number" id="form-dep-amount" placeholder="Contoh: 50000" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
+                    <input type="number" id="form-dep-amount" placeholder="50000" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Metode Pembayaran</label>
-                    <select id="form-dep-method" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Metode</label>
+                    <select id="form-dep-method" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none">
                         <option value="BCA">Bank BCA</option>
                         <option value="DANA">Aplikasi DANA</option>
                     </select>
                 </div>
-                <button onclick="submitDepositForm()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs shadow-lg transition-colors">
-                    <i class="fa-solid fa-paper-plane mr-1"></i> Konfirmasi Sudah Transfer
+                <button onclick="submitDepositForm()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs shadow-lg">
+                    Konfirmasi Sudah Transfer
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- DASHBOARD ADMIN PANEL -->
+    <!-- PANEL ADMIN RAHASIA -->
     <div id="admin-dashboard-panel" class="fixed inset-0 bg-black/95 z-50 flex-col p-4" style="display: none;">
         <div class="w-full mx-auto flex flex-col h-full bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
             <div class="p-4 bg-slate-950 border-b border-slate-800 flex justify-between items-center">
-                <div class="flex items-center space-x-2">
-                    <span class="bg-red-500/10 text-red-400 px-2.5 py-1 rounded text-xs font-bold border border-red-500/20">CONTROL PANEL</span>
-                    <h3 class="font-black text-lg text-slate-100">Dashboard Admin</h3>
-                </div>
-                <button onclick="closeAdminDashboard()" class="text-slate-400 hover:text-slate-100 bg-slate-800 w-8 h-8 rounded-full flex items-center justify-center">
+                <span class="bg-red-500/10 text-red-400 px-2.5 py-1 rounded text-xs font-bold border border-red-500/20">CONTROL PANEL</span>
+                <button onclick="closeAdminDashboard()" class="text-slate-400 bg-slate-800 w-8 h-8 rounded-full flex items-center justify-center">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="flex border-b border-slate-800 bg-slate-950/50 overflow-x-auto">
-                <button id="btn-tab-matches" onclick="switchAdminTab('matches')" class="px-5 py-3 text-xs font-bold border-b-2 transition-all">Kelola Laga</button>
-                <button id="btn-tab-dep" onclick="switchAdminTab('dep')" class="px-5 py-3 text-xs font-bold border-b-2 transition-all">Deposit (<span id="admin-dep-count">0</span>)</button>
-                <button id="btn-tab-set" onclick="switchAdminTab('set')" class="px-5 py-3 text-xs font-bold border-b-2 transition-all">Settings</button>
+            <div class="flex border-b border-slate-800 bg-slate-950/50">
+                <button id="btn-tab-matches" onclick="switchAdminTab('matches')" class="px-5 py-3 text-xs font-bold border-b-2">Kelola Laga</button>
+                <button id="btn-tab-dep" onclick="switchAdminTab('dep')" class="px-5 py-3 text-xs font-bold border-b-2">Deposit (<span id="admin-dep-count">0</span>)</button>
+                <button id="btn-tab-set" onclick="switchAdminTab('set')" class="px-5 py-3 text-xs font-bold border-b-2">Settings</button>
             </div>
-            <div class="p-4 overflow-y-auto flex-grow bg-slate-900/40">
-                <!-- Tab: Kelola Laga -->
+            <div class="p-4 overflow-y-auto flex-grow">
+                <!-- Tab Laga -->
                 <div id="panel-matches" style="display: none;" class="space-y-4">
-                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-4">
-                        <h4 class="font-bold text-sm text-slate-200 border-b border-slate-800 pb-2"><i class="fa-solid fa-plus mr-1.5 text-emerald-400"></i>Tambah Laga Baru</h4>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nama Tim Home</label>
-                                <input type="text" id="adm-team-home" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">URL Logo Home</label>
-                                <input type="text" id="adm-logo-home" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nama Tim Away</label>
-                                <input type="text" id="adm-team-away" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">URL Logo Away</label>
-                                <input type="text" id="adm-logo-away" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Prediksi Over/Under</label>
-                            <input type="text" id="adm-pred-over" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">BTTS</label>
-                                <input type="text" id="adm-pred-btts" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Skor Tepat</label>
-                                <input type="text" id="adm-pred-score" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
-                            </div>
-                        </div>
-                        <button onclick="saveMatchData()" class="w-full bg-emerald-500 text-slate-950 font-bold py-2 rounded-xl text-xs">Simpan Pertandingan</button>
-                    </div>
-                    <div class="space-y-2">
-                        <h4 class="font-bold text-xs text-slate-400 uppercase">Daftar Laga Aktif</h4>
-                        <div id="adm-match-list" class="space-y-2"></div>
-                    </div>
-                </div>
-
-                <!-- Tab: Persetujuan Deposit -->
-                <div id="panel-deposits" style="display: none;" class="space-y-3">
-                    <h4 class="font-bold text-xs text-slate-400 uppercase">Antrean Dana Masuk</h4>
-                    <div id="adm-deposit-list" class="space-y-2"></div>
-                </div>
-
-                <!-- Tab: Settings -->
-                <div id="panel-settings" style="display: none;" class="space-y-4">
                     <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
-                        <h4 class="font-bold text-xs text-slate-200 uppercase">Rekening Admin</h4>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 mb-1">No. Rekening BCA Admin</label>
-                            <input type="text" id="set-bank-rek" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 mb-1">No. Akun DANA Admin</label>
-                            <input type="text" id="set-dana-rek" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
-                        </div>
-                        <button onclick="saveSettingsData()" class="w-full bg-emerald-500 text-slate-950 font-bold py-2 rounded-xl text-xs">Simpan Pengaturan</button>
+                        <input type="text" id="adm-team-home" placeholder="Tim Home" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
+                        <input type="text" id="adm-team-away" placeholder="Tim Away" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
+                        <input type="text" id="adm-pred-score" placeholder="Skor Jitu (Contoh: 2-1)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
+                        <button onclick="saveMatchData()" class="w-full bg-emerald-500 text-slate-950 font-bold py-2 rounded-xl text-xs">Tambah Laga</button>
                     </div>
+                    <div id="adm-match-list" class="space-y-2"></div>
+                </div>
+                <!-- Tab Deposit -->
+                <div id="panel-deposits" style="display: none;" class="space-y-2">
+                    <div id="adm-deposit-list"></div>
+                </div>
+                <!-- Tab Settings -->
+                <div id="panel-settings" style="display: none;" class="space-y-3">
+                    <input type="text" id="set-bank-rek" placeholder="Rekening BCA" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
+                    <input type="text" id="set-dana-rek" placeholder="Nomor DANA" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
+                    <button onclick="saveSettingsData()" class="w-full bg-emerald-500 text-slate-950 font-bold py-2 rounded-xl text-xs">Simpan</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- LOGIC ENGINE -->
+    <!-- UTILITY ENGINE (SUPER SAFE) -->
     <script>
-        const defaultLogo = "https://cdn-icons-png.flaticon.com/512/5323/5323861.png";
-
+        // Mencegah crash jika localStorage diblokir oleh browser / incognito mode
         function safeGetItem(key, defaultValue) {
             try {
+                if (typeof localStorage === 'undefined' || !localStorage) return defaultValue;
                 const item = localStorage.getItem(key);
-                if (!item) return defaultValue;
-                return JSON.parse(item);
-            } catch (e) {
-                localStorage.removeItem(key);
-                return defaultValue;
-            }
+                return item ? JSON.parse(item) : defaultValue;
+            } catch (e) { return defaultValue; }
         }
 
         function safeSetItem(key, value) {
-            try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+            try {
+                if (typeof localStorage !== 'undefined' && localStorage) {
+                    localStorage.setItem(key, JSON.stringify(value));
+                }
+            } catch (e) {}
         }
 
         window.onload = function() {
+            // Ubah teks verifikasi tanda kode baru sukses masuk
+            const tag = document.getElementById('version-tag');
+            if(tag) {
+                tag.innerText = "● VERSI 4.0 BERHASIL AKTIF KESELURUHAN ●";
+                tag.className = "text-emerald-400 font-mono text-[9px] tracking-widest uppercase font-bold";
+            }
+
             const urlParams = new URLSearchParams(window.location.search);
-            
             if (urlParams.get('clear') === 'true') {
-                localStorage.clear();
-                alert("Sistem berhasil dibersihkan total!");
+                try { localStorage.clear(); } catch(e){}
+                alert("Memori lama dibersihkan!");
                 window.location.href = window.location.pathname;
                 return;
             }
-
             if (urlParams.get('page') === 'rahasiaadmin') {
                 document.getElementById('admin-dashboard-panel').style.display = 'flex';
                 switchAdminTab('matches');
             }
-
             renderMatches();
             renderDeposits();
             loadSettings();
         };
 
-        function openDepositModal() { 
-            document.getElementById('deposit-modal').style.display = 'flex'; 
-        }
-        
-        function closeDepositModal() { 
-            document.getElementById('deposit-modal').style.display = 'none'; 
+        function openDepositModal() { document.getElementById('deposit-modal').style.display = 'flex'; }
+        function closeDepositModal() { document.getElementById('deposit-modal').style.display = 'none'; }
+        function closeAdminDashboard() { 
+            window.history.pushState({}, document.title, window.location.pathname);
+            document.getElementById('admin-dashboard-panel').style.display = 'none'; 
         }
 
         function submitDepositForm() {
             const name = document.getElementById('form-dep-name').value.trim();
             const amount = document.getElementById('form-dep-amount').value.trim();
             const method = document.getElementById('form-dep-method').value;
-
-            if(!name || !amount) return alert("Harap isi nama dan jumlah transfer Anda!");
+            if(!name || !amount) return alert("Wajib diisi!");
 
             let deposits = safeGetItem('parlay_deposits', []);
             deposits.push({ id: Date.now(), name, amount, method, status: 'Pending' });
             safeSetItem('parlay_deposits', deposits);
 
-            alert("Konfirmasi terkirim! Silakan tunggu persetujuan admin.");
+            alert("Konfirmasi Terkirim!");
             document.getElementById('form-dep-name').value = '';
             document.getElementById('form-dep-amount').value = '';
             closeDepositModal();
@@ -262,56 +214,117 @@
             const container = document.getElementById('match-container');
             if(!container) return;
             let matches = safeGetItem('parlay_matches', []);
-            
             if(matches.length === 0) {
-                container.innerHTML = `
-                    <div class="bg-slate-900/40 border border-slate-800/80 rounded-xl p-8 text-center">
-                        <p class="text-xs text-slate-400 mb-1">Belum ada prediksi aktif jam ini.</p>
-                        <p class="text-[10px] text-slate-600">Hubungi admin untuk update jadwal pertandingan.</p>
-                    </div>`;
+                container.innerHTML = `<div class="bg-slate-900/40 border border-slate-800/80 rounded-xl p-6 text-center text-xs text-slate-400">Belum ada laga aktif.</div>`;
                 return;
             }
-
-            container.innerHTML = matches.map((m) => `
-                <div class="bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 rounded-xl p-4 shadow-xl space-y-4">
-                    <div class="flex justify-between items-center px-2">
-                        <div class="flex flex-col items-center space-y-2 w-5/12 text-center">
-                            <img src="${m.homeLogo || defaultLogo}" onerror="this.src='${defaultLogo}'" class="w-12 h-12 object-contain">
-                            <span class="text-xs font-bold text-slate-200 block truncate w-full">${m.home}</span>
-                        </div>
-                        <div class="bg-slate-800/80 px-2.5 py-1 rounded-md text-[10px] font-black text-emerald-400">VS</div>
-                        <div class="flex flex-col items-center space-y-2 w-5/12 text-center">
-                            <img src="${m.awayLogo || defaultLogo}" onerror="this.src='${defaultLogo}'" class="w-12 h-12 object-contain">
-                            <span class="text-xs font-bold text-slate-200 block truncate w-full">${m.away}</span>
-                        </div>
+            container.innerHTML = matches.map(m => `
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-xl space-y-2">
+                    <div class="flex justify-between items-center font-bold text-xs text-slate-200">
+                        <span>${m.home}</span>
+                        <span class="text-emerald-400">VS</span>
+                        <span>${m.away}</span>
                     </div>
-                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/60 grid grid-cols-3 gap-2 text-center text-[11px]">
-                        <div class="bg-slate-900/50 p-1.5 rounded border border-slate-800/40">
-                            <span class="text-slate-500 block text-[9px] font-bold uppercase mb-0.5">O/U</span>
-                            <span class="font-bold text-slate-300">${m.over || '-'}</span>
-                        </div>
-                        <div class="bg-slate-900/50 p-1.5 rounded border border-slate-800/40">
-                            <span class="text-slate-500 block text-[9px] font-bold uppercase mb-0.5">BTTS</span>
-                            <span class="font-bold text-slate-300">${m.btts || '-'}</span>
-                        </div>
-                        <div class="bg-emerald-500/10 p-1.5 rounded border border-emerald-500/20">
-                            <span class="text-emerald-500 block text-[9px] font-bold uppercase mb-0.5">Skor Jitu</span>
-                            <span class="font-black text-emerald-400">${m.score || '-'}</span>
-                        </div>
+                    <div class="bg-slate-950 p-2 text-center text-xs rounded border border-slate-800/60 text-emerald-400 font-bold">
+                        Skor Jitu: ${m.score || '-'}
                     </div>
                 </div>
             `).join('');
-        }
-
-        function closeAdminDashboard() {
-            window.history.pushState({}, document.title, window.location.pathname);
-            document.getElementById('admin-dashboard-panel').style.display = 'none';
         }
 
         function switchAdminTab(tabName) {
             document.getElementById('panel-matches').style.display = 'none';
             document.getElementById('panel-deposits').style.display = 'none';
             document.getElementById('panel-settings').style.display = 'none';
+            if(tabName === 'matches') document.getElementById('panel-matches').style.display = 'block';
+            if(tabName === 'dep') document.getElementById('panel-deposits').style.display = 'block';
+            if(tabName === 'set') document.getElementById('panel-settings').style.display = 'block';
+        }
 
-            document.getElementById('btn-tab-matches').style.color = '#94a3b8';
-            document.getElementById('btn-tab
+        function saveMatchData() {
+            const home = document.getElementById('adm-team-home').value.trim();
+            const away = document.getElementById('adm-team-away').value.trim();
+            const score = document.getElementById('adm-pred-score').value.trim();
+            if(!home || !away) return alert("Isi tim!");
+
+            let matches = safeGetItem('parlay_matches', []);
+            matches.push({ home, away, score });
+            safeSetItem('parlay_matches', matches);
+            alert("Laga Ditambahkan!");
+            document.getElementById('adm-team-home').value = '';
+            document.getElementById('adm-team-away').value = '';
+            document.getElementById('adm-pred-score').value = '';
+            renderMatches();
+            renderAdminMatchesList();
+        }
+
+        function deleteMatch(index) {
+            let matches = safeGetItem('parlay_matches', []);
+            matches.splice(index, 1);
+            safeSetItem('parlay_matches', matches);
+            renderMatches();
+            renderAdminMatchesList();
+        }
+
+        function renderAdminMatchesList() {
+            const list = document.getElementById('adm-match-list');
+            if(!list) return;
+            let matches = safeGetItem('parlay_matches', []);
+            list.innerHTML = matches.map((m, idx) => `
+                <div class="bg-slate-950 p-2 text-xs rounded border border-slate-800 flex justify-between items-center text-slate-300">
+                    <span>${m.home} vs ${m.away}</span>
+                    <button onclick="deleteMatch(${idx})" class="text-red-400 bg-red-500/10 px-2 py-1 rounded">Hapus</button>
+                </div>
+            `).join('');
+        }
+
+        function renderDeposits() {
+            let deposits = safeGetItem('parlay_deposits', []);
+            const count = document.getElementById('admin-dep-count');
+            const list = document.getElementById('adm-deposit-list');
+            if(count) count.innerText = deposits.filter(d => d.status === 'Pending').length;
+            if(!list) return;
+            if(deposits.length === 0) {
+                list.innerHTML = `<p class="text-slate-500 text-xs text-center py-2">Tidak ada data.</p>`;
+                return;
+            }
+            list.innerHTML = deposits.map(d => `
+                <div class="bg-slate-950 p-2 rounded border border-slate-800 text-xs flex justify-between items-center text-slate-200 mb-2">
+                    <div>
+                        <p class="font-bold">${d.name} (${d.method})</p>
+                        <p class="text-emerald-400">Rp ${parseInt(d.amount).toLocaleString('id-ID')}</p>
+                    </div>
+                    ${d.status === 'Pending' ? `<button onclick="approveDeposit(${d.id})" class="bg-emerald-500 text-slate-950 px-2 py-1 rounded font-bold">Setujui</button>` : `<span class="text-slate-500">Selesai</span>`}
+                </div>
+            `).join('');
+        }
+
+        function approveDeposit(id) {
+            let deposits = safeGetItem('parlay_deposits', []);
+            deposits = deposits.map(d => d.id === id ? { ...d, status: 'Disetujui' } : d);
+            safeSetItem('parlay_deposits', deposits);
+            const tk = document.getElementById('user-tickets');
+            if(tk) tk.innerText = "5 Tiket";
+            alert("Disetujui!");
+            renderDeposits();
+        }
+
+        function saveSettingsData() {
+            const bca = document.getElementById('set-bank-rek').value.trim();
+            const dana = document.getElementById('set-dana-rek').value.trim();
+            safeSetItem('parlay_settings', { bca, dana });
+            alert("Saved!");
+            loadSettings();
+        }
+
+        function loadSettings() {
+            const settings = safeGetItem('parlay_settings', { bca: '123456789 (A/N Admin)', dana: '08123456789 (A/N Admin)' });
+            const b = document.getElementById('dep-info-bca');
+            const d = document.getElementById('dep-info-dana');
+            if(b) b.innerText = settings.bca;
+            if(d) d.innerText = settings.dana;
+            renderAdminMatchesList();
+        }
+    </script>
+</body>
+</html>
