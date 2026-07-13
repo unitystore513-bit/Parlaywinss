@@ -6,21 +6,36 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-950 text-white p-6">
-    <div class="max-w-md mx-auto bg-slate-900 p-6 rounded-2xl shadow-xl">
-        <h1 class="text-xl font-bold mb-4 text-emerald-400">Panel Admin</h1>
-        <div class="space-y-4">
-            <div>
-                <label class="text-xs font-bold text-slate-400 uppercase">Ubah Teks Banner</label>
-                <input id="admin-banner" type="text" placeholder="Masukkan teks baru..." class="w-full p-2 bg-slate-800 rounded mt-1 border border-slate-700 text-sm">
-            </div>
-            <button onclick="saveData()" class="w-full bg-emerald-600 p-2 rounded font-bold cursor-pointer">SIMPAN PERUBAHAN</button>
+    <div class="max-w-md mx-auto bg-slate-900 p-6 rounded-2xl shadow-xl space-y-4">
+        <h1 class="text-xl font-bold text-emerald-400">Panel Admin Lengkap</h1>
+        
+        <!-- Input Banner -->
+        <div>
+            <label class="text-xs font-bold text-slate-400">TEXT BANNER</label>
+            <input id="admin-banner" type="text" class="w-full p-2 bg-slate-800 rounded mt-1 border border-slate-700 text-sm">
         </div>
+
+        <!-- Input Pertandingan -->
+        <div>
+            <label class="text-xs font-bold text-slate-400">NAMA PERTANDINGAN (HOME VS AWAY)</label>
+            <input id="admin-match" type="text" class="w-full p-2 bg-slate-800 rounded mt-1 border border-slate-700 text-sm">
+        </div>
+
+        <!-- Input Rekening -->
+        <div>
+            <label class="text-xs font-bold text-slate-400">INFO REKENING (BCA/DANA/DLL)</label>
+            <textarea id="admin-bank" class="w-full p-2 bg-slate-800 rounded mt-1 border border-slate-700 text-sm"></textarea>
+        </div>
+
+        <button onclick="saveAll()" class="w-full bg-emerald-600 p-3 rounded-xl font-bold text-sm">SIMPAN SEMUA DATA</button>
     </div>
+
     <script>
-        function saveData() {
-            const banner = document.getElementById('admin-banner').value;
-            localStorage.setItem('bannerText', banner);
-            alert('Data tersimpan! Silakan cek halaman utama.');
+        function saveAll() {
+            localStorage.setItem('bannerText', document.getElementById('admin-banner').value);
+            localStorage.setItem('matchText', document.getElementById('admin-match').value);
+            localStorage.setItem('bankText', document.getElementById('admin-bank').value);
+            alert('Semua data berhasil disimpan!');
         }
     </script>
 </body>
