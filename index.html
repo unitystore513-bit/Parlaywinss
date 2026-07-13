@@ -15,7 +15,7 @@
 <body class="p-4 max-w-md mx-auto min-h-screen flex flex-col justify-between">
 
     <!-- 1. GERBANG AUTHENTICATION -->
-    <div id="auth-container" class="my-auto w-full bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl space-y-6">
+    <div id="auth-container" style="display: block;">
         <div class="text-center space-y-1.5">
             <div class="mx-auto bg-emerald-500 p-3 rounded-full text-slate-950 w-12 h-12 flex items-center justify-center shadow-lg shadow-emerald-500/20">
                 <i class="fa-solid fa-user-lock text-xl"></i>
@@ -153,53 +153,54 @@
         function handleAuthAction() {
             const user = document.getElementById('auth-username').value.trim();
             const pass = document.getElementById('auth-password').value.trim();
-
+console.log("Tombol ditekan, User: " + user); 
+    alert("Tombol ditekan!");
             if (!user || !pass) {
                 alert('Mohon isi semua kolom!');
                 return;
             }
 
-            if (isRegisterMode) {
-                alert('Pendaftaran berhasil! Silakan masuk.');
-                toggleAuthMode(false);
-            } else {
-                if (user.toLowerCase() === "admin" && pass === "admin123") {
-                    document.getElementById('user-profile-name').innerText = "ADMINISTRATOR";
-                    document.getElementById('view-banner-title').innerText = "DASHBOARD ADMIN";
-                    document.getElementById('view-banner-desc').innerText = "Anda memiliki akses penuh ke pengaturan sistem.";
-                    alert('Selamat Datang Admin!');
-                } else {
-                    document.getElementById('user-profile-name').innerText = user;
-                    document.getElementById('view-banner-title').innerText = "Selamat Datang di Portal Utama";
-                    document.getElementById('view-banner-desc').innerText = "Nikmati akses penuh ke semua fitur premium kami secara aman.";
-                }
-                document.getElementById('auth-container').style.display = 'none';
-                document.getElementById('main-app-container').style.display = 'block';
-            }
+            if (user.toLowerCase() === "admin" && pass === "admin123") {
+        document.getElementById('user-profile-name').innerText = "ADMINISTRATOR";
+        document.getElementById('view-banner-title').innerText = "DASHBOARD ADMIN";
+        alert('Selamat Datang Admin!');
+    } else {
+        document.getElementById('user-profile-name').innerText = user;
+        document.getElementById('view-banner-title').innerText = "Selamat Datang di Portal Utama";
+        alert('Login Berhasil!');
+    }
+
+    // Ini harus ada di luar if/else agar dashboard PASTI muncul
+    document.getElementById('auth-container').style.display = 'none';
+    document.getElementById('main-app-container').style.display = 'block';
         }
 
         function handleLogout() {
             location.reload();
         }
 window.onload = function() {
-        if(localStorage.getItem('bannerText')) document.getElementById('view-banner-title').innerText = localStorage.getItem('bannerText');
-        if(localStorage.getItem('homeText')) document.getElementById('view-match-home').innerText = localStorage.getItem('homeText');
-        if(localStorage.getItem('awayText')) document.getElementById('view-match-away').innerText = localStorage.getItem('awayText');
-        
-        // Baris untuk menampilkan QRIS
-        if(localStorage.getItem('qrisText')) document.getElementById('view-qris').src = localStorage.getItem('qrisText');
-    };
-    // Update Home & Away
-    if(localStorage.getItem('homeText')) document.getElementById('view-match-home').innerText = localStorage.getItem('homeText');
-    if(localStorage.getItem('awayText')) document.getElementById('view-match-away').innerText = localStorage.getItem('awayText');
+    // 1. Update Data jika elemennya ada
+    if(localStorage.getItem('bannerText')) {
+        const el = document.getElementById('view-banner-title');
+        if(el) el.innerText = localStorage.getItem('bannerText');
+    }
+    
+    // 2. Update Home & Away
+    if(localStorage.getItem('homeText')) {
+        const el = document.getElementById('view-match-home');
+        if(el) el.innerText = localStorage.getItem('homeText');
+    }
+    if(localStorage.getItem('awayText')) {
+        const el = document.getElementById('view-match-away');
+        if(el) el.innerText = localStorage.getItem('awayText');
+    }
+
+    // 3. Update QRIS
+    if(localStorage.getItem('qrisText')) {
+        const el = document.getElementById('view-qris');
+        if(el) el.src = localStorage.getItem('qrisText');
+    }
 };
-            
-            // Update Pertandingan
-            if(localStorage.getItem('matchText')) {
-                const matchEl = document.getElementById('view-match-title');
-                if(matchEl) matchEl.innerText = localStorage.getItem('matchText');
-            }
-        };
         // Fungsi untuk memunculkan pilihan metode deposit
 function openDepositModal() {
         const defaultRek = "BCA: 1234567890 (ParlayWins)\nBRI: 0987654321 (ParlayWins)\nDANA/GOPAY/QRIS: 08123456789 (ParlayWins)";
