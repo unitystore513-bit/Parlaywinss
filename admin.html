@@ -7,40 +7,62 @@
 </head>
 <body class="bg-slate-950 text-white p-6">
     <div class="max-w-md mx-auto bg-slate-900 p-6 rounded-2xl shadow-xl space-y-4">
-        <h1 class="text-xl font-bold text-emerald-400">Panel Admin Lengkap</h1>
+        <h1 class="text-xl font-bold text-emerald-400">Panel Admin Pro</h1>
         
-        <!-- Input Banner -->
-        <div>
-            <label class="text-xs font-bold text-slate-400">TEXT BANNER</label>
-            <input id="admin-banner" type="text" class="w-full p-2 bg-slate-800 rounded mt-1 border border-slate-700 text-sm">
+        <!-- Pengaturan WA & VIP -->
+        <div class="grid grid-cols-2 gap-2">
+            <div><label class="text-[10px] text-slate-400">NOMOR WA</label><input id="admin-wa" type="text" class="w-full p-2 bg-slate-800 rounded text-sm"></div>
+            <div>
+                <label class="text-[10px] text-slate-400">STATUS VIP</label>
+                <select id="admin-vip" class="w-full p-2 bg-slate-800 rounded text-sm">
+                    <option value="Aktif">Aktif</option>
+                    <option value="Tidak Aktif">Tidak Aktif</option>
+                </select>
+            </div>
         </div>
 
-        <!-- Input Pertandingan -->
-        <div>
-            <label class="text-xs font-bold text-slate-400">TIM HOME</label>
-            <input id="admin-home" type="text" class="w-full p-2 bg-slate-800 rounded mt-1 border border-slate-700 text-sm">
+        <!-- Pertandingan & Logo -->
+        <div class="grid grid-cols-2 gap-2">
+            <div><label class="text-[10px] text-slate-400">HOME</label><input id="admin-home" type="text" class="w-full p-2 bg-slate-800 rounded text-sm"></div>
+            <div><label class="text-[10px] text-slate-400">AWAY</label><input id="admin-away" type="text" class="w-full p-2 bg-slate-800 rounded text-sm"></div>
         </div>
-        <div>
-            <label class="text-xs font-bold text-slate-400">TIM AWAY</label>
-            <input id="admin-away" type="text" class="w-full p-2 bg-slate-800 rounded mt-1 border border-slate-700 text-sm">
+        <div><label class="text-[10px] text-slate-400">URL LOGO (HOME & AWAY)</label><input id="admin-logos" type="text" class="w-full p-2 bg-slate-800 rounded text-sm"></div>
+
+        <!-- Prediksi -->
+        <div class="grid grid-cols-2 gap-2 text-xs">
+            <div><label>GOL (O/U)</label><input id="admin-gol" type="text" class="w-full p-2 bg-slate-800 rounded"></div>
+            <div><label>PEMENANG</label><input id="admin-win" type="text" class="w-full p-2 bg-slate-800 rounded"></div>
+            <div><label>BTTS</label><input id="admin-btts" type="text" class="w-full p-2 bg-slate-800 rounded"></div>
+            <div><label>CORNER (O/U)</label><input id="admin-corner" type="text" class="w-full p-2 bg-slate-800 rounded"></div>
         </div>
 
-        <!-- Input Rekening -->
-        <div>
-            <label class="text-xs font-bold text-slate-400">INFO REKENING (BCA/DANA/DLL)</label>
-            <textarea id="admin-bank" class="w-full p-2 bg-slate-800 rounded mt-1 border border-slate-700 text-sm"></textarea>
-        </div>
+        <!-- QRIS -->
+        <div><label class="text-[10px] text-slate-400">URL GAMBAR QRIS</label><input id="admin-qris" type="text" class="w-full p-2 bg-slate-800 rounded text-sm"></div>
 
         <button onclick="saveAll()" class="w-full bg-emerald-600 p-3 rounded-xl font-bold text-sm">SIMPAN SEMUA DATA</button>
+
+        <hr class="border-slate-700">
+
+        <!-- Monitoring Deposit -->
+        <h2 class="text-sm font-bold">Data Deposit User</h2>
+        <div id="deposit-list" class="space-y-2">
+            <div class="p-3 bg-slate-800 rounded-lg flex justify-between items-center text-xs">
+                <span>User: Contoh (20rb)</span>
+                <div class="space-x-2">
+                    <button onclick="alert('Disetujui')" class="text-emerald-400 font-bold">✓</button>
+                    <button onclick="alert('Ditolak')" class="text-red-400 font-bold">✕</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
         function saveAll() {
-            localStorage.setItem('bannerText', document.getElementById('admin-banner').value);
-            localStorage.setItem('homeText', document.getElementById('admin-home').value);
-            localStorage.setItem('awayText', document.getElementById('admin-away').value);
-            localStorage.setItem('bankText', document.getElementById('admin-bank').value);
-            alert('Semua data berhasil disimpan!');
+            const fields = ['wa', 'vip', 'home', 'away', 'logos', 'gol', 'win', 'btts', 'corner', 'qris'];
+            fields.forEach(field => {
+                localStorage.setItem(field + 'Text', document.getElementById('admin-' + field).value);
+            });
+            alert('Semua data berhasil diperbarui!');
         }
     </script>
 </body>
