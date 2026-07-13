@@ -3,23 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ParlayWins - Prediksi Jitu</title>
-    <!-- Tailwind CSS & FontAwesome -->
+    <title>ParlayWins - Prediksi Jitu Premium</title>
+    <!-- Tailwind CSS & FontAwesome Stable -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #0b1329; color: #f8fafc; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
+        .blur-vip { filter: blur(5px); select: none; pointer-events: none; }
     </style>
 </head>
 <body class="p-4 max-w-md mx-auto min-h-screen flex flex-col justify-between">
 
-    <!-- APP CONTAINER -->
+    <!-- MAIN APP INTERFACE -->
     <div>
         <!-- Header -->
         <div class="flex justify-between items-center mb-6">
             <div class="flex items-center space-x-2">
                 <div class="bg-emerald-500 p-2 rounded-xl text-slate-950 flex items-center justify-center w-10 h-10 shadow-lg shadow-emerald-500/20">
-                    <i class="fa-solid fa-soccer-ball text-xl"></i>
+                    <i class="fa-solid fa-soccer-ball text-xl animate-spin-slow"></i>
                 </div>
                 <span class="text-xl font-black tracking-wider text-slate-100">PARLAY<span class="text-emerald-400">WINS</span></span>
             </div>
@@ -28,303 +29,249 @@
             </button>
         </div>
 
-        <!-- Banner VIP -->
+        <!-- Banner Dinamis Iklan Utama -->
         <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 rounded-2xl p-5 mb-5 relative overflow-hidden shadow-2xl">
             <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full mb-3 inline-block">
-                ● TIPS VIP TERBAIK HARI INI
+                ● INFORMASI & PENGUMUMAN VIP
             </span>
-            <h2 class="text-2xl font-black text-slate-100 leading-tight mb-2">AKURASI PREDIKSI <br><span class="text-emerald-400 text-3xl">HINGGA 94.8%</span></h2>
-            <p class="text-slate-400 text-xs leading-relaxed mb-4">Dapatkan analisis mendalam dari admin pro. Sisa saldo tiket Anda digunakan untuk membuka tebakan pemenang, over/under, BTTS, & skor tepat.</p>
+            <h2 id="view-banner-title" class="text-xl font-black text-slate-100 leading-tight mb-2">AKURASI PREDIKSI HINGGA 94.8%</h2>
+            <p id="view-banner-desc" class="text-slate-400 text-xs leading-relaxed">Dapatkan analisis mendalam dari admin pro. Sisa saldo tiket Anda digunakan untuk membuka tebakan pemenang, over/under, BTTS, & skor tepat.</p>
         </div>
 
-        <!-- User Status -->
+        <!-- Status Saldo Tiket User -->
         <div class="bg-slate-900/50 border border-slate-800/60 rounded-xl p-4 mb-6 flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 border border-slate-700">
-                    <i class="fa-solid fa-user"></i>
+                    <i class="fa-solid fa-user-shield text-emerald-400"></i>
                 </div>
                 <div>
-                    <h4 class="font-bold text-slate-200 text-sm">Guest User</h4>
-                    <span class="text-[11px] text-emerald-400 flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>Aktif</span>
+                    <h4 class="font-bold text-slate-200 text-sm">Guest Premium</h4>
+                    <span class="text-[11px] text-emerald-400 flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>Terverifikasi</span>
                 </div>
             </div>
             <div class="text-right">
-                <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Tiket Tersedia</span>
+                <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Tiket Anda</span>
                 <span id="user-tickets" class="text-xl font-black text-emerald-400">0 Tiket</span>
             </div>
         </div>
 
-        <!-- Match Section -->
+        <!-- Daftar Jadwal Prediksi Pertandingan -->
         <div>
-            <h3 class="font-black text-base text-slate-200 mb-4 flex items-center"><i class="fa-solid fa-calendar-days text-emerald-400 mr-2"></i>Prediksi Pertandingan Terkini</h3>
-            <div id="match-container" class="space-y-3">
-                <!-- Data Laga -->
+            <h3 class="font-black text-base text-slate-200 mb-4 flex items-center"><i class="fa-solid fa-circle-nodes text-emerald-400 mr-2"></i>Prediksi Premium Hari Ini</h3>
+            <div id="match-container" class="space-y-4">
+                <!-- Konten Laga Muncul Di Sini via JS -->
             </div>
         </div>
     </div>
 
-    <!-- FOOTER & TANDA VERIFIKASI AKTIF -->
-    <div class="text-center text-[10px] text-slate-600 font-medium pt-8 pb-2 space-y-1">
-        <div>&copy; 2026 ParlayWins. All rights reserved.</div>
-        <div id="version-tag" class="text-red-500/60 font-mono text-[9px] tracking-widest uppercase font-bold">● TUNGGU UPDATE GITHUB... ●</div>
+    <!-- FLOATING LIVE CHAT WIDGET -->
+    <a id="floating-livechat" href="#" target="_blank" class="fixed bottom-5 right-5 bg-emerald-500 text-slate-950 p-4 rounded-full shadow-2xl flex items-center justify-center z-40 transition-transform hover:scale-110">
+        <i class="fa-solid fa-comments text-xl"></i>
+    </a>
+
+    <!-- SYSTEM WATERMARK FOOTER -->
+    <div class="text-center text-[10px] text-slate-600 font-medium pt-12 pb-2 space-y-1">
+        <div>&copy; 2026 ParlayWins Premium Studio. All rights reserved.</div>
+        <div class="text-emerald-500 font-mono text-[9px] tracking-widest uppercase font-bold">● ENGINE VERSI 5.0 FULL VERSION LIVE ●</div>
     </div>
 
-    <!-- MODAL DEPOSIT -->
-    <div id="deposit-modal" class="fixed inset-0 bg-black/80 z-50 items-center justify-center p-4" style="display: none;">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-5 shadow-2xl space-y-4">
+    <!-- MODAL POPUP: FORMULIR DEPOSIT -->
+    <div id="deposit-modal" class="fixed inset-0 bg-black/85 z-50 items-center justify-center p-4 overflow-y-auto" style="display: none;">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-5 shadow-2xl space-y-4 my-auto">
             <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-                <h3 class="font-black text-base text-slate-100 flex items-center"><i class="fa-solid fa-money-bill-transfer text-emerald-400 mr-2"></i>Formulir Deposit</h3>
+                <h3 class="font-black text-base text-slate-100 flex items-center"><i class="fa-solid fa-wallet text-emerald-400 mr-2"></i>Menu Pengisian Tiket VIP</h3>
                 <button onclick="closeDepositModal()" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/50 text-xs space-y-1 text-slate-300">
-                <p class="font-bold text-emerald-400">Tujuan Transfer Admin:</p>
-                <p>● BCA: <span id="dep-info-bca" class="font-mono font-bold text-slate-100">Belum diatur</span></p>
-                <p>● DANA: <span id="dep-info-dana" class="font-mono font-bold text-slate-100">Belum diatur</span></p>
+            
+            <!-- Peringatan Sistem Masalah Pembayaran -->
+            <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-[11px] text-red-400 space-y-1">
+                <p class="font-bold uppercase"><i class="fa-solid fa-triangle-exclamation mr-1.5"></i>PENTING / PERINGATAN:</p>
+                <p>Kirim dana pas sebesar <b>Rp 20.000</b> untuk mendapatkan <b>2x Akses Tiket Buka Laga VIP</b>. Jika terjadi kendala pengiriman dana atau sistem macet, harap langsung hubungi admin melalui <a id="dep-warning-chatlink" href="#" target="_blank" class="underline font-bold text-slate-100">Hubungi Live Chat Admin <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a>.</p>
             </div>
+
+            <!-- List Multi Rekening Admin Dinamis -->
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 text-xs space-y-1 text-slate-300">
+                <p class="font-bold text-emerald-400 mb-1">Pilihan Informasi Rekening Admin:</p>
+                <div class="grid grid-cols-2 gap-1 text-[11px]">
+                    <p>● BCA: <span id="info-bca" class="font-mono text-slate-100">-</span></p>
+                    <p>● BRI: <span id="info-bri" class="font-mono text-slate-100">-</span></p>
+                    <p>● Mandiri: <span id="info-mandiri" class="font-mono text-slate-100">-</span></p>
+                    <p>● DANA: <span id="info-dana" class="font-mono text-slate-100">-</span></p>
+                    <p>● OVO: <span id="info-ovo" class="font-mono text-slate-100">-</span></p>
+                    <p>● GOPAY: <span id="info-gopay" class="font-mono text-slate-100">-</span></p>
+                </div>
+                <div id="info-qris-container" class="mt-2 pt-2 border-t border-slate-800 text-center hidden">
+                    <p class="text-[10px] text-slate-400 font-bold mb-1">Barcode QRIS Pembayaran:</p>
+                    <img id="info-qris-img" src="" class="mx-auto max-h-32 object-contain border border-slate-700 rounded p-1 bg-white">
+                </div>
+            </div>
+
+            <!-- Form Isian Transaksi Data -->
             <div class="space-y-3">
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Pengirim</label>
-                    <input type="text" id="form-dep-name" placeholder="Contoh: Budi" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Pengirim Terdaftar</label>
+                    <input type="text" id="form-dep-name" placeholder="Nama Anda" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Jumlah Transfer (Rp)</label>
-                    <input type="number" id="form-dep-amount" placeholder="50000" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Metode</label>
-                    <select id="form-dep-method" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Pilih Metode Pembayaran Anda</label>
+                    <select id="form-dep-method" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
                         <option value="BCA">Bank BCA</option>
-                        <option value="DANA">Aplikasi DANA</option>
+                        <option value="BRI">Bank BRI</option>
+                        <option value="Mandiri">Bank Mandiri</option>
+                        <option value="DANA">E-Wallet DANA</option>
+                        <option value="OVO">E-Wallet OVO</option>
+                        <option value="GOPAY">E-Wallet GOPAY</option>
+                        <option value="QRIS">QRIS Pembayaran Cepat</option>
                     </select>
                 </div>
-                <button onclick="submitDepositForm()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs shadow-lg">
-                    Konfirmasi Sudah Transfer
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Unggah Dokumen Bukti Transfer (Gambar)</label>
+                    <input type="file" id="form-dep-proof" accept="image/*" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2 py-1.5 text-xs text-slate-400 focus:outline-none">
+                </div>
+                <button onclick="processDepositSubmission()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs shadow-lg transition-colors">
+                    Kirim Bukti Pembayaran Ke Admin
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- PANEL ADMIN RAHASIA -->
+    <!-- PANEL ADMIN PANEL RAHASIA (CONTROL DASHBOARD) -->
     <div id="admin-dashboard-panel" class="fixed inset-0 bg-black/95 z-50 flex-col p-4" style="display: none;">
         <div class="w-full mx-auto flex flex-col h-full bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+            <!-- Admin Topbar Header -->
             <div class="p-4 bg-slate-950 border-b border-slate-800 flex justify-between items-center">
-                <span class="bg-red-500/10 text-red-400 px-2.5 py-1 rounded text-xs font-bold border border-red-500/20">CONTROL PANEL</span>
-                <button onclick="closeAdminDashboard()" class="text-slate-400 bg-slate-800 w-8 h-8 rounded-full flex items-center justify-center">
+                <div class="flex items-center space-x-2">
+                    <span class="bg-red-500/10 text-red-400 px-2.5 py-1 rounded text-xs font-bold border border-red-500/20">CONTROL PANEL V5</span>
+                    <h3 class="font-black text-slate-100 text-sm">Dashboard Manajemen</h3>
+                </div>
+                <button onclick="closeAdminDashboard()" class="text-slate-400 bg-slate-800 w-8 h-8 rounded-full flex items-center justify-center hover:text-white">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="flex border-b border-slate-800 bg-slate-950/50">
-                <button id="btn-tab-matches" onclick="switchAdminTab('matches')" class="px-5 py-3 text-xs font-bold border-b-2">Kelola Laga</button>
-                <button id="btn-tab-dep" onclick="switchAdminTab('dep')" class="px-5 py-3 text-xs font-bold border-b-2">Deposit (<span id="admin-dep-count">0</span>)</button>
-                <button id="btn-tab-set" onclick="switchAdminTab('set')" class="px-5 py-3 text-xs font-bold border-b-2">Settings</button>
+
+            <!-- Admin Navigasi Tab Data Menu -->
+            <div class="flex border-b border-slate-800 bg-slate-950/50 text-center">
+                <button id="btn-tab-matches" onclick="switchAdminTab('matches')" class="flex-1 py-3 text-xs font-bold border-b-2">Kelola Laga</button>
+                <button id="btn-tab-dep" onclick="switchAdminTab('dep')" class="flex-1 py-3 text-xs font-bold border-b-2">Deposit (<span id="admin-dep-count">0</span>)</button>
+                <button id="btn-tab-set" onclick="switchAdminTab('set')" class="flex-1 py-3 text-xs font-bold border-b-2">Settings Web</button>
             </div>
-            <div class="p-4 overflow-y-auto flex-grow">
-                <!-- Tab Laga -->
+
+            <!-- Area Konten Tab Admin -->
+            <div class="p-4 overflow-y-auto flex-grow space-y-4">
+                
+                <!-- TAB 1: KELOLA DATA LAGA -->
                 <div id="panel-matches" style="display: none;" class="space-y-4">
                     <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
-                        <input type="text" id="adm-team-home" placeholder="Tim Home" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
-                        <input type="text" id="adm-team-away" placeholder="Tim Away" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
-                        <input type="text" id="adm-pred-score" placeholder="Skor Jitu (Contoh: 2-1)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
-                        <button onclick="saveMatchData()" class="w-full bg-emerald-500 text-slate-950 font-bold py-2 rounded-xl text-xs">Tambah Laga</button>
+                        <h4 class="font-bold text-xs text-emerald-400 uppercase tracking-wider"><i class="fa-solid fa-plus-circle mr-1"></i>Tambah Laga VIP Baru</h4>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="adm-home-name" placeholder="Nama Tim Home" class="bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
+                            <input type="text" id="adm-home-logo" placeholder="URL Logo Tim Home" class="bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="adm-away-name" placeholder="Nama Tim Away" class="bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
+                            <input type="text" id="adm-away-logo" placeholder="URL Logo Tim Away" class="bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
+                        </div>
+                        <div class="border-t border-slate-800/80 my-2 pt-2 space-y-2">
+                            <input type="text" id="adm-pred-score" placeholder="Masukan Skor Jitu (Contoh: 3-1)" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
+                            <input type="text" id="adm-pred-winner" placeholder="Masukan Tim Mana Yang Bakal Menang (Contoh: Real Madrid)" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
+                            <input type="text" id="adm-pred-goals" placeholder="Masukan Jumlah Gol Dalam Pertandingan (Contoh: Over 2.5)" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
+                            
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Masukan Apakah Kedua Tim Mencetak Skor (BTTS)?</label>
+                                <select id="adm-pred-btts" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
+                                    <option value="Ya (Both Teams to Score)">Ya (Kedua Tim Cetak Skor)</option>
+                                    <option value="Tidak (Clean Sheet / Salah Satu)">Tidak (Salah Satu Tidak Cetak Skor)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button onclick="executeSaveMatch()" class="w-full bg-emerald-500 text-slate-950 font-black py-2.5 rounded-xl text-xs uppercase shadow-md">Simpan Laga VIP</button>
                     </div>
-                    <div id="adm-match-list" class="space-y-2"></div>
+                    <div class="space-y-2">
+                        <h4 class="font-bold text-xs text-slate-400 uppercase">Daftar Laga Terbit</h4>
+                        <div id="adm-match-list" class="space-y-2"></div>
+                    </div>
                 </div>
-                <!-- Tab Deposit -->
-                <div id="panel-deposits" style="display: none;" class="space-y-2">
-                    <div id="adm-deposit-list"></div>
+
+                <!-- TAB 2: PERSETUJUAN PROOF DEPOSIT -->
+                <div id="panel-deposits" style="display: none;" class="space-y-3">
+                    <h4 class="font-bold text-xs text-slate-400 uppercase tracking-wide">Log Transaksi Antrean Pembayaran VIP</h4>
+                    <div id="adm-deposit-list" class="space-y-3"></div>
                 </div>
-                <!-- Tab Settings -->
-                <div id="panel-settings" style="display: none;" class="space-y-3">
-                    <input type="text" id="set-bank-rek" placeholder="Rekening BCA" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
-                    <input type="text" id="set-dana-rek" placeholder="Nomor DANA" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
-                    <button onclick="saveSettingsData()" class="w-full bg-emerald-500 text-slate-950 font-bold py-2 rounded-xl text-xs">Simpan</button>
+
+                <!-- TAB 3: SETTINGS UTAMA & DANA REKENING -->
+                <div id="panel-settings" style="display: none;" class="space-y-4">
+                    <!-- Pengaturan Teks Banner Utama -->
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                        <h4 class="font-bold text-xs text-emerald-400 uppercase"><i class="fa-solid fa-rectangle-ad mr-1"></i>Mengedit Iklan Halaman Utama</h4>
+                        <input type="text" id="set-banner-title" placeholder="Judul Teks Banner Utama" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
+                        <textarea id="set-banner-desc" rows="2" placeholder="Deskripsi Rincian Iklan Utama" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl"></textarea>
+                    </div>
+
+                    <!-- Pengaturan Tautan Live Chat Direct -->
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                        <h4 class="font-bold text-xs text-emerald-400 uppercase"><i class="fa-solid fa-headset mr-1"></i>Memasukan URL Live Chat</h4>
+                        <input type="text" id="set-livechat-url" placeholder="Contoh: https://wa.me/628123xxx" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
+                    </div>
+
+                    <!-- Sistem Rekening Dan QRIS Terintegrasi Banyak Akun -->
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                        <h4 class="font-bold text-xs text-emerald-400 uppercase"><i class="fa-solid fa-credit-card mr-1"></i>Kelola Rincian Rekening / E-Wallet</h4>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="set-rek-bca" placeholder="No Rekening BCA" class="bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
+                            <input type="text" id="set-rek-bri" placeholder="No Rekening BRI" class="bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="set-rek-mandiri" placeholder="No Rekening Mandiri" class="bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
+                            <input type="text" id="set-rek-dana" placeholder="Nomor Akun DANA" class="bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="set-rek-ovo" placeholder="Nomor Akun OVO" class="bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
+                            <input type="text" id="set-rek-gopay" placeholder="Nomor Akun GOPAY" class="bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
+                        </div>
+                        <div>
+                            <input type="text" id="set-rek-qris" placeholder="URL Image Link QRIS Barcode" class="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 p-2 rounded-xl">
+                        </div>
+                    </div>
+                    
+                    <button onclick="executeSaveSettings()" class="w-full bg-emerald-500 text-slate-950 font-black py-2.5 rounded-xl text-xs uppercase shadow-md">Simpan Perubahan Global</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- UTILITY ENGINE (SUPER SAFE) -->
+    <!-- LOGIC APPLICATION CORE SCRIPT ENGINE -->
     <script>
-        // Mencegah crash jika localStorage diblokir oleh browser / incognito mode
-        function safeGetItem(key, defaultValue) {
+        const fallbackLogo = "https://cdn-icons-png.flaticon.com/512/5323/5323861.png";
+
+        function safeGet(key, fallback) {
             try {
-                if (typeof localStorage === 'undefined' || !localStorage) return defaultValue;
-                const item = localStorage.getItem(key);
-                return item ? JSON.parse(item) : defaultValue;
-            } catch (e) { return defaultValue; }
+                const data = localStorage.getItem(key);
+                return data ? JSON.parse(data) : fallback;
+            } catch(e) { return fallback; }
         }
 
-        function safeSetItem(key, value) {
-            try {
-                if (typeof localStorage !== 'undefined' && localStorage) {
-                    localStorage.setItem(key, JSON.stringify(value));
-                }
-            } catch (e) {}
+        function safeSet(key, value) {
+            try { localStorage.setItem(key, JSON.stringify(value)); } catch(e) {}
         }
 
         window.onload = function() {
-            // Ubah teks verifikasi tanda kode baru sukses masuk
-            const tag = document.getElementById('version-tag');
-            if(tag) {
-                tag.innerText = "● VERSI 4.0 BERHASIL AKTIF KESELURUHAN ●";
-                tag.className = "text-emerald-400 font-mono text-[9px] tracking-widest uppercase font-bold";
-            }
-
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('clear') === 'true') {
-                try { localStorage.clear(); } catch(e){}
-                alert("Memori lama dibersihkan!");
-                window.location.href = window.location.pathname;
-                return;
-            }
-            if (urlParams.get('page') === 'rahasiaadmin') {
+            const params = new URLSearchParams(window.location.search);
+            
+            // Konfigurasi Pintu Akses Instan ke Menu Admin Rahasia
+            if(params.get('page') === 'rahasiaadmin') {
                 document.getElementById('admin-dashboard-panel').style.display = 'flex';
                 switchAdminTab('matches');
             }
-            renderMatches();
-            renderDeposits();
-            loadSettings();
+
+            // Muat Ulang Tampilan Komponen Sesuai Penyimpanan
+            refreshUserInterface();
+            renderMatchesGrid();
+            renderAdminDeposits();
+            loadAdminSettingsForm();
         };
 
-        function openDepositModal() { document.getElementById('deposit-modal').style.display = 'flex'; }
-        function closeDepositModal() { document.getElementById('deposit-modal').style.display = 'none'; }
-        function closeAdminDashboard() { 
-            window.history.pushState({}, document.title, window.location.pathname);
-            document.getElementById('admin-dashboard-panel').style.display = 'none'; 
-        }
-
-        function submitDepositForm() {
-            const name = document.getElementById('form-dep-name').value.trim();
-            const amount = document.getElementById('form-dep-amount').value.trim();
-            const method = document.getElementById('form-dep-method').value;
-            if(!name || !amount) return alert("Wajib diisi!");
-
-            let deposits = safeGetItem('parlay_deposits', []);
-            deposits.push({ id: Date.now(), name, amount, method, status: 'Pending' });
-            safeSetItem('parlay_deposits', deposits);
-
-            alert("Konfirmasi Terkirim!");
-            document.getElementById('form-dep-name').value = '';
-            document.getElementById('form-dep-amount').value = '';
-            closeDepositModal();
-            renderDeposits();
-        }
-
-        function renderMatches() {
-            const container = document.getElementById('match-container');
-            if(!container) return;
-            let matches = safeGetItem('parlay_matches', []);
-            if(matches.length === 0) {
-                container.innerHTML = `<div class="bg-slate-900/40 border border-slate-800/80 rounded-xl p-6 text-center text-xs text-slate-400">Belum ada laga aktif.</div>`;
-                return;
-            }
-            container.innerHTML = matches.map(m => `
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-xl space-y-2">
-                    <div class="flex justify-between items-center font-bold text-xs text-slate-200">
-                        <span>${m.home}</span>
-                        <span class="text-emerald-400">VS</span>
-                        <span>${m.away}</span>
-                    </div>
-                    <div class="bg-slate-950 p-2 text-center text-xs rounded border border-slate-800/60 text-emerald-400 font-bold">
-                        Skor Jitu: ${m.score || '-'}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function switchAdminTab(tabName) {
-            document.getElementById('panel-matches').style.display = 'none';
-            document.getElementById('panel-deposits').style.display = 'none';
-            document.getElementById('panel-settings').style.display = 'none';
-            if(tabName === 'matches') document.getElementById('panel-matches').style.display = 'block';
-            if(tabName === 'dep') document.getElementById('panel-deposits').style.display = 'block';
-            if(tabName === 'set') document.getElementById('panel-settings').style.display = 'block';
-        }
-
-        function saveMatchData() {
-            const home = document.getElementById('adm-team-home').value.trim();
-            const away = document.getElementById('adm-team-away').value.trim();
-            const score = document.getElementById('adm-pred-score').value.trim();
-            if(!home || !away) return alert("Isi tim!");
-
-            let matches = safeGetItem('parlay_matches', []);
-            matches.push({ home, away, score });
-            safeSetItem('parlay_matches', matches);
-            alert("Laga Ditambahkan!");
-            document.getElementById('adm-team-home').value = '';
-            document.getElementById('adm-team-away').value = '';
-            document.getElementById('adm-pred-score').value = '';
-            renderMatches();
-            renderAdminMatchesList();
-        }
-
-        function deleteMatch(index) {
-            let matches = safeGetItem('parlay_matches', []);
-            matches.splice(index, 1);
-            safeSetItem('parlay_matches', matches);
-            renderMatches();
-            renderAdminMatchesList();
-        }
-
-        function renderAdminMatchesList() {
-            const list = document.getElementById('adm-match-list');
-            if(!list) return;
-            let matches = safeGetItem('parlay_matches', []);
-            list.innerHTML = matches.map((m, idx) => `
-                <div class="bg-slate-950 p-2 text-xs rounded border border-slate-800 flex justify-between items-center text-slate-300">
-                    <span>${m.home} vs ${m.away}</span>
-                    <button onclick="deleteMatch(${idx})" class="text-red-400 bg-red-500/10 px-2 py-1 rounded">Hapus</button>
-                </div>
-            `).join('');
-        }
-
-        function renderDeposits() {
-            let deposits = safeGetItem('parlay_deposits', []);
-            const count = document.getElementById('admin-dep-count');
-            const list = document.getElementById('adm-deposit-list');
-            if(count) count.innerText = deposits.filter(d => d.status === 'Pending').length;
-            if(!list) return;
-            if(deposits.length === 0) {
-                list.innerHTML = `<p class="text-slate-500 text-xs text-center py-2">Tidak ada data.</p>`;
-                return;
-            }
-            list.innerHTML = deposits.map(d => `
-                <div class="bg-slate-950 p-2 rounded border border-slate-800 text-xs flex justify-between items-center text-slate-200 mb-2">
-                    <div>
-                        <p class="font-bold">${d.name} (${d.method})</p>
-                        <p class="text-emerald-400">Rp ${parseInt(d.amount).toLocaleString('id-ID')}</p>
-                    </div>
-                    ${d.status === 'Pending' ? `<button onclick="approveDeposit(${d.id})" class="bg-emerald-500 text-slate-950 px-2 py-1 rounded font-bold">Setujui</button>` : `<span class="text-slate-500">Selesai</span>`}
-                </div>
-            `).join('');
-        }
-
-        function approveDeposit(id) {
-            let deposits = safeGetItem('parlay_deposits', []);
-            deposits = deposits.map(d => d.id === id ? { ...d, status: 'Disetujui' } : d);
-            safeSetItem('parlay_deposits', deposits);
-            const tk = document.getElementById('user-tickets');
-            if(tk) tk.innerText = "5 Tiket";
-            alert("Disetujui!");
-            renderDeposits();
-        }
-
-        function saveSettingsData() {
-            const bca = document.getElementById('set-bank-rek').value.trim();
-            const dana = document.getElementById('set-dana-rek').value.trim();
-            safeSetItem('parlay_settings', { bca, dana });
-            alert("Saved!");
-            loadSettings();
-        }
-
-        function loadSettings() {
-            const settings = safeGetItem('parlay_settings', { bca: '123456789 (A/N Admin)', dana: '08123456789 (A/N Admin)' });
-            const b = document.getElementById('dep-info-bca');
-            const d = document.getElementById('dep-info-dana');
-            if(b) b.innerText = settings.bca;
-            if(d) d.innerText = settings.dana;
-            renderAdminMatchesList();
-        }
-    </script>
-</body>
-</html>
+        function refreshUserInterface() {
+            // Update Teks Iklan Banner Utama
+            const settings = safeGet('pw_settings', {
+                bca: '11223344 (A/N Admin)', bri: '-', mandiri: '-', dana: '0812345678 (A/N Admin)', ovo: '-', gopay: '-', qris: '',
+                chatUrl: 'https://wa
