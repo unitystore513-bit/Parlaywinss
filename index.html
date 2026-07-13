@@ -74,10 +74,7 @@
         <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 p-4 rounded-2xl space-y-2 shadow-xl">
             <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
                 📢 INFORMASI & PENGUMUMAN VIP
-            </span>
-            <h2 id="view-banner-title" class="text-xl font-black text-slate-100 leading-tight">Selamat Datang di Portal Utama</h2>
-            <p id="view-banner-desc" class="text-slate-400 text-xs leading-relaxed">Nikmati akses penuh ke semua fitur premium kami secara aman.</p>
-        </div>
+            <span id="view-vip" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded text-[10px]">STATUS</span>
 
         <div class="bg-slate-900/50 border border-slate-800/60 rounded-xl p-4 flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -117,6 +114,11 @@
                     Lihat Prediksi VIP
                 </button>
             </div>
+            <!-- QRIS Section -->
+<div class="mt-4 p-4 bg-white rounded-xl shadow-lg text-center">
+    <p class="text-xs text-slate-500 font-bold mb-2">SCAN QRIS UNTUK DEPOSIT</p>
+    <img id="view-qris" src="" alt="QRIS" class="w-full h-auto rounded-lg border-2 border-emerald-500">
+</div>
         </div>
     </div>
     <div class="text-center py-4 w-full">
@@ -179,10 +181,14 @@
         function handleLogout() {
             location.reload();
         }
-        window.onload = function() {
-    // Banner
-    if(localStorage.getItem('bannerText')) document.getElementById('view-banner-title').innerText = localStorage.getItem('bannerText');
-    
+window.onload = function() {
+        if(localStorage.getItem('bannerText')) document.getElementById('view-banner-title').innerText = localStorage.getItem('bannerText');
+        if(localStorage.getItem('homeText')) document.getElementById('view-match-home').innerText = localStorage.getItem('homeText');
+        if(localStorage.getItem('awayText')) document.getElementById('view-match-away').innerText = localStorage.getItem('awayText');
+        
+        // Baris untuk menampilkan QRIS
+        if(localStorage.getItem('qrisText')) document.getElementById('view-qris').src = localStorage.getItem('qrisText');
+    };
     // Update Home & Away
     if(localStorage.getItem('homeText')) document.getElementById('view-match-home').innerText = localStorage.getItem('homeText');
     if(localStorage.getItem('awayText')) document.getElementById('view-match-away').innerText = localStorage.getItem('awayText');
