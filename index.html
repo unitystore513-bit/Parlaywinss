@@ -4,230 +4,105 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ParlayWins - VIP Match Portal</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #0b1329; color: #f8fafc; font-family: sans-serif; }
-        .animate-spin-slow { animation: spin 8s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="p-4 max-w-md mx-auto min-h-screen flex flex-col justify-between">
 
     <!-- 1. GERBANG AUTHENTICATION -->
     <div id="auth-container" style="display: block;">
-        <div class="text-center space-y-1.5">
-            <div class="mx-auto bg-emerald-500 p-3 rounded-full text-slate-950 w-12 h-12 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                <i class="fa-solid fa-user-lock text-xl"></i>
-            </div>
+        <div class="text-center space-y-1.5 mt-20">
+            <i class="fa-solid fa-user-lock text-4xl text-emerald-500"></i>
             <h2 class="text-xl font-black tracking-wider text-slate-100 uppercase">PARLAYWINS</h2>
             <p id="auth-subtitle" class="text-slate-400 text-xs">Silakan masuk ke akun Anda</p>
         </div>
 
-        <div class="space-y-3.5">
+        <div class="space-y-3.5 mt-8">
             <div>
                 <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Username</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500"><i class="fa-solid fa-user"></i></span>
-                    <input type="text" id="auth-username" placeholder="Masukkan Username" class="w-full pl-9 pr-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-sm">
-                </div>
+                <input type="text" id="auth-username" placeholder="Masukkan Username" class="w-full p-3 bg-slate-800 rounded-xl text-sm border border-slate-700">
             </div>
             <div>
                 <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Password</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500"><i class="fa-solid fa-lock"></i></span>
-                    <input type="password" id="auth-password" placeholder="Masukkan Password" class="w-full pl-9 pr-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-sm">
-                </div>
+                <input type="password" id="auth-password" placeholder="Masukkan Password" class="w-full p-3 bg-slate-800 rounded-xl text-sm border border-slate-700">
             </div>
-            <button onclick="handleAuthAction()" id="btn-auth-submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black py-2.5 rounded-xl shadow-lg shadow-emerald-500/20 transition duration-200 text-sm cursor-pointer">
+            <button onclick="handleAuthAction()" id="btn-auth-submit" class="w-full bg-emerald-500 p-3 rounded-xl font-bold text-slate-900">
                 Masuk Ke Aplikasi
             </button>
         </div>
 
-        <div class="text-center pt-2">
-            <p class="text-xs text-slate-400" id="auth-toggle-text">
-                Belum punya ID akun? 
-                <button onclick="toggleAuthMode(true)" class="text-emerald-400 font-bold hover:underline bg-transparent border-none p-0 cursor-pointer">Daftar</button>
+        <div class="text-center pt-4">
+            <p id="auth-toggle-text" class="text-xs text-slate-400">
+                Belum punya ID akun? <button onclick="toggleAuthMode(true)" class="text-emerald-400 font-bold">Daftar</button>
             </p>
         </div>
     </div>
 
-    <!-- 2. INTERFACE UTAMA -->
-    <div id="main-app-container" class="space-y-4 w-full my-auto" style="display: none;">
+    <!-- 2. INTERFACE UTAMA (DASHBOARD) -->
+    <div id="main-app-container" class="space-y-4 w-full" style="display: none;">
         <div class="flex justify-between items-center mb-6">
-            <div class="flex items-center space-x-2">
-                <div class="bg-emerald-500 p-2 rounded-xl text-slate-950 flex items-center justify-center">
-                    <i class="fa-solid fa-soccer-ball text-xl animate-spin-slow"></i>
-                </div>
-                <span class="text-xl font-black tracking-wider text-slate-100">PARLAYWINS</span>
-            </div>
-            <div class="flex items-center space-x-2">
-                <button onclick="openDepositModal()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs shadow-lg shadow-emerald-500/10 cursor-pointer">
-                    <i class="fa-solid fa-wallet text-xs mr-1"></i>Deposit
-                </button>
-                <button onclick="handleLogout()" class="bg-slate-800 hover:bg-slate-700 text-slate-400 p-2 rounded-lg cursor-pointer">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                </button>
+            <span class="text-xl font-black text-emerald-400">PARLAYWINS</span>
+            <button onclick="handleLogout()" class="bg-slate-800 px-4 py-2 rounded-lg text-xs"><i class="fa-solid fa-right-from-bracket"></i></button>
+        </div>
+
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-700">
+            <h2 id="view-banner-title" class="text-sm font-bold">Selamat Datang di Portal Utama</h2>
+            <p id="user-profile-name" class="text-[10px] text-emerald-500 font-bold uppercase"></p>
+        </div>
+
+        <div id="match-section" class="space-y-3">
+            <h3 class="text-[10px] font-bold text-slate-500 uppercase">Pertandingan Hari Ini</h3>
+            <div class="bg-slate-900 p-4 rounded-xl flex justify-between items-center">
+                <span id="view-match-home" class="font-bold">HOME</span>
+                <span class="text-emerald-500 font-black">VS</span>
+                <span id="view-match-away" class="font-bold">AWAY</span>
             </div>
         </div>
 
-        <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 p-4 rounded-2xl space-y-2 shadow-xl">
-            <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                📢 INFORMASI & PENGUMUMAN VIP
-            <span id="view-vip" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded text-[10px]">STATUS</span>
-
-        <div class="bg-slate-900/50 border border-slate-800/60 rounded-xl p-4 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-emerald-400 border border-slate-700">
-                    <i class="fa-solid fa-user-shield text-lg"></i>
-                </div>
-                <div>
-                    <h4 id="user-profile-name" class="font-bold text-slate-200 text-sm">User VIP</h4>
-                    <span class="text-[11px] text-emerald-400 flex items-center"><i class="fa-solid fa-circle text-[6px] mr-1 animate-pulse"></i> Akun Aktif</span>
-                </div>
-            </div>
-            <div class="text-right">
-                <span class="text-[10px] text-slate-500 uppercase block font-bold">Saldo Anda</span>
-                <span class="text-lg font-black text-emerald-400">Rp 0</span>
-            </div>
+        <div class="mt-4 p-4 bg-white rounded-xl text-center">
+            <p class="text-[10px] text-slate-500 font-bold mb-2">SCAN QRIS UNTUK DEPOSIT</p>
+            <img id="view-qris" src="" alt="QRIS" class="w-full rounded-lg border-2 border-emerald-500">
         </div>
     </div>
-<!-- Bagian Pertandingan Hari Ini -->
-    <div id="match-section" class="space-y-3 mt-6">
-        <h3 class="text-slate-400 text-xs font-bold uppercase tracking-widest pl-1">Pertandingan Hari Ini</h3>
-        
-        <!-- Contoh Kartu Pertandingan (Admin bisa menyalin blok ini untuk menambah pertandingan lain) -->
-        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-3">
-            <div class="flex items-center justify-between">
-                <div class="text-center">
-                    <div class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-1">⚽</div>
-                    <span id="view-match-home" class="text-[10px] font-bold">HOME</span>
-                </div>
-                <div class="text-center text-emerald-400 font-black text-lg">VS</div>
-                <div class="text-center">
-                    <div class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-1">⚽</div>
-                    <span id="view-match-away" class="text-[10px] font-bold">AWAY</span>
-                </div>
-            </div>
-            <div class="text-center pt-2 border-t border-slate-800">
-                <button onclick="alert('Silakan hubungi Admin untuk membuka akses prediksi VIP!')" class="w-full bg-emerald-500/10 text-emerald-400 py-2 rounded-lg text-xs font-bold border border-emerald-500/20">
-                    Lihat Prediksi VIP
-                </button>
-            </div>
-            <!-- QRIS Section -->
-<div class="mt-4 p-4 bg-white rounded-xl shadow-lg text-center">
-    <p class="text-xs text-slate-500 font-bold mb-2">SCAN QRIS UNTUK DEPOSIT</p>
-    <img id="view-qris" src="" alt="QRIS" class="w-full h-auto rounded-lg border-2 border-emerald-500">
-</div>
-        </div>
-    </div>
-    <div class="text-center py-4 w-full">
-        <p class="text-[9px] font-bold tracking-widest text-slate-600 uppercase">© 2026 ParlayWins Premium Studio. All rights reserved.</p>
-        <p class="text-[9px] font-black tracking-widest text-emerald-400 uppercase mt-1 flex items-center justify-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            VERSI 6.1 RESILIENT RUNNING
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-        </p>
-    </div>
 
+    <!-- SCRIPT UTAMA -->
     <script>
-        let isRegisterMode = false;
-
-        function toggleAuthMode(mode) {
-            isRegisterMode = mode;
-            const subtitle = document.getElementById('auth-subtitle');
-            const btnSubmit = document.getElementById('btn-auth-submit');
-            const toggleText = document.getElementById('auth-toggle-text');
-
-            if (isRegisterMode) {
-                subtitle.innerText = "Buat akun baru VIP Anda";
-                btnSubmit.innerText = "Daftar Akun Baru";
-                toggleText.innerHTML = `Sudah punya ID akun? <button onclick="toggleAuthMode(false)" class="text-emerald-400 font-bold hover:underline bg-transparent border-none p-0 cursor-pointer">Masuk</button>`;
+        function toggleAuthMode(isRegister) {
+            const sub = document.getElementById('auth-subtitle');
+            const btn = document.getElementById('btn-auth-submit');
+            const tog = document.getElementById('auth-toggle-text');
+            if(isRegister) {
+                sub.innerText = "Buat akun baru VIP Anda";
+                btn.innerText = "Daftar Akun Baru";
+                tog.innerHTML = 'Sudah punya ID? <button onclick="toggleAuthMode(false)" class="text-emerald-400 font-bold">Masuk</button>';
             } else {
-                subtitle.innerText = "Silakan masuk ke akun Anda";
-                btnSubmit.innerText = "Masuk Ke Aplikasi";
-                toggleText.innerHTML = `Belum punya ID akun? <button onclick="toggleAuthMode(true)" class="text-emerald-400 font-bold hover:underline bg-transparent border-none p-0 cursor-pointer">Daftar</button>`;
+                sub.innerText = "Silakan masuk ke akun Anda";
+                btn.innerText = "Masuk Ke Aplikasi";
+                tog.innerHTML = 'Belum punya ID? <button onclick="toggleAuthMode(true)" class="text-emerald-400 font-bold">Daftar</button>';
             }
         }
 
         function handleAuthAction() {
             const user = document.getElementById('auth-username').value.trim();
             const pass = document.getElementById('auth-password').value.trim();
-console.log("Tombol ditekan, User: " + user); 
-    alert("Tombol ditekan!");
-            if (!user || !pass) {
-                alert('Mohon isi semua kolom!');
-                return;
-            }
-
-            if (user.toLowerCase() === "admin" && pass === "admin123") {
-        document.getElementById('user-profile-name').innerText = "ADMINISTRATOR";
-        document.getElementById('view-banner-title').innerText = "DASHBOARD ADMIN";
-        alert('Selamat Datang Admin!');
-    } else {
-        document.getElementById('user-profile-name').innerText = user;
-        document.getElementById('view-banner-title').innerText = "Selamat Datang di Portal Utama";
-        alert('Login Berhasil!');
-    }
-
-    // Ini harus ada di luar if/else agar dashboard PASTI muncul
-    document.getElementById('auth-container').style.display = 'none';
-    document.getElementById('main-app-container').style.display = 'block';
+            if(!user || !pass) { alert('Isi semua kolom!'); return; }
+            
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('main-app-container').style.display = 'block';
+            document.getElementById('user-profile-name').innerText = user;
+            alert('Selamat datang, ' + user);
         }
 
-        function handleLogout() {
-            location.reload();
-        }
-window.onload = function() {
-    // 1. Update Data jika elemennya ada
-    if(localStorage.getItem('bannerText')) {
-        const el = document.getElementById('view-banner-title');
-        if(el) el.innerText = localStorage.getItem('bannerText');
-    }
-    
-    // 2. Update Home & Away
-    if(localStorage.getItem('homeText')) {
-        const el = document.getElementById('view-match-home');
-        if(el) el.innerText = localStorage.getItem('homeText');
-    }
-    if(localStorage.getItem('awayText')) {
-        const el = document.getElementById('view-match-away');
-        if(el) el.innerText = localStorage.getItem('awayText');
-    }
+        function handleLogout() { location.reload(); }
 
-    // 3. Update QRIS
-    if(localStorage.getItem('qrisText')) {
-        const el = document.getElementById('view-qris');
-        if(el) el.src = localStorage.getItem('qrisText');
-    }
-};
-        // Fungsi untuk memunculkan pilihan metode deposit
-function openDepositModal() {
-        const defaultRek = "BCA: 1234567890 (ParlayWins)\nBRI: 0987654321 (ParlayWins)\nDANA/GOPAY/QRIS: 08123456789 (ParlayWins)";
-        const rekeningList = localStorage.getItem('bankText') || defaultRek;
-        
-        if(confirm(rekeningList + "\n\nIngin kirim bukti transfer ke Admin?")) {
-            window.open("https://wa.me/62812138471097?text=Halo Admin, saya ingin kirim bukti transfer deposit 20rb.", "_blank");
-        }
-}
-        
-        Langkah Deposit:
-        1. Transfer sesuai nominal (20rb) ke salah satu rekening di atas.
-        2. Simpan bukti transfer (screenshot).
-        3. Klik tombol di bawah untuk kirim bukti ke Admin (via WhatsApp/Google Form).
-    `;
-    
-    if (confirm(rekeningList + "\n\nIngin kirim bukti transfer ke Admin?")) {
-        // Ganti nomor HP ini dengan nomor WhatsApp Anda
-        window.open("https://wa.me/6281213847109?text=Halo Admin, saya ingin kirim bukti transfer deposit 20rb.", "_blank");
-    }
-}
+        window.onload = function() {
+            if(localStorage.getItem('homeText')) document.getElementById('view-match-home').innerText = localStorage.getItem('homeText');
+            if(localStorage.getItem('awayText')) document.getElementById('view-match-away').innerText = localStorage.getItem('awayText');
+            if(localStorage.getItem('qrisText')) document.getElementById('view-qris').src = localStorage.getItem('qrisText');
+        };
     </script>
-    <!-- Tombol Floating WhatsApp -->
-    <a href="https://wa.me/6281213847109?text=Halo Admin, saya ingin bertanya tentang prediksi." 
-       target="_blank" 
-       class="fixed bottom-6 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition z-50">
-        <i class="fa-brands fa-whatsapp text-2xl"></i>
-    </a>
 </body>
 </html>
