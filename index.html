@@ -61,12 +61,18 @@
         </div>
 
         <div id="match-section" class="space-y-3">
-            <h3 class="text-[10px] font-bold text-slate-500 uppercase">Pertandingan Hari Ini</h3>
-            <div class="bg-slate-900 p-4 rounded-xl flex justify-between items-center">
-                <span id="view-match-home" class="font-bold">HOME</span>
-                <span class="text-emerald-500 font-black">VS</span>
-                <span id="view-match-away" class="font-bold">AWAY</span>
-            </div>
+    <h3 class="text-[10px] font-bold text-slate-500 uppercase">Pertandingan Hari Ini</h3>
+    <div class="bg-slate-900 p-4 rounded-xl flex justify-between items-center border border-slate-700">
+        <div class="text-center w-1/3">
+            <img id="logo-home" src="" class="w-12 h-12 mx-auto mb-2 rounded-full border border-slate-600 bg-white">
+            <span id="view-match-home" class="font-bold text-sm block">HOME</span>
+        </div>
+        <span class="text-emerald-500 font-black text-xl">VS</span>
+        <div class="text-center w-1/3">
+            <img id="logo-away" src="" class="w-12 h-12 mx-auto mb-2 rounded-full border border-slate-600 bg-white">
+            <span id="view-match-away" class="font-bold text-sm block">AWAY</span>
+        </div>
+    </div>
         </div>
 
         <div class="mt-4 p-4 bg-white rounded-xl text-center">
@@ -145,10 +151,19 @@ function submitDeposit() {
         function handleLogout() { location.reload(); }
 
         window.onload = function() {
-            if(localStorage.getItem('homeText')) document.getElementById('view-match-home').innerText = localStorage.getItem('homeText');
-            if(localStorage.getItem('awayText')) document.getElementById('view-match-away').innerText = localStorage.getItem('awayText');
-            if(localStorage.getItem('qrisText')) document.getElementById('view-qris').src = localStorage.getItem('qrisText');
-        };
-    </script>
+    // Update Teks Pertandingan
+    if(localStorage.getItem('homeText')) document.getElementById('view-match-home').innerText = localStorage.getItem('homeText');
+    if(localStorage.getItem('awayText')) document.getElementById('view-match-away').innerText = localStorage.getItem('awayText');
+    
+    // Update Logo Terpisah (Baru)
+    if(localStorage.getItem('logoHome')) document.getElementById('logo-home').src = localStorage.getItem('logoHome');
+    if(localStorage.getItem('logoAway')) document.getElementById('logo-away').src = localStorage.getItem('logoAway');
+    
+    // Update Banner/Selamat Datang (Baru)
+    if(localStorage.getItem('bannerText')) document.getElementById('view-banner-title').innerText = localStorage.getItem('bannerText');
+    
+    // Update QRIS
+    if(localStorage.getItem('qrisText')) document.getElementById('view-qris').src = localStorage.getItem('qrisText');
+};
 </body>
 </html>
