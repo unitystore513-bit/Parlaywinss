@@ -179,7 +179,12 @@
         function handleLogout() {
             location.reload();
         }
-
+window.onload = function() {
+            const savedBanner = localStorage.getItem('bannerText');
+            if (savedBanner) {
+                document.getElementById('view-banner-title').innerText = savedBanner;
+            }
+        };
         // Fungsi untuk memunculkan pilihan metode deposit
 function openDepositModal() {
     const rekeningList = `
