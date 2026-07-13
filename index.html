@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #0b1329; color: #f8fafc; font-family: sans-serif; }
+        body { background-color: #0b1329; color: #f8fafc; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
     </style>
 </head>
 <body class="p-4 max-w-md mx-auto min-h-screen flex flex-col justify-between">
@@ -68,9 +68,7 @@
         &copy; 2026 ParlayWins. All rights reserved.
     </div>
 
-    <!-- ======================================= -->
-    <!-- MODAL POPUP: FORM DEPOSIT USER          -->
-    <!-- ======================================= -->
+    <!-- MODAL POPUP: FORM DEPOSIT USER -->
     <div id="deposit-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-5 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-slate-800 pb-2">
@@ -105,12 +103,9 @@
         </div>
     </div>
 
-    <!-- ======================================= -->
-    <!-- DASHBOARD ADMIN (RAHASIA / TERPISAH)    -->
-    <!-- ======================================= -->
+    <!-- DASHBOARD ADMIN (RAHASIA PANEL) -->
     <div id="admin-dashboard-panel" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col p-4">
         <div class="w-full mx-auto flex flex-col h-full bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
-            <!-- Admin Header -->
             <div class="p-4 bg-slate-950 border-b border-slate-800 flex justify-between items-center">
                 <div class="flex items-center space-x-2">
                     <span class="bg-red-500/10 text-red-400 px-2.5 py-1 rounded text-xs font-bold border border-red-500/20">CONTROL PANEL</span>
@@ -120,15 +115,11 @@
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            
-            <!-- Tabs -->
             <div class="flex border-b border-slate-800 bg-slate-950/50 overflow-x-auto">
                 <button onclick="switchAdminTab('matches')" class="px-5 py-3 text-xs font-bold text-slate-400 border-b-2 border-transparent" id="btn-tab-matches">Kelola Laga</button>
                 <button onclick="switchAdminTab('dep')" class="px-5 py-3 text-xs font-bold text-slate-400 border-b-2 border-transparent" id="btn-tab-dep">Deposit (<span id="admin-dep-count">0</span>)</button>
                 <button onclick="switchAdminTab('set')" class="px-5 py-3 text-xs font-bold text-slate-400 border-b-2 border-transparent" id="btn-tab-set">Settings</button>
             </div>
-
-            <!-- Content -->
             <div class="p-4 overflow-y-auto flex-grow bg-slate-900/40">
                 <!-- Tab: Kelola Laga -->
                 <div id="panel-matches" class="hidden space-y-4">
@@ -201,14 +192,37 @@
         </div>
     </div>
 
-    <!-- ======================================= -->
-    <!-- LOGIC SYSTEM & DATA STORAGE PERSISTENCE -->
-    <!-- ======================================= -->
+    <!-- LOGIC SYSTEM & SAFE PERSISTENCE -->
     <script>
         const defaultLogo = "https://cdn-icons-png.flaticon.com/512/5323/5323861.png";
 
+        // ENGINE PENYELAMAT: Mencegah sistem crash akibat data lama yang rusak
+        function safeGetItem(key, defaultValue) {
+            try {
+                const item = localStorage.getItem(key);
+                if (!item) return defaultValue;
+                return JSON.parse(item);
+            } catch (e) {
+                localStorage.removeItem(key); // Hapus jika format rusak
+                return defaultValue;
+            }
+        }
+
+        function safeSetItem(key, value) {
+            try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             const urlParams = new URLSearchParams(window.location.search);
+            
+            // FITUR RESET TOTAL JIKA TERJADI EROR BERULANG
+            if (urlParams.get('clear') === 'true') {
+                localStorage.clear();
+                alert("Sistem berhasil dibersihkan total!");
+                window.location.href = window.location.pathname;
+                return;
+            }
+
             if (urlParams.get('page') === 'rahasiaadmin') {
                 document.getElementById('admin-dashboard-panel').classList.remove('hidden');
                 switchAdminTab('matches');
@@ -219,12 +233,9 @@
             loadSettings();
         });
 
-        function openDepositModal() {
-            document.getElementById('deposit-modal').classList.remove('hidden');
-        }
-        function closeDepositModal() {
-            document.getElementById('deposit-modal').classList.add('hidden');
-        }
+        function openDepositModal() { document.getElementById('deposit-modal').classList.remove('hidden'); }
+        function closeDepositModal() { document.getElementById('deposit-modal').classList.add('hidden'); }
+
         function submitDepositForm() {
             const name = document.getElementById('form-dep-name').value.trim();
             const amount = document.getElementById('form-dep-amount').value.trim();
@@ -232,9 +243,11 @@
 
             if(!name || !amount) return alert("Harap isi nama dan jumlah transfer Anda!");
 
-            let deposits = JSON.parse(localStorage.getItem('parlay_deposits')) || [];
+            let deposits = safeGetItem('parlay_deposits', []);
+            if(!Array.isArray(deposits)) deposits = [];
+
             deposits.push({ id: Date.now(), name, amount, method, status: 'Pending' });
-            localStorage.setItem('parlay_deposits', JSON.stringify(deposits));
+            safeSetItem('parlay_deposits', deposits);
 
             alert("Konfirmasi terkirim! Admin akan memeriksa mutasi saldo Anda.");
             document.getElementById('form-dep-name').value = '';
@@ -245,9 +258,10 @@
 
         function renderMatches() {
             const container = document.getElementById('match-container');
-            let matches = JSON.parse(localStorage.getItem('parlay_matches')) || [];
+            if(!container) return;
+            let matches = safeGetItem('parlay_matches', []);
             
-            if(matches.length === 0) {
+            if(!Array.isArray(matches) || matches.length === 0) {
                 container.innerHTML = `
                     <div class="bg-slate-900/40 border border-slate-800/80 rounded-xl p-8 text-center">
                         <p class="text-xs text-slate-400 mb-1">Belum ada prediksi aktif jam ini.</p>
@@ -294,12 +308,4 @@
 
         function switchAdminTab(tabName) {
             const tabs = ['matches', 'dep', 'set'];
-            tabs.forEach(t => {
-                const panel = document.getElementById(`panel-${t === 'dep' ? 'deposits' : t === 'set' ? 'settings' : 'matches'}`);
-                const btn = document.getElementById(`btn-tab-${t}`);
-                if(t === tabName) {
-                    panel.classList.remove('hidden');
-                    btn.className = "px-5 py-3 text-xs font-bold text-emerald-400 border-b-2 border-emerald-400 bg-slate-900/40";
-                } else {
-                    panel.classList.add('hidden');
-       
+          
