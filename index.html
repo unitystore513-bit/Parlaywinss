@@ -180,9 +180,13 @@
             location.reload();
         }
         window.onload = function() {
-            // Update Banner
-            if(localStorage.getItem('bannerText')) 
-                document.getElementById('view-banner-title').innerText = localStorage.getItem('bannerText');
+    // Banner
+    if(localStorage.getItem('bannerText')) document.getElementById('view-banner-title').innerText = localStorage.getItem('bannerText');
+    
+    // Update Home & Away
+    if(localStorage.getItem('homeText')) document.getElementById('view-match-home').innerText = localStorage.getItem('homeText');
+    if(localStorage.getItem('awayText')) document.getElementById('view-match-away').innerText = localStorage.getItem('awayText');
+};
             
             // Update Pertandingan
             if(localStorage.getItem('matchText')) {
