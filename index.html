@@ -43,6 +43,13 @@
 
     <!-- 2. INTERFACE UTAMA (DASHBOARD) -->
     <div id="main-app-container" class="space-y-4 w-full" style="display: none;">
+        <!-- Tombol Deposit -->
+<div class="fixed top-4 right-4 z-50">
+    <button onclick="document.getElementById('modal-deposit').style.display='block'" 
+            class="bg-emerald-600 text-white px-4 py-2 rounded-full font-bold text-xs shadow-lg">
+            DEPOSIT
+    </button>
+</div>
         <div class="flex justify-between items-center mb-6">
             <span class="text-xl font-black text-emerald-400">PARLAYWINS</span>
             <button onclick="handleLogout()" class="bg-slate-800 px-4 py-2 rounded-lg text-xs"><i class="fa-solid fa-right-from-bracket"></i></button>
@@ -69,6 +76,34 @@
     </div>
 
     <!-- SCRIPT UTAMA -->
+    <!-- Modal Deposit -->
+<div id="modal-deposit" style="display:none;" class="fixed inset-0 bg-black/80 z-[100] p-4">
+    <div class="bg-slate-900 p-6 rounded-2xl max-w-sm mx-auto mt-20">
+        <h2 class="text-white font-bold mb-4">Pilih Paket Tiket</h2>
+        <div class="space-y-3">
+            <button onclick="openPayment('20rb', '2 Tiket')" class="w-full bg-slate-800 p-4 rounded-lg text-left text-emerald-400 font-bold">20rb - 2 Tiket</button>
+            <button onclick="openPayment('45rb', '4 Tiket')" class="w-full bg-slate-800 p-4 rounded-lg text-left text-emerald-400 font-bold">45rb - 4 Tiket</button>
+        </div>
+        <button onclick="this.parentElement.parentElement.style.display='none'" class="mt-4 text-slate-500 text-xs w-full">Tutup</button>
+    </div>
+</div>
+
+<!-- Form Pembayaran -->
+<div id="payment-form" style="display:none;" class="fixed inset-0 bg-black/90 z-[101] p-4">
+    <div class="bg-slate-900 p-6 rounded-2xl mt-10">
+        <h2 class="text-white font-bold mb-4">Detail Pembayaran</h2>
+        <input type="text" id="nama-pengirim" placeholder="Nama Pengirim" class="w-full p-2 mb-2 bg-slate-800 rounded text-white">
+        <select id="bank-asal" class="w-full p-2 mb-4 bg-slate-800 rounded text-white text-sm">
+            <option>BCA</option><option>BRI</option><option>DANA</option><option>GOPAY</option><option>QRIS</option>
+        </select>
+        <button onclick="submitDeposit()" class="w-full bg-emerald-600 py-3 rounded-lg font-bold text-slate-950">KONFIRMASI DEPOSIT</button>
+    </div>
+</div>
+
+<!-- Live Chat -->
+<a href="https://wa.me/6281213847109" class="fixed bottom-6 left-6 bg-green-500 p-4 rounded-full shadow-2xl z-50">
+    <i class="fa-brands fa-whatsapp text-2xl text-white"></i>
+</a>
     <script>
         function toggleAuthMode(isRegister) {
             const sub = document.getElementById('auth-subtitle');
@@ -95,7 +130,18 @@
             document.getElementById('user-profile-name').innerText = user;
             alert('Selamat datang, ' + user);
         }
+function openPayment(harga, tiket) {
+    document.getElementById('modal-deposit').style.display = 'none';
+    document.getElementById('payment-form').style.display = 'block';
+    window.paketDipilih = { harga, tiket };
+}
 
+function submitDeposit() {
+    const nama = document.getElementById('nama-pengirim').value;
+    const bank = document.getElementById('bank-asal').value;
+    const pesan = `Halo Admin, saya ingin deposit ${window.paketDipilih.tiket} seharga ${window.paketDipilih.harga}. Nama Pengirim: ${nama}, Bank: ${bank}`;
+    window.open(`https://wa.me/6281213847109?text=${encodeURIComponent(pesan)}`);
+}
         function handleLogout() { location.reload(); }
 
         window.onload = function() {
