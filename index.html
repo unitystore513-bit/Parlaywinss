@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ParlayWins - VIP Match Portal</title>
-    <!-- Tailwind CSS & FontAwesome -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -15,7 +14,7 @@
 </head>
 <body class="p-4 max-w-md mx-auto min-h-screen flex flex-col justify-between">
 
-    <!-- 1. GERBANG AUTHENTICATION (TAMPIL SECARA DEFAULT - ANTI BLANK) -->
+    <!-- 1. GERBANG AUTHENTICATION -->
     <div id="auth-container" class="my-auto w-full bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl space-y-6">
         <div class="text-center space-y-1.5">
             <div class="mx-auto bg-emerald-500 p-3 rounded-full text-slate-950 w-12 h-12 flex items-center justify-center shadow-lg shadow-emerald-500/20">
@@ -25,7 +24,6 @@
             <p id="auth-subtitle" class="text-slate-400 text-xs">Silakan masuk ke akun Anda</p>
         </div>
 
-        <!-- Form Isian Akses -->
         <div class="space-y-3.5">
             <div>
                 <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Username</label>
@@ -54,9 +52,8 @@
         </div>
     </div>
 
-    <!-- 2. INTERFACE UTAMA APLIKASI WEB (DISEMBUNYIKAN SEBELUM LOGIN) -->
+    <!-- 2. INTERFACE UTAMA -->
     <div id="main-app-container" class="space-y-4 w-full my-auto" style="display: none;">
-        <!-- Header Aplikasi -->
         <div class="flex justify-between items-center mb-6">
             <div class="flex items-center space-x-2">
                 <div class="bg-emerald-500 p-2 rounded-xl text-slate-950 flex items-center justify-center">
@@ -74,7 +71,6 @@
             </div>
         </div>
 
-        <!-- Banner Dinamis Iklan Utama -->
         <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 p-4 rounded-2xl space-y-2 shadow-xl">
             <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
                 📢 INFORMASI & PENGUMUMAN VIP
@@ -83,7 +79,6 @@
             <p id="view-banner-desc" class="text-slate-400 text-xs leading-relaxed">Nikmati akses penuh ke semua fitur premium kami secara aman.</p>
         </div>
 
-        <!-- Status Saldo Tiket User -->
         <div class="bg-slate-900/50 border border-slate-800/60 rounded-xl p-4 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-emerald-400 border border-slate-700">
@@ -101,7 +96,6 @@
         </div>
     </div>
 
-    <!-- FOOTER ANTI BLANK -->
     <div class="text-center py-4 w-full">
         <p class="text-[9px] font-bold tracking-widest text-slate-600 uppercase">© 2026 ParlayWins Premium Studio. All rights reserved.</p>
         <p class="text-[9px] font-black tracking-widest text-emerald-400 uppercase mt-1 flex items-center justify-center gap-1.5">
@@ -111,7 +105,6 @@
         </p>
     </div>
 
-    <!-- JavaScript Logic -->
     <script>
         let isRegisterMode = false;
 
@@ -145,40 +138,25 @@
                 alert('Pendaftaran berhasil! Silakan masuk.');
                 toggleAuthMode(false);
             } else {
-                document.getElementById('user-profile-name').innerText = user;
+                if (user.toLowerCase() === "admin" && pass === "admin123") {
+                    document.getElementById('user-profile-name').innerText = "ADMINISTRATOR";
+                    document.getElementById('view-banner-title').innerText = "DASHBOARD ADMIN";
+                    document.getElementById('view-banner-desc').innerText = "Anda memiliki akses penuh ke pengaturan sistem.";
+                    alert('Selamat Datang Admin!');
+                } else {
+                    document.getElementById('user-profile-name').innerText = user;
+                    document.getElementById('view-banner-title').innerText = "Selamat Datang di Portal Utama";
+                    document.getElementById('view-banner-desc').innerText = "Nikmati akses penuh ke semua fitur premium kami secara aman.";
+                }
                 document.getElementById('auth-container').style.display = 'none';
                 document.getElementById('main-app-container').style.display = 'block';
             }
         }
 
-        function handleAuthAction() {
-    const user = document.getElementById('auth-username').value.trim().toLowerCase();
-    const pass = document.getElementById('auth-password').value.trim();
-
-    if (!user || !pass) {
-        alert('Mohon isi semua kolom!');
-        return;
-    }
-
-    if (isRegisterMode) {
-        alert('Pendaftaran berhasil! Silakan masuk.');
-        toggleAuthMode(false);
-    } else {
-        // LOGIKA LOGIN ADMIN
-        if (user === "admin" && pass === "admin123") {
-            alert('Selamat Datang Admin!');
-            document.getElementById('user-profile-name').innerText = "ADMINISTRATOR";
-            document.getElementById('view-banner-title').innerText = "DASHBOARD ADMIN";
-            document.getElementById('view-banner-desc').innerText = "Anda memiliki akses penuh ke pengaturan sistem.";
-        } else {
-            // LOGIN USER BIASA
-            document.getElementById('user-profile-name').innerText = user;
+        function handleLogout() {
+            location.reload();
         }
-        
-        document.getElementById('auth-container').style.display = 'none';
-        document.getElementById('main-app-container').style.display = 'block';
-    }
-        }
+
         function openDepositModal() {
             alert('Fitur deposit sedang dipersiapkan.');
         }
