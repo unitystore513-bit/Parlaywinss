@@ -95,7 +95,30 @@
             </div>
         </div>
     </div>
-
+<!-- Bagian Pertandingan Hari Ini -->
+    <div id="match-section" class="space-y-3 mt-6">
+        <h3 class="text-slate-400 text-xs font-bold uppercase tracking-widest pl-1">Pertandingan Hari Ini</h3>
+        
+        <!-- Contoh Kartu Pertandingan (Admin bisa menyalin blok ini untuk menambah pertandingan lain) -->
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-3">
+            <div class="flex items-center justify-between">
+                <div class="text-center">
+                    <div class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-1">⚽</div>
+                    <span class="text-[10px] font-bold">HOME</span>
+                </div>
+                <div class="text-center text-emerald-400 font-black text-lg">VS</div>
+                <div class="text-center">
+                    <div class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-1">⚽</div>
+                    <span class="text-[10px] font-bold">AWAY</span>
+                </div>
+            </div>
+            <div class="text-center pt-2 border-t border-slate-800">
+                <button onclick="alert('Silakan hubungi Admin untuk membuka akses prediksi VIP!')" class="w-full bg-emerald-500/10 text-emerald-400 py-2 rounded-lg text-xs font-bold border border-emerald-500/20">
+                    Lihat Prediksi VIP
+                </button>
+            </div>
+        </div>
+    </div>
     <div class="text-center py-4 w-full">
         <p class="text-[9px] font-bold tracking-widest text-slate-600 uppercase">© 2026 ParlayWins Premium Studio. All rights reserved.</p>
         <p class="text-[9px] font-black tracking-widest text-emerald-400 uppercase mt-1 flex items-center justify-center gap-1.5">
@@ -157,9 +180,30 @@
             location.reload();
         }
 
-        function openDepositModal() {
-            alert('Fitur deposit sedang dipersiapkan.');
-        }
+        // Fungsi untuk memunculkan pilihan metode deposit
+function openDepositModal() {
+    const rekeningList = `
+        BCA: 1234567890 (ParlayWins)
+        BRI: 0987654321 (ParlayWins)
+        DANA/GOPAY/QRIS: 08123456789 (ParlayWins)
+        
+        Langkah Deposit:
+        1. Transfer sesuai nominal (20rb) ke salah satu rekening di atas.
+        2. Simpan bukti transfer (screenshot).
+        3. Klik tombol di bawah untuk kirim bukti ke Admin (via WhatsApp/Google Form).
+    `;
+    
+    if (confirm(rekeningList + "\n\nIngin kirim bukti transfer ke Admin?")) {
+        // Ganti nomor HP ini dengan nomor WhatsApp Anda
+        window.open("https://wa.me/6281213847109?text=Halo Admin, saya ingin kirim bukti transfer deposit 20rb.", "_blank");
+    }
+}
     </script>
+    <!-- Tombol Floating WhatsApp -->
+    <a href="https://wa.me/6281213847109?text=Halo Admin, saya ingin bertanya tentang prediksi." 
+       target="_blank" 
+       class="fixed bottom-6 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition z-50">
+        <i class="fa-brands fa-whatsapp text-2xl"></i>
+    </a>
 </body>
 </html>
