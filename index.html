@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ParlayWins - Prediksi Jitu</title>
-    <!-- Tailwind CSS & FontAwesome -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Tailwind CSS & FontAwesome Stable -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #0b1329; color: #f8fafc; font-family: sans-serif; }
@@ -58,7 +58,7 @@
         <div>
             <h3 class="font-black text-base text-slate-200 mb-4 flex items-center"><i class="fa-solid fa-calendar-days text-emerald-400 mr-2"></i>Prediksi Pertandingan Terkini</h3>
             <div id="match-container" class="space-y-3">
-                <!-- Data pertandingan akan otomatis muncul di sini via JS -->
+                <!-- Data pertandingan otomatis muncul di sini -->
             </div>
         </div>
     </div>
@@ -205,24 +205,20 @@
     <!-- LOGIC SYSTEM & DATA STORAGE PERSISTENCE -->
     <!-- ======================================= -->
     <script>
-        // Data Fallback jika link gambar rusak/kosong
         const defaultLogo = "https://cdn-icons-png.flaticon.com/512/5323/5323861.png";
 
         document.addEventListener("DOMContentLoaded", () => {
-            // Cek apakah user membuka lewat link rahasia admin
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('page') === 'rahasiaadmin') {
                 document.getElementById('admin-dashboard-panel').classList.remove('hidden');
                 switchAdminTab('matches');
             }
 
-            // Muat Data Awal
             renderMatches();
             renderDeposits();
             loadSettings();
         });
 
-        // ================= USER DEPOSIT FUNCTIONS =================
         function openDepositModal() {
             document.getElementById('deposit-modal').classList.remove('hidden');
         }
@@ -247,7 +243,6 @@
             renderDeposits();
         }
 
-        // ================= RENDER FRONTEND MATCHES =================
         function renderMatches() {
             const container = document.getElementById('match-container');
             let matches = JSON.parse(localStorage.getItem('parlay_matches')) || [];
@@ -261,21 +256,19 @@
                 return;
             }
 
-            container.innerHTML = matches.map((m, index) => `
+            container.innerHTML = matches.map((m) => `
                 <div class="bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 rounded-xl p-4 shadow-xl space-y-4">
-                    <!-- Team vs Team UI Grid -->
                     <div class="flex justify-between items-center px-2">
                         <div class="flex flex-col items-center space-y-2 w-5/12 text-center">
-                            <img src="${m.homeLogo || defaultLogo}" onerror="this.src='${defaultLogo}'" class="w-12 h-12 object-contain filter drop-shadow">
+                            <img src="${m.homeLogo || defaultLogo}" onerror="this.src='${defaultLogo}'" class="w-12 h-12 object-contain">
                             <span class="text-xs font-bold text-slate-200 block truncate w-full">${m.home}</span>
                         </div>
-                        <div class="bg-slate-800/80 px-2.5 py-1 rounded-md text-[10px] font-black text-emerald-400 tracking-wider">VS</div>
+                        <div class="bg-slate-800/80 px-2.5 py-1 rounded-md text-[10px] font-black text-emerald-400">VS</div>
                         <div class="flex flex-col items-center space-y-2 w-5/12 text-center">
-                            <img src="${m.awayLogo || defaultLogo}" onerror="this.src='${defaultLogo}'" class="w-12 h-12 object-contain filter drop-shadow">
+                            <img src="${m.awayLogo || defaultLogo}" onerror="this.src='${defaultLogo}'" class="w-12 h-12 object-contain">
                             <span class="text-xs font-bold text-slate-200 block truncate w-full">${m.away}</span>
                         </div>
                     </div>
-                    <!-- Prediction Panel (Locked Visual Mock) -->
                     <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/60 grid grid-cols-3 gap-2 text-center text-[11px]">
                         <div class="bg-slate-900/50 p-1.5 rounded border border-slate-800/40">
                             <span class="text-slate-500 block text-[9px] font-bold uppercase mb-0.5">O/U</span>
@@ -294,8 +287,19 @@
             `).join('');
         }
 
-        // ================= ADMIN PANEL LOGIC =================
         function closeAdminDashboard() {
-            // Membersihkan query param saat menutup panel agar kembali ke halaman utama biasa
             window.history.pushState({}, document.title, window.location.pathname);
-            document.getElementById('admin-dashboard-panel').classList.
+            document.getElementById('admin-dashboard-panel').classList.add('hidden');
+        }
+
+        function switchAdminTab(tabName) {
+            const tabs = ['matches', 'dep', 'set'];
+            tabs.forEach(t => {
+                const panel = document.getElementById(`panel-${t === 'dep' ? 'deposits' : t === 'set' ? 'settings' : 'matches'}`);
+                const btn = document.getElementById(`btn-tab-${t}`);
+                if(t === tabName) {
+                    panel.classList.remove('hidden');
+                    btn.className = "px-5 py-3 text-xs font-bold text-emerald-400 border-b-2 border-emerald-400 bg-slate-900/40";
+                } else {
+                    panel.classList.add('hidden');
+       
