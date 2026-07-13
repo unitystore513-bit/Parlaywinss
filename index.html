@@ -3,255 +3,231 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ParlayWins - Prediksi Parlay Modern</title>
-    <!-- Tailwind CSS -->
+    <title>ParlayWins - Prediksi Jitu</title>
+    <!-- Tailwind CSS & FontAwesome -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Font Awesome untuk Ikon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Firebase SDK (Compat Version) -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <style>
+        body { background-color: #0b1329; color: #f8fafc; font-family: sans-serif; }
+    </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col selection:bg-emerald-500 selection:text-slate-950">
+<body class="p-4 max-w-md mx-auto min-h-screen flex flex-col justify-between">
 
-    <!-- KOTAK DETEKSI EROR OTOMATIS (Akan muncul jika kode crash) -->
-    <div id="global-error-box" class="hidden bg-red-600 text-white p-4 font-mono text-xs fixed top-0 left-0 w-full z-50 shadow-2xl overflow-auto max-h-40 border-b-2 border-red-800">
-        <div class="font-bold border-b border-red-400 pb-1 mb-1 text-sm"><i class="fa-solid fa-bug"></i> SISTEM CRASH DETECTED:</div>
-        <p id="global-error-msg">Mendeteksi masalah...</p>
+    <!-- DETEKTOR ERROR VISUAL -->
+    <div id="error-detector-box" class="hidden bg-red-500/20 border border-red-500 text-red-300 p-3 rounded-xl mb-4 text-xs font-mono break-all">
+        <i class="fa-solid fa-triangle-exclamation mr-1"></i> <strong>Sistem Error Log:</strong> <span id="error-msg-content"></span>
     </div>
 
-    <!-- HEADER -->
-    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-40 px-4 py-3">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <div class="bg-emerald-500 text-slate-950 p-2 rounded-lg font-black tracking-wider text-xl shadow-lg shadow-emerald-500/20">
-                    <i class="fa-solid fa-futbol"></i>
+    <!-- MAIN APP CONTENT -->
+    <div>
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center space-x-2" onclick="openAdminDashboard()">
+                <div class="bg-emerald-500 p-2 rounded-xl text-slate-950 flex items-center justify-center w-10 h-10 shadow-lg shadow-emerald-500/20">
+                    <i class="fa-solid fa-soccer-ball text-xl animate-spin-slow"></i>
                 </div>
-                <span class="text-xl font-black tracking-tight bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">PARLAY<span class="text-slate-100">WINS</span></span>
+                <span class="text-xl font-black tracking-wider text-slate-100">PARLAY<span class="text-emerald-400">WINS</span></span>
             </div>
-            <div class="flex items-center space-x-3">
-                <button onclick="openDepositModal()" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-950 font-bold px-4 py-2 rounded-xl text-sm transition-all shadow-md active:scale-95">
-                    <i class="fa-solid fa-wallet mr-1"></i> Deposit
-                </button>
-            </div>
+            <button class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-4 py-2 rounded-xl text-sm shadow-md transition-all flex items-center space-x-1.5">
+                <i class="fa-solid fa-wallet text-xs"></i> <span>Deposit</span>
+            </button>
         </div>
-    </header>
 
-    <!-- MAIN CONTENT -->
-    <main class="max-w-4xl w-full mx-auto px-4 py-6 flex-grow space-y-6">
-        
-        <!-- HERO BANNER -->
-        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-800 p-6 shadow-xl">
-            <div class="absolute -right-10 -bottom-10 text-slate-700/10 text-9xl font-black"><i class="fa-solid fa-chart-line"></i></div>
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold bg-emerald-500/10 text-emerald-400 rounded-full border border-emerald-500/20 mb-3">
-                <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span> TIPS VIP TERBAIK HARI INI
+        <!-- Banner VIP -->
+        <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 rounded-2xl p-5 mb-5 relative overflow-hidden shadow-2xl">
+            <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full mb-3 inline-block">
+                ● TIPS VIP TERBAIK HARI INI
             </span>
-            <h1 class="text-2xl md:text-4xl font-black tracking-tight leading-tight uppercase">Akurasi Prediksi <br><span class="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Hingga 94.8%</span></h1>
-            <p class="text-slate-400 text-sm mt-2 max-w-lg">Dapatkan analisis mendalam dari admin pro. Sisa saldo tiket Anda digunakan untuk membuka tebakan pemenang, over/under, BTTS, & skor tepat.</p>
+            <h2 class="text-2xl font-black text-slate-100 leading-tight mb-2">AKURASI PREDIKSI <br><span class="text-emerald-400 text-3xl">HINGGA 94.8%</span></h2>
+            <p class="text-slate-400 text-xs leading-relaxed mb-4">Dapatkan analisis mendalam dari admin pro. Sisa saldo tiket Anda digunakan untuk membuka tebakan pemenang, over/under, BTTS, & skor tepat.</p>
         </div>
 
-        <!-- STATUS AKUN -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex justify-between items-center shadow-md">
+        <!-- User Status -->
+        <div class="bg-slate-900/50 border border-slate-800/60 rounded-xl p-4 mb-6 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center text-slate-400 border border-slate-700">
+                <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 border border-slate-700">
                     <i class="fa-solid fa-user"></i>
                 </div>
                 <div>
-                    <div id="user-display-id" class="font-bold text-sm text-slate-300">Memuat User...</div>
-                    <div id="user-status-label" class="text-xs text-emerald-400 flex items-center"><span class="w-2 h-2 bg-emerald-400 rounded-full mr-1.5"></span>Aktif</div>
+                    <h4 id="user-display-name" class="font-bold text-slate-200 text-sm">Memuat User...</h4>
+                    <span class="text-[11px] text-emerald-400 flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>Aktif</span>
                 </div>
             </div>
             <div class="text-right">
-                <div class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Tiket Tersedia</div>
-                <div id="user-tokens" class="text-2xl font-black text-emerald-400">0 Tiket</div>
+                <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Tiket Tersedia</span>
+                <span id="user-tickets" class="text-xl font-black text-emerald-400">0 Tiket</span>
             </div>
         </div>
 
-        <!-- DAFTAR PERTANDINGAN -->
+        <!-- Match Section -->
         <div>
-            <div class="flex items-center space-x-2 mb-4">
-                <i class="fa-solid fa-calendar-days text-emerald-400"></i>
-                <h2 class="text-lg font-bold tracking-tight">Prediksi Pertandingan Terkini</h2>
-            </div>
-            <div id="match-container" class="space-y-4">
-                <!-- Loading State -->
-                <div id="main-loading-spinner" class="text-center py-12 text-slate-500 flex flex-col items-center justify-center gap-3">
-                    <div class="w-8 h-8 border-4 border-emerald-500/25 border-t-emerald-500 rounded-full animate-spin"></div>
-                    <p class="text-sm">Memuat pertandingan...</p>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- FOOTER & ADMIN ACCESS -->
-    <footer class="border-t border-slate-900 bg-slate-950 px-4 py-6 text-center text-xs text-slate-600">
-        <p>&copy; 2026 ParlayWins. All rights reserved.</p>
-        <button onclick="openAdminGate()" class="mt-4 text-slate-700 hover:text-emerald-500 transition-colors font-medium">Admin Panel</button>
-    </footer>
-
-    <!-- MODAL DEPOSIT -->
-    <div id="deposit-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-            <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
-                <h3 class="font-bold text-lg text-slate-100 flex items-center gap-2"><i class="fa-solid fa-wallet text-emerald-400"></i> Form Isi Saldo / Deposit</h3>
-                <button onclick="closeDepositModal()" class="text-slate-400 hover:text-slate-100 w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="p-4 space-y-4 overflow-y-auto flex-grow">
-                <!-- Pilih Paket -->
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Pilih Nominal Deposit</label>
-                    <div class="grid grid-cols-3 gap-2">
-                        <button onclick="selectAmount(20000, 2, this)" class="deposit-amt-btn border border-emerald-500 bg-emerald-500/10 text-emerald-400 p-3 rounded-xl text-center active:scale-95 transition-all">
-                            <div class="font-black text-sm">20 Ribu</div>
-                            <div class="text-[10px] opacity-80">2 Tiket</div>
-                        </button>
-                        <button onclick="selectAmount(50000, 5, this)" class="deposit-amt-btn border border-slate-800 bg-slate-800 text-slate-300 p-3 rounded-xl text-center active:scale-95 transition-all">
-                            <div class="font-black text-sm">50 Ribu</div>
-                            <div class="text-[10px] opacity-80">5 Tiket</div>
-                        </button>
-                        <button onclick="selectAmount(100000, 11, this)" class="deposit-amt-btn border border-slate-800 bg-slate-800 text-slate-300 p-3 rounded-xl text-center active:scale-95 transition-all">
-                            <div class="font-black text-sm">100 Ribu</div>
-                            <div class="text-[10px] text-amber-400 font-bold">+Bonus 1</div>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Metode Pembayaran Tab -->
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Pilih Metode Pembayaran</label>
-                    <div class="flex border-b border-slate-800 text-sm">
-                        <button onclick="switchDepTab('qris')" id="tab-btn-qris" class="flex-1 py-2 font-bold text-emerald-400 border-b-2 border-emerald-500 text-center">QRIS</button>
-                        <button onclick="switchDepTab('bank')" id="tab-btn-bank" class="flex-1 py-2 font-bold text-slate-400 text-center">Transfer Bank</button>
-                        <button onclick="switchDepTab('ewallet')" id="tab-btn-ewallet" class="flex-1 py-2 font-bold text-slate-400 text-center">E-Wallet</button>
-                    </div>
-                    
-                    <!-- Detail Pembayaran -->
-                    <div class="bg-slate-950 p-4 rounded-xl mt-3 border border-slate-800">
-                        <div id="dep-panel-qris" class="space-y-3 text-center flex flex-col items-center">
-                            <p class="text-xs text-slate-400">Scan QRIS resmi Admin:</p>
-                            <div class="bg-white p-2 rounded-xl inline-block">
-                                <img id="display-qris" src="https://placehold.co/200x200/png?text=QRIS+ADMIN" alt="QRIS Admin" class="w-44 h-44 object-contain">
-                            </div>
-                        </div>
-                        <div id="dep-panel-bank" class="hidden space-y-3">
-                            <p class="text-xs text-slate-400">Kirim transfer ke rekening Admin:</p>
-                            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
-                                <div>
-                                    <div class="text-[10px] text-slate-500 font-bold uppercase">Bank Tujuan</div>
-                                    <div class="font-black text-sm text-slate-200">BCA</div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-[10px] text-slate-500 font-bold uppercase">Nomor Rekening</div>
-                                    <div class="font-mono text-sm font-bold text-emerald-400 flex items-center gap-1">
-                                        <span id="display-bank-rek">Belum Diatur</span>
-                                        <button onclick="copyTxt('display-bank-rek')" class="text-slate-400 hover:text-slate-200 p-1"><i class="fa-regular fa-copy"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="dep-panel-ewallet" class="hidden space-y-3">
-                            <p class="text-xs text-slate-400">Kirim saldo e-wallet ke nomor Admin:</p>
-                            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
-                                <div>
-                                    <div class="text-[10px] text-slate-500 font-bold uppercase">E-Wallet</div>
-                                    <div class="font-black text-sm text-slate-200">DANA</div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-[10px] text-slate-500 font-bold uppercase">Nomor HP</div>
-                                    <div class="font-mono text-sm font-bold text-emerald-400 flex items-center gap-1">
-                                        <span id="display-ewallet-rek">Belum Diatur</span>
-                                        <button onclick="copyTxt('display-ewallet-rek')" class="text-slate-400 hover:text-slate-200 p-1"><i class="fa-regular fa-copy"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Input Pengirim -->
-                <div class="space-y-1">
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Nama Pengirim / Atas Nama</label>
-                    <input type="text" id="dep-sender-name" placeholder="Contoh: Budi Santoso" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500">
-                </div>
-            </div>
-            <div class="p-4 border-t border-slate-800 bg-slate-900/50">
-                <button onclick="submitDeposit()" id="submit-dep-btn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black py-3 rounded-xl text-center shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-paper-plane"></i> Konfirmasi Sudah Transfer
-                </button>
+            <h3 class="font-black text-base text-slate-200 mb-4 flex items-center"><i class="fa-solid fa-calendar-days text-emerald-400 mr-2"></i>Prediksi Pertandingan Terkini</h3>
+            <div id="match-container" class="space-y-3 min-h-[150px] flex flex-col items-center justify-center text-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-2 border-emerald-500 border-t-transparent mb-2" id="main-spinner"></div>
+                <p id="loading-text" class="text-xs text-slate-500 font-medium">Memuat pertandingan...</p>
             </div>
         </div>
     </div>
 
-    <!-- DASHBOARD ADMIN MODAL -->
-    <div id="admin-modal" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col p-4">
-        <div class="max-w-4xl w-full mx-auto flex flex-col h-full bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+    <!-- FOOTER -->
+    <div class="text-center text-[10px] text-slate-600 font-medium pt-8 pb-2">
+        &copy; 2026 ParlayWins. All rights reserved.
+    </div>
+
+    <!-- ======================================= -->
+    <!-- ADMIN PANEL DASHBOARD (MODAL WINDOW)    -->
+    <!-- ======================================= -->
+    <div id="admin-dashboard-panel" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col p-4">
+        <div class="w-full mx-auto flex flex-col h-full bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+            <!-- Admin Header -->
             <div class="p-4 bg-slate-950 border-b border-slate-800 flex justify-between items-center">
                 <div class="flex items-center space-x-2">
                     <span class="bg-red-500/10 text-red-400 px-2.5 py-1 rounded text-xs font-bold border border-red-500/20">CONTROL PANEL</span>
                     <h3 class="font-black text-lg text-slate-100">Dashboard Admin ParlayWins</h3>
                 </div>
-                <button onclick="closeAdminDashboard()" class="text-slate-400 hover:text-slate-100 bg-slate-800 w-8 h-8 rounded-full flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeAdminDashboard()" class="text-slate-400 hover:text-slate-100 bg-slate-800 w-8 h-8 rounded-full flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <!-- Admin Navigation Tabs -->
+            <div class="flex border-b border-slate-800 bg-slate-950/50 overflow-x-auto whitespace-nowrap">
+                <button onclick="switchAdminTab('matches')" class="px-5 py-3 text-xs font-bold text-slate-400 border-b-2 border-transparent transition-all hover:text-slate-200" id="btn-tab-matches">Kelola Laga</button>
+                <button onclick="switchAdminTab('dep')" class="px-5 py-3 text-xs font-bold text-slate-400 border-b-2 border-transparent transition-all hover:text-slate-200" id="btn-tab-dep">Persetujuan Deposit</button>
+                <button onclick="switchAdminTab('set')" class="px-5 py-3 text-xs font-bold text-slate-400 border-b-2 border-transparent transition-all hover:text-slate-200" id="btn-tab-set">Settings</button>
             </div>
 
-            <div class="flex border-b border-slate-800 bg-slate-900 text-sm overflow-x-auto">
-                <button onclick="switchAdminTab('matches')" id="adm-tab-matches" class="px-6 py-3 font-bold text-emerald-400 border-b-2 border-emerald-500 whitespace-nowrap"><i class="fa-solid fa-gamepad mr-1"></i> Kelola Laga</button>
-                <button onclick="switchAdminTab('deposits')" id="adm-tab-deposits" class="px-6 py-3 font-bold text-slate-400 whitespace-nowrap flex items-center gap-1.5"><i class="fa-solid fa-receipt"></i> Setujui Deposit <span id="dep-badge" class="bg-amber-500 text-slate-950 text-[10px] font-black px-1.5 py-0.5 rounded-full hidden">0</span></button>
-                <button onclick="switchAdminTab('settings')" id="adm-tab-settings" class="px-6 py-3 font-bold text-slate-400 whitespace-nowrap"><i class="fa-solid fa-sliders mr-1"></i> Rekening & Chat</button>
-            </div>
-
-            <div class="p-4 overflow-y-auto flex-grow space-y-6">
-                <!-- PANEL KELOLA LAGA -->
-                <div id="adm-panel-matches" class="space-y-4">
-                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
-                        <h4 class="font-bold text-sm text-slate-200 uppercase tracking-wider border-b border-slate-800 pb-2"><i class="fa-solid fa-plus text-emerald-400 mr-1"></i> Tambah Pertandingan Baru</h4>
-                        <div class="grid grid-cols-2 gap-3">
-                            <input type="text" id="adm-team-a" placeholder="Nama Tim A (Home)" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-500">
-                            <input type="text" id="adm-team-b" placeholder="Nama Tim B (Away)" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-500">
+            <!-- Admin Content Sections -->
+            <div class="p-4 overflow-y-auto flex-grow bg-slate-900/40">
+                <!-- Tab: Kelola Laga -->
+                <div id="panel-matches" class="hidden space-y-4">
+                    <div class="bg-slate-950 p-4 rounded-xl shadow-lg border border-slate-800 space-y-4">
+                        <h4 class="font-bold text-sm text-slate-200 uppercase tracking-wider border-b border-slate-800 pb-2"><i class="fa-solid fa-plus mr-1.5 text-emerald-400"></i>Tambah / Edit Laga</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tim Tuan Rumah</label>
+                                <input type="text" id="adm-team-home" placeholder="Contoh: Real Madrid" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 text-slate-200">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tim Tamu</label>
+                                <input type="text" id="adm-team-away" placeholder="Contoh: Barcelona" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 text-slate-200">
+                            </div>
                         </div>
-                        <input type="text" id="adm-time" placeholder="Waktu Pertandingan (Contoh: Malam Ini, 23:00 WIB)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-500">
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Prediksi Menang</label>
-                                <input type="text" id="adm-pred-winner" placeholder="Tim A" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Over / Under</label>
-                                <input type="text" id="adm-pred-ou" placeholder="Over 2.5" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500">
-                            </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Prediksi Over/Under</label>
+                            <input type="text" id="adm-pred-over" placeholder="Over 2.5" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 text-slate-200">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">BTTS</label>
-                                <input type="text" id="adm-pred-btts" placeholder="Ya" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500">
+                                <input type="text" id="adm-pred-btts" placeholder="Ya" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 text-slate-200">
                             </div>
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Skor Tepat</label>
-                                <input type="text" id="adm-pred-score" placeholder="2 - 1" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500">
+                                <input type="text" id="adm-pred-score" placeholder="2 - 1" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 text-slate-200">
                             </div>
                         </div>
-                        <button onclick="saveMatch()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2 rounded-xl text-sm transition-all mt-2">Simpan Pertandingan</button>
+                        <button onclick="saveMatch()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs shadow-md transition-colors">
+                            <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Pertandingan
+                        </button>
                     </div>
-
                     <div class="space-y-2">
-                        <h4 class="font-bold text-sm text-slate-400">Daftar Pertandingan Terpasang</h4>
-                        <div id="adm-match-list" class="space-y-2"></div>
+                        <h4 class="font-bold text-xs text-slate-400 uppercase tracking-wider">Daftar Pertandingan Terpasang</h4>
+                        <div id="adn-match-list" class="space-y-2"></div>
                     </div>
                 </div>
 
-                <!-- PANEL PERSETUJUAN DEPOSIT -->
-                <div id="adm-panel-deposits" class="hidden space-y-3">
-                    <h4 class="font-bold text-sm text-slate-400">Permintaan Deposit Member</h4>
+                <!-- Tab: Persetujuan Deposit -->
+                <div id="panel-deposits" class="hidden space-y-3">
+                    <h4 class="font-bold text-xs text-slate-400 uppercase tracking-wider">Permintaan Deposit Member</h4>
                     <div id="adm-deposit-list" class="space-y-2"></div>
                 </div>
 
-                <!-- PANEL SETTINGS -->
-                <div id="adm-panel-settings" class="hidden space-y-4">
+                <!-- Tab: Settings -->
+                <div id="panel-settings" class="hidden space-y-4">
                     <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-4">
-                        <h4 class="font-bold text-sm text-slate-200 uppercase tracking-wider border-b border-slate-800 pb-2">Konfigurasi Pembayaran & Livechat</h4>
+                        <h4 class="font-bold text-xs text-slate-200 uppercase tracking-wider border-b border-slate-800 pb-2">Konfigurasi Pembayaran & Lisensi</h4>
                         <div class="space-y-3">
                             <div>
-                                <label class="block text-xs font-bold text-slate-400 mb-1">Nomor Rekening BCA Admin</label>
-                                <input type="text" id="set-bank-rek" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-500">
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1">Nomor Rekening BCA Admin</label>
+                                <input type="text" id="set-bank-rek" placeholder="Masukkan No Rekening" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-400 mb-1">Nomor Akun DANA Admin</label>
-                                <input type="text" id="set-ewallet-rek" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm 
+                                <label class="block text-[10px] font-bold text-slate-400 mb-1">Nomor Akun DANA Admin</label>
+                                <input type="text" id="set-dana-rek" placeholder="Masukkan No DANA" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================= -->
+    <!-- LOGIC JAVASCRIPT & DATABASE HANDLING   -->
+    <!-- ======================================= -->
+    <script>
+        // FUNGSI DETEKSI ERROR GLOBAL
+        window.onerror = function(message, source, lineno, colno, error) {
+            const errBox = document.getElementById('error-detector-box');
+            const errMsg = document.getElementById('error-msg-content');
+            if (errBox && errMsg) {
+                errBox.classList.remove('hidden');
+                errMsg.innerText = `${message} (Baris: ${lineno})`;
+            }
+            return false;
+        };
+
+        // Inisialisasi awal saat web dibuka
+        document.addEventListener("DOMContentLoaded", () => {
+            console.log("Aplikasi ParlayWins berhasil dimuat.");
+            
+            // Mengubah status memuat dummy agar tidak stuck jika database eksternal belum siap
+            setTimeout(() => {
+                const userTitle = document.getElementById('user-display-name');
+                const loadingText = document.getElementById('loading-text');
+                const spinner = document.getElementById('main-spinner');
+
+                if(userTitle && userTitle.innerText === "Memuat User...") {
+                    userTitle.innerText = "Guest User";
+                }
+                if(loadingText && spinner) {
+                    spinner.classList.add('hidden');
+                    loadingText.innerHTML = "<span class='text-slate-400 block mb-1'>Belum ada prediksi aktif jam ini.</span><span class='text-[10px] text-slate-600 block'>Hubungi admin untuk update jadwal.</span>";
+                }
+            }, 3000); 
+        });
+
+        // Kontrol Dashboard Admin Modal
+        function openAdminDashboard() {
+            document.getElementById('admin-dashboard-panel').classList.remove('hidden');
+            switchAdminTab('matches');
+        }
+        function closeAdminDashboard() {
+            document.getElementById('admin-dashboard-panel').classList.add('hidden');
+        }
+
+        // Sistem Tab Navigasi Admin
+        function switchAdminTab(tabName) {
+            const tabs = ['matches', 'dep', 'set'];
+            tabs.forEach(t => {
+                const panel = document.getElementById(`panel-${t === 'dep' ? 'deposits' : t === 'set' ? 'settings' : 'matches'}`);
+                const btn = document.getElementById(`btn-tab-${t}`);
+                if(panel && btn) {
+                    if(t === tabName) {
+                        panel.classList.remove('hidden');
+                        btn.className = "px-5 py-3 text-xs font-bold text-emerald-400 border-b-2 border-emerald-400 bg-slate-900/40 transition-all";
+                    } else {
+                        panel.classList.add('hidden');
+                        btn.className = "px-5 py-3 text-xs font-bold text-slate-400 border-b-2 border-transparent transition-all hover:text-slate-200";
+                    }
+                }
+            });
+        }
+
+        function saveMatch() {
+            alert("Fitur simpan berhasil dijalankan (Kerangka HTML Normal)!");
+        }
+    </script>
+</body>
+</html>
