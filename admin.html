@@ -17,8 +17,12 @@
 
         <!-- Input Pertandingan -->
         <div>
-            <label class="text-xs font-bold text-slate-400">NAMA PERTANDINGAN (HOME VS AWAY)</label>
-            <input id="admin-match" type="text" class="w-full p-2 bg-slate-800 rounded mt-1 border border-slate-700 text-sm">
+            <label class="text-xs font-bold text-slate-400">TIM HOME</label>
+            <input id="admin-home" type="text" class="w-full p-2 bg-slate-800 rounded mt-1 border border-slate-700 text-sm">
+        </div>
+        <div>
+            <label class="text-xs font-bold text-slate-400">TIM AWAY</label>
+            <input id="admin-away" type="text" class="w-full p-2 bg-slate-800 rounded mt-1 border border-slate-700 text-sm">
         </div>
 
         <!-- Input Rekening -->
@@ -33,7 +37,8 @@
     <script>
         function saveAll() {
             localStorage.setItem('bannerText', document.getElementById('admin-banner').value);
-            localStorage.setItem('matchText', document.getElementById('admin-match').value);
+            localStorage.setItem('homeText', document.getElementById('admin-home').value);
+            localStorage.setItem('awayText', document.getElementById('admin-away').value);
             localStorage.setItem('bankText', document.getElementById('admin-bank').value);
             alert('Semua data berhasil disimpan!');
         }
