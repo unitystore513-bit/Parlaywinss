@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -8,10 +8,13 @@
 <body class="bg-slate-950 text-white p-6">
     <div class="max-w-md mx-auto bg-slate-900 p-6 rounded-2xl shadow-xl space-y-4">
         <h1 class="text-xl font-bold text-emerald-400">Panel Admin Pro</h1>
-        
+
         <!-- Pengaturan WA & VIP -->
         <div class="grid grid-cols-2 gap-2">
-            <div><label class="text-[10px] text-slate-400">NOMOR WA</label><input id="admin-wa" type="text" class="w-full p-2 bg-slate-800 rounded text-sm"></div>
+            <div>
+                <label class="text-[10px] text-slate-400">NOMOR WA</label>
+                <input id="admin-wa" type="text" class="w-full p-2 bg-slate-800 rounded text-sm">
+            </div>
             <div>
                 <label class="text-[10px] text-slate-400">STATUS VIP</label>
                 <select id="admin-vip" class="w-full p-2 bg-slate-800 rounded text-sm">
@@ -25,37 +28,44 @@
         <div class="grid grid-cols-2 gap-2">
             <div><label class="text-[10px] text-slate-400">HOME</label><input id="admin-home" type="text" class="w-full p-2 bg-slate-800 rounded text-sm"></div>
             <div><label class="text-[10px] text-slate-400">AWAY</label><input id="admin-away" type="text" class="w-full p-2 bg-slate-800 rounded text-sm"></div>
+        </div>
+
         <!-- Input Logo Terpisah & Banner -->
-    <div class="grid grid-cols-2 gap-2 mt-2">
-        <div>
-            <label class="text-[10px] text-slate-400 block mb-1">URL LOGO HOME</label>
-            <input id="admin-logoHome" type="text" class="w-full p-2 bg-slate-800 text-white rounded text-sm">
+        <div class="grid grid-cols-2 gap-2 mt-2">
+            <div>
+                <label class="text-[10px] text-slate-400 block mb-1">URL LOGO HOME</label>
+                <input id="admin-logoHome" type="text" class="w-full p-2 bg-slate-800 text-white rounded text-sm">
+            </div>
+            <div>
+                <label class="text-[10px] text-slate-400 block mb-1">URL LOGO AWAY</label>
+                <input id="admin-logoAway" type="text" class="w-full p-2 bg-slate-800 text-white rounded text-sm">
+            </div>
         </div>
-        <div>
-            <label class="text-[10px] text-slate-400 block mb-1">URL LOGO AWAY</label>
-            <input id="admin-logoAway" type="text" class="w-full p-2 bg-slate-800 text-white rounded text-sm">
+        <div class="mt-2">
+            <label class="text-[10px] text-slate-400 block mb-1">TEKS SELAMAT DATANG (BANNER)</label>
+            <input id="admin-bannerText" type="text" class="w-full p-2 bg-slate-800 text-white rounded text-sm">
         </div>
-    </div>
-    <div class="mt-2">
-        <label class="text-[10px] text-slate-400 block mb-1">TEKS SELAMAT DATANG (BANNER)</label>
-        <input id="admin-bannerText" type="text" class="w-full p-2 bg-slate-800 text-white rounded text-sm">
-    </div>
+
         <!-- Prediksi -->
         <div class="grid grid-cols-2 gap-2 text-xs">
-            <div><label>GOL (O/U)</label><input id="admin-gol" type="text" class="w-full p-2 bg-slate-800 rounded"></div>
-            <div><label>PEMENANG</label><input id="admin-win" type="text" class="w-full p-2 bg-slate-800 rounded"></div>
-            <div><label>BTTS</label><input id="admin-btts" type="text" class="w-full p-2 bg-slate-800 rounded"></div>
-            <div><label>CORNER (O/U)</label><input id="admin-corner" type="text" class="w-full p-2 bg-slate-800 rounded"></div>
+            <div><label>GOL (O/U)</label><input id="admin-gol" type="text" class="w-full p-2 bg-slate-800 rounded text-sm"></div>
+            <div><label>PEMENANG</label><input id="admin-win" type="text" class="w-full p-2 bg-slate-800 rounded text-sm"></div>
+            <div><label>BTTS</label><input id="admin-btts" type="text" class="w-full p-2 bg-slate-800 rounded text-sm"></div>
+            <div><label>CORNER (O/U)</label><input id="admin-corner" type="text" class="w-full p-2 bg-slate-800 rounded text-sm"></div>
         </div>
 
-        <!-- QRIS -->
-        <div><label class="text-[10px] text-slate-400">URL GAMBAR QRIS</label><input id="admin-qris" type="text" class="w-full p-2 bg-slate-800 rounded text-sm"></div>
-<div class="mt-4">
-        <label class="text-[10px] text-slate-400">DAFTAR REKENING (BCA, DANA, dll)</label>
-        <textarea id="admin-bank-list" class="w-full p-2 bg-slate-800 rounded text-white text-sm" placeholder="Contoh: BCA 123456, DANA 08123..."></textarea>
-</div>
-        <button onclick="saveAll()" class="w-full bg-emerald-600 p-3 rounded-xl font-bold text-sm">SIMPAN SEMUA DATA</button>
+        <!-- QRIS & Rekening -->
+        <div>
+            <label class="text-[10px] text-slate-400">URL GAMBAR QRIS</label>
+            <input id="admin-qris" type="text" class="w-full p-2 bg-slate-800 rounded text-sm">
+        </div>
+        <div class="mt-4">
+            <label class="text-[10px] text-slate-400">DAFTAR REKENING (BCA, DANA, dll)</label>
+            <textarea id="admin-bank-list" class="w-full p-2 bg-slate-800 rounded text-white text-sm" placeholder="Contoh: BCA 123..."></textarea>
+        </div>
 
+        <button onclick="saveAll()" class="w-full bg-emerald-600 p-3 rounded-xl font-bold text-sm text-white hover:bg-emerald-700 transition">SIMPAN SEMUA DATA</button>
+        
         <hr class="border-slate-700">
 
         <!-- Monitoring Deposit -->
@@ -72,18 +82,30 @@
     </div>
 
     <script>
-    function saveAll() {
-        const fields = ['wa', 'vip', 'home', 'away', 'logoHome', 'logoAway', 'bannerText', 'gol', 'win', 'btts', 'corner', 'qris', 'bank-list'];
-        
-        fields.forEach(field => {
-            const element = document.getElementById('admin-' + field);
-            if (element) {
-                localStorage.setItem(field, element.value);
-            }
-        });
-        
-        alert('Semua data berhasil diperbarui!');
-    }
+        function saveAll() {
+            const fields = ['wa', 'vip', 'home', 'away', 'logoHome', 'logoAway', 'bannerText', 'gol', 'win', 'btts', 'corner', 'qris', 'bank-list'];
+            
+            fields.forEach(field => {
+                const element = document.getElementById('admin-' + field);
+                if (element) {
+                    localStorage.setItem(field, element.value);
+                }
+            });
+            
+            alert('Semua data berhasil diperbarui!');
+        }
+
+        // Otomatis memunculkan kembali data yang pernah disimpan saat halaman dibuka
+        window.onload = function() {
+            const fields = ['wa', 'vip', 'home', 'away', 'logoHome', 'logoAway', 'bannerText', 'gol', 'win', 'btts', 'corner', 'qris', 'bank-list'];
+            fields.forEach(field => {
+                const savedValue = localStorage.getItem(field);
+                const element = document.getElementById('admin-' + field);
+                if (savedValue && element) {
+                    element.value = savedValue;
+                }
+            });
+        }
     </script>
 </body>
 </html>
