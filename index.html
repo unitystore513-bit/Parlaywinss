@@ -99,26 +99,31 @@
     <i class="fa-brands fa-whatsapp text-2xl text-white"></i>
 </a>
     <script>
-    // FUNGSI LOGIN
+    // 1. FUNGSI LOGIN UTAMA
     function handleAuthAction() {
-        const user = document.getElementById('auth-username').value;
-        const pass = document.getElementById('auth-password').value;
+        const userField = document.getElementById('auth-username');
+        const passField = document.getElementById('auth-password');
+        const authDiv = document.getElementById('auth-container');
+        const mainDiv = document.getElementById('main-app-container');
 
-        if (user.trim() === "" || pass.trim() === "") {
-            alert('Harap isi Username dan Password!');
+        if (userField.value.trim() === "" || passField.value.trim() === "") {
+            alert('Harap isi Username dan Password terlebih dahulu!');
             return;
         }
 
-        document.getElementById('auth-container').style.display = 'none';
-        document.getElementById('main-app-container').style.display = 'block';
+        // Proses pindah halaman
+        if (authDiv && mainDiv) {
+            authDiv.style.display = 'none';
+            mainDiv.style.display = 'block';
+        }
     }
 
-    // FUNGSI PESAN DAFTAR
+    // 2. FUNGSI POP-UP DAFTAR
     function showRegisterAlert() {
         alert("Silakan hubungi Admin melalui WhatsApp untuk proses pendaftaran.");
     }
 
-    // FUNGSI PEMBAYARAN
+    // 3. FUNGSI PEMBAYARAN & DEPOSIT
     function openPayment(harga, tiket) {
         document.getElementById('modal-deposit').style.display = 'none';
         document.getElementById('payment-form').style.display = 'block';
@@ -131,3 +136,9 @@
         const pesan = `Halo Admin, saya ingin deposit ${window.paketDipilih.tiket} seharga ${window.paketDipilih.harga}. Nama: ${nama}, Bank: ${bank}`;
         window.open('https://wa.me/62812123847109?text=' + encodeURIComponent(pesan));
     }
+
+    // 4. FUNGSI LOGOUT (KELUAR)
+    function handleLogout() { 
+        location.reload(); 
+    }
+    </script>
