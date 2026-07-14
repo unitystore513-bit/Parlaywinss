@@ -13,32 +13,21 @@
 <body class="p-4 max-w-md mx-auto h-screen flex flex-col justify-center items-center bg-[#0b1329]">
     <!-- 1. GERBANG AUTHENTICATION -->
     
-        <div class="text-center space-y-1.5 mt-20">
-            <i class="fa-solid fa-user-lock text-4xl text-emerald-500"></i>
-            <h2 class="text-xl font-black tracking-wider text-slate-100 uppercase">PARLAYWINS</h2>
-            <p id="auth-subtitle" class="text-slate-400 text-xs">Silakan masuk ke akun Anda</p>
+        <div id="auth-container" class="w-full flex flex-col items-center p-6 bg-[#0b1329]">
+        <h2 class="text-2xl font-bold text-white mb-6">PARLAYWINS</h2>
+        
+        <input type="text" id="auth-username" placeholder="Username" class="w-full max-w-sm p-4 mb-4 bg-slate-800 text-white rounded-2xl border border-slate-700">
+        <input type="password" id="auth-password" placeholder="Password" class="w-full max-w-sm p-4 mb-6 bg-slate-800 text-white rounded-2xl border border-slate-700">
+
+        <button onclick="handleAuthAction()" class="w-full max-w-sm bg-emerald-500 py-4 rounded-2xl font-bold text-white text-lg shadow-lg hover:bg-emerald-600 transition">
+            Masuk Ke Aplikasi
+        </button>
+
+        <p class="mt-6 text-slate-400 text-sm">
+            Belum punya ID akun? 
+            <span onclick="showRegisterAlert()" class="text-emerald-400 font-bold cursor-pointer underline">Daftar</span>
+        </p>
         </div>
-
-        <div class="space-y-3.5 mt-8">
-            <div>
-                <!-- AREA LOGIN -->
-<div id="auth-container" class="w-full" style="display: block;">
-    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">USERNAME</label>
-    <input type="text" id="auth-username" placeholder="Masukkan Username" class="w-full p-3 bg-slate-800 rounded-xl mb-4 text-white">
-
-    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">PASSWORD</label>
-    <input type="password" id="auth-password" placeholder="Masukkan Password" class="w-full p-3 bg-slate-800 rounded-xl mb-6 text-white">
-
-    <button onclick="handleAuthAction()" id="btn-auth-submit" class="w-full bg-emerald-500 p-3 rounded-xl font-bold text-white">
-    Masuk Ke Aplikasi
-    </button>
-</div>
-        <div class="text-center pt-4">
-            <p id="auth-toggle-text" class="text-xs text-slate-400">
-                Belum punya ID akun? <button onclick="toggleAuthMode(true)" class="text-emerald-400 font-bold">Daftar</button>
-            </p>
-        </div>
-    </div>
 
     <!-- 2. INTERFACE UTAMA (DASHBOARD) -->
     <div id="main-app-container" class="space-y-4 w-full" style="display: none;">
@@ -110,27 +99,26 @@
     <i class="fa-brands fa-whatsapp text-2xl text-white"></i>
 </a>
     <script>
+    // FUNGSI LOGIN
     function handleAuthAction() {
         const user = document.getElementById('auth-username').value;
         const pass = document.getElementById('auth-password').value;
+
         if (user.trim() === "" || pass.trim() === "") {
-            alert('Isi username dan password!');
+            alert('Harap isi Username dan Password!');
             return;
         }
+
         document.getElementById('auth-container').style.display = 'none';
         document.getElementById('main-app-container').style.display = 'block';
     }
 
-    function toggleAuthMode(isRegister) {
-        const btn = document.getElementById('btn-auth-submit');
-        if (isRegister) {
-            btn.innerText = "Daftar Akun Baru";
-            alert("Silakan hubungi Admin untuk pendaftaran.");
-        } else {
-            btn.innerText = "Masuk Ke Aplikasi";
-        }
+    // FUNGSI PESAN DAFTAR
+    function showRegisterAlert() {
+        alert("Silakan hubungi Admin melalui WhatsApp untuk proses pendaftaran.");
     }
 
+    // FUNGSI PEMBAYARAN
     function openPayment(harga, tiket) {
         document.getElementById('modal-deposit').style.display = 'none';
         document.getElementById('payment-form').style.display = 'block';
@@ -143,4 +131,3 @@
         const pesan = `Halo Admin, saya ingin deposit ${window.paketDipilih.tiket} seharga ${window.paketDipilih.harga}. Nama: ${nama}, Bank: ${bank}`;
         window.open('https://wa.me/62812123847109?text=' + encodeURIComponent(pesan));
     }
-    </script>
