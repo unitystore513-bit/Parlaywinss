@@ -1,221 +1,258 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ParlayWins - VIP Match Portal</title>
+    <title>ParlayWins - Portal Utama</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #0b1329; color: #f8fafc; font-family: sans-serif; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.85); z-index: 50; align-items: center; justify-content: center; p: 4; }
     </style>
 </head>
-<body class="p-4 max-w-md mx-auto h-screen flex flex-col justify-center items-center bg-[#0b1329]">
-    <!-- 1. GERBANG AUTHENTICATION -->
-    
-        <div id="auth-container" class="w-full flex flex-col items-center p-6 bg-[#0b1329]">
-        <h2 class="text-2xl font-bold text-white mb-6">PARLAYWINS</h2>
+<body class="bg-slate-950 text-white font-sans">
+
+    <!-- Container Utama Aplikasi -->
+    <div class="max-w-md mx-auto min-h-screen bg-slate-900 shadow-2xl relative pb-24 border-x border-slate-800">
         
-        <input type="text" id="auth-username" placeholder="Username" class="w-full max-w-sm p-4 mb-4 bg-slate-800 text-white rounded-2xl border border-slate-700">
-        <input type="password" id="auth-password" placeholder="Password" class="w-full max-w-sm p-4 mb-6 bg-slate-800 text-white rounded-2xl border border-slate-700">
-
-        <button onclick="handleAuthAction()" class="w-full max-w-sm bg-emerald-500 py-4 rounded-2xl font-bold text-white text-lg shadow-lg hover:bg-emerald-600 transition">
-            Masuk Ke Aplikasi
-        </button>
-
-        <p class="mt-6 text-slate-400 text-sm">
-            Belum punya ID akun? 
-            <span onclick="showRegisterAlert()" class="text-emerald-400 font-bold cursor-pointer underline">Daftar</span>
-        </p>
-        </div>
-<!-- AREA DAFTAR (FORM PENDAFTARAN) -->
-    <div id="register-container" class="w-full flex flex-col items-center p-6 bg-[#0b1329]" style="display: none;">
-        <h2 class="text-2xl font-bold text-white mb-6">DAFTAR AKUN BARU</h2>
-        
-        <input type="text" id="reg-username" placeholder="Buat Username" class="w-full max-w-sm p-4 mb-4 bg-slate-800 text-white rounded-2xl border border-slate-700">
-        <input type="password" id="reg-password" placeholder="Buat Password" class="w-full max-w-sm p-4 mb-4 bg-slate-800 text-white rounded-2xl border border-slate-700">
-        <input type="number" id="reg-wa" placeholder="Nomor WhatsApp (Opsional)" class="w-full max-w-sm p-4 mb-6 bg-slate-800 text-white rounded-2xl border border-slate-700">
-
-        <button onclick="submitRegister()" class="w-full max-w-sm bg-emerald-500 py-4 rounded-2xl font-bold text-white text-lg shadow-lg hover:bg-emerald-600 transition">
-            Daftar Sekarang
-        </button>
-
-        <p class="mt-6 text-slate-400 text-sm">
-            Sudah punya akun? 
-            <span onclick="showLoginForm()" class="text-emerald-400 font-bold cursor-pointer underline">Masuk di sini</span>
-        </p>
-    </div>
-    <!-- 2. INTERFACE UTAMA (DASHBOARD) -->
-    <div id="main-app-container" class="space-y-4 w-full" style="display: none;">
-        <!-- Tombol Deposit -->
-<div class="fixed top-4 right-4 z-50">
-    <button onclick="document.getElementById('modal-deposit').style.display='block'" 
-            class="bg-emerald-600 text-white px-4 py-2 rounded-full font-bold text-xs shadow-lg">
-            DEPOSIT
-    </button>
-</div>
-        <!-- Header Dashboard Baru -->
-    <div class="flex justify-between items-center mb-6 w-full">
-        <!-- Tombol Keluar Kiri -->
-        <button onclick="handleLogout()" class="bg-slate-800 px-4 py-2 rounded-lg text-xs font-bold text-white shadow">
-            <i class="fa-solid fa-right-from-bracket"></i> Keluar
-        </button>
-        <!-- Teks ⚽ Parlaywins Kanan -->
-        <span class="text-xl font-black text-emerald-400 tracking-wider">⚽ PARLAYWINS</span>
-    </div>
-
-        <div class="bg-slate-900 p-4 rounded-xl border border-slate-700">
-            <h2 id="view-banner-title" class="text-sm font-bold">Selamat Datang di Portal Utama</h2>
-            <p id="user-profile-name" class="text-[10px] text-emerald-500 font-bold uppercase"></p>
+        <!-- TOP BAR NAVIGASI -->
+        <div class="p-4 flex justify-between items-center bg-slate-900/80 backdrop-blur sticky top-0 z-30 border-b border-slate-800">
+            <div class="flex items-center gap-2">
+                <button onclick="handleLogout()" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-xl font-medium transition">
+                    🚪 Keluar
+                </button>
+            </div>
+            <div class="flex items-center gap-3">
+                <!-- TIKET SALDO DI SEBELAH TOMBOL DEPOSIT -->
+                <div class="bg-amber-500/10 border border-amber-500/30 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                    <span class="text-xs text-amber-400 font-medium">Tiket:</span>
+                    <span id="ticket-balance" class="text-sm font-black text-amber-300">0</span>
+                    <span class="text-xs">🎟️</span>
+                </div>
+                <button onclick="toggleModal('modal-deposit', true)" class="bg-emerald-600 hover:bg-emerald-700 text-xs font-bold px-4 py-2 rounded-xl transition uppercase tracking-wide">
+                    DEPOSIT
+                </button>
+            </div>
         </div>
 
-        <div id="match-section" class="space-y-3">
-    <h3 class="text-[10px] font-bold text-slate-500 uppercase">Pertandingan Hari Ini</h3>
-    <div class="bg-slate-900 p-4 rounded-xl flex justify-between items-center border border-slate-700">
-        <div class="text-center w-1/3">
-            <img id="logo-home" src="" class="w-12 h-12 mx-auto mb-2 rounded-full border border-slate-600 bg-white">
-            <span id="view-match-home" class="font-bold text-sm block">HOME</span>
+        <!-- LOGO BRAND -->
+        <div class="p-6 flex items-center justify-center gap-2 mt-2">
+            <span class="text-2xl">⚽</span>
+            <h1 class="text-2xl font-black tracking-wider text-emerald-400 italic">PARLAYWINS</h1>
         </div>
-        <span class="text-emerald-500 font-black text-xl">VS</span>
-        <div class="text-center w-1/3">
-            <img id="logo-away" src="" class="w-12 h-12 mx-auto mb-2 rounded-full border border-slate-600 bg-white">
-            <span id="view-match-away" class="font-bold text-sm block">AWAY</span>
+
+        <!-- TEXT BANNER UTAMA -->
+        <div class="mx-4 p-4 bg-slate-800/60 border border-slate-700 rounded-2xl text-center">
+            <p id="view-banner-title" class="text-sm font-semibold text-slate-200">Selamat datang di parlaywins</p>
         </div>
+
+        <!-- DAFTAR PERTANDINGAN DINAMIS -->
+        <div class="mt-6 px-4 space-y-4">
+            <h3 class="text-xs font-bold tracking-widest text-slate-400 uppercase">PERTANDINGAN HARI INI</h3>
+            
+            <div id="match-container" class="space-y-4">
+                <!-- Data List Pertandingan di-render otomatis dari JavaScript -->
+            </div>
+        </div>
+
+        <!-- RUANG TEKS PERINGATAN (PENGGANTI BANK DULU) -->
+        <div class="mx-4 mt-6 p-4 bg-amber-500/5 border border-amber-500/20 rounded-2xl">
+            <h4 class="text-[11px] font-bold text-amber-500 uppercase tracking-wider mb-1">⚠️ INFO & TEKS PERINGATAN ADMIN</h4>
+            <p id="view-warning-text" class="text-xs text-amber-200/80 leading-relaxed">
+                Memuat teks peringatan...
+            </p>
+        </div>
+
+        <!-- FLOAT FLOATING WA BUTTON -->
+        <a id="wa-link" href="#" target="_blank" class="fixed bottom-6 right-6 bg-emerald-500 p-4 rounded-full shadow-lg hover:bg-emerald-600 transition z-40">
+            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.713-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.966C16.528 1.975 14.066 1.05 11.455 1.05 6.023 1.05 1.6 5.419 1.597 10.85c-.001 1.702.447 3.366 1.3 4.803l-1.02 3.725 3.82-1.002zm12.353-5.38c-.33-.165-1.951-.963-2.251-1.073-.3-.109-.518-.165-.736.165-.218.33-.845 1.073-1.036 1.292-.19.218-.38.245-.71.082-1.203-.603-2.004-1.066-2.805-2.442-.21-.362.21-.336.6-.112.35.201.38.245.57.518.19.273.09.518-.01.71-.1.192-.736 1.774-.903 2.184-.165.409-.33.355-.66.19-1.256-.627-2.15-1.263-2.905-2.564-.197-.34-.02-.524.15-.694.152-.153.33-.355.495-.532.165-.18.22-.3.33-.5.11-.197.055-.382-.028-.546-.082-.165-.736-1.774-1.009-2.43-.267-.64-.54-.554-.736-.564-.19-.01-.409-.01-.628-.01-.218 0-.573.082-.873.409-.3.33-1.146 1.119-1.146 2.728 0 1.61 1.173 3.165 1.336 3.383.165.218 2.307 3.522 5.59 4.943.78.337 1.39.539 1.864.69.784.249 1.498.214 2.062.13.629-.094 1.951-.798 2.224-1.57.273-.772.273-1.434.19-1.57-.081-.136-.3-.218-.63-.383z"/></svg>
+        </a>
     </div>
-        </div>
-<!-- Tombol Buka Prediksi VIP -->
-    <div class="mt-6 w-full text-center">
-        <button onclick="openVipPrediction()" class="w-full max-w-sm mx-auto bg-gradient-to-r from-yellow-400 to-yellow-600 text-black font-black text-xl py-4 rounded-2xl shadow-[0_0_15px_rgba(250,204,21,0.5)] uppercase tracking-wider animate-pulse">
-            🔥 BUKA PREDIKSI VIP 🔥
-        </button>
-    </div>
-        <div class="mt-4 p-4 bg-slate-800 rounded-lg border border-slate-700">
-    
-    <p id="view-bank-list" class="text-white font-bold text-sm mt-1"></p>
+
+    <!-- MODAL DEPOSIT UI MODERN -->
+    <div id="modal-deposit" class="modal">
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl w-full max-w-sm shadow-2xl relative text-center space-y-4">
+            <h3 class="text-lg font-black text-emerald-400 uppercase tracking-wide">💳 Top Up Tiket VIP</h3>
+            <p class="text-xs text-slate-400">Silakan pilih paket, transfer ke rekening/QRIS di bawah ini, lalu isi konfirmasi bukti transaksi.</p>
+            
+            <!-- QRIS & Bank Info di dalam Modal -->
+            <div class="bg-slate-950 p-3 rounded-2xl space-y-3 border border-slate-800">
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Metode Pembayaran Resmi</p>
+                <div id="deposit-qris-container" class="hidden justify-center">
+                    <img id="deposit-qris-img" src="" alt="QRIS Admin" class="max-h-40 rounded-lg border border-slate-800 shadow">
+                </div>
+                <div id="deposit-bank-text" class="text-xs text-slate-300 font-mono whitespace-pre-line text-left bg-slate-900 p-2 rounded border border-slate-800">
+                    Rekening Belum Diatur Admin.
+                </div>
+            </div>
+
+            <!-- Form Pendaftaran / Pengajuan Form Bukti Pembayaran -->
+            <div class="space-y-3 text-left">
+                <div>
+                    <label class="text-[10px] text-slate-400 font-bold block mb-1">USERNAME AKUN ANDA</label>
+                    <input id="dep-username" type="text" class="w-full p-2 bg-slate-800 rounded-xl text-xs border border-slate-700 text-white" placeholder="Contoh: BudiGanteng">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 font-bold block mb-1">PILIH PAKET TIKET</label>
+                    <select id="dep-paket" class="w-full p-2 bg-slate-800 rounded-xl text-xs border border-slate-700 text-white">
+                        <option value="20rb|2">Rp 20.000 (Dapat 2 Tiket)</option>
+                        <option value="45rb|4">Rp 45.000 (Dapat 4 Tiket)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 font-bold block mb-1">MASUKKAN BUKTI PEMBAYARAN (Nama Pengirim / No Ref / TxID)</label>
+                    <textarea id="dep-bukti" rows="2" class="w-full p-2 bg-slate-800 rounded-xl text-xs border border-slate-700 text-white" placeholder="Contoh: Sudah Transfer Via Bank Mandiri Atas Nama Budi Sutrisno / Ref 991203"></textarea>
+                </div>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button onclick="toggleModal('modal-deposit', false)" class="flex-1 bg-slate-800 text-slate-400 text-xs py-2.5 rounded-xl font-bold">Tutup</button>
+                <button onclick="submitDepositForm()" class="flex-1 bg-emerald-600 text-white text-xs py-2.5 rounded-xl font-bold shadow-lg shadow-emerald-600/20">Kirim Bukti</button>
+            </div>
         </div>
     </div>
 
-    <!-- SCRIPT UTAMA -->
-    <!-- Modal Deposit -->
-<div id="modal-deposit" style="display:none;" class="fixed inset-0 bg-black/80 z-[100] p-4">
-    <div class="bg-slate-900 p-6 rounded-2xl max-w-sm mx-auto mt-20">
-        <h2 class="text-white font-bold mb-4">Pilih Paket Tiket</h2>
-        <div class="space-y-3">
-            <button onclick="openPayment('20rb', '2 Tiket')" class="w-full bg-slate-800 p-4 rounded-lg text-left text-emerald-400 font-bold">20rb - 2 Tiket</button>
-            <button onclick="openPayment('45rb', '4 Tiket')" class="w-full bg-slate-800 p-4 rounded-lg text-left text-emerald-400 font-bold">45rb - 4 Tiket</button>
-        </div>
-        <button onclick="this.parentElement.parentElement.style.display='none'" class="mt-4 text-slate-500 text-xs w-full">Tutup</button>
-    </div>
-</div>
-
-<!-- Form Pembayaran -->
-<div id="payment-form" style="display:none;" class="fixed inset-0 bg-black/90 z-[101] p-4">
-    <div class="bg-slate-900 p-6 rounded-2xl mt-10">
-        <h2 class="text-white font-bold mb-4">Detail Pembayaran</h2>
-        <input type="text" id="nama-pengirim" placeholder="Nama Pengirim" class="w-full p-2 mb-2 bg-slate-800 rounded text-white">
-        <select id="bank-asal" class="w-full p-2 mb-4 bg-slate-800 rounded text-white text-sm">
-            <option>BCA</option><option>BRI</option><option>DANA</option><option>GOPAY</option><option>QRIS</option>
-        </select>
-        <button onclick="submitDeposit()" class="w-full bg-emerald-600 py-3 rounded-lg font-bold text-slate-950">KONFIRMASI DEPOSIT</button>
-    </div>
-</div>
-
-<!-- Live Chat -->
-<a href="https://wa.me/6281213847109" class="fixed bottom-6 left-6 bg-green-500 p-4 rounded-full shadow-2xl z-50">
-    <i class="fa-brands fa-whatsapp text-2xl text-white"></i>
-</a>
+    <!-- MAIN APP JAVASCRIPT SYSTEM -->
     <script>
-    // 1. FUNGSI OTOMATIS AMBIL DATA DARI PANEL ADMIN
-    window.onload = function() {
-        const homeName = localStorage.getItem('home');
-        const awayName = localStorage.getItem('away');
-        const logoHomeUrl = localStorage.getItem('logoHome');
-        const logoAwayUrl = localStorage.getItem('logoAway');
-        const bannerText = localStorage.getItem('bannerText');
-        const bankList = localStorage.getItem('bank-list');
+        window.onload = function() {
+            // Update Saldo Tiket dari Memori
+            updateTicketDisplay();
 
-        if (homeName) document.getElementById('view-match-home').innerText = homeName;
-        if (awayName) document.getElementById('view-match-away').innerText = awayName;
-        if (logoHomeUrl) document.getElementById('logo-home').src = logoHomeUrl;
-        if (logoAwayUrl) document.getElementById('logo-away').src = logoAwayUrl;
-        if (bannerText) document.getElementById('view-banner-title').innerText = bannerText;
-        
-        const bankElement = document.getElementById('view-bank-list');
-        if (bankElement && bankList) bankElement.innerText = bankList;
-    };
+            // Load Konfigurasi Utama dari Admin
+            const targetWa = localStorage.getItem('wa') || '62812123847109';
+            document.getElementById('wa-link').href = 'https://wa.me/' + targetWa;
+            
+            const bannerText = localStorage.getItem('bannerText') || 'Selamat datang di parlaywins';
+            document.getElementById('view-banner-title').innerText = bannerText;
 
-    // 2. FUNGSI KETIK USER KLIK TOMBOL BUKA PREDIKSI VIP
-    function openVipPrediction() {
-        const vipStatus = localStorage.getItem('vip');
-        if (vipStatus === "Tidak Aktif") {
-            alert("Maaf, Prediksi VIP saat ini sedang dinonaktifkan oleh Admin.");
-            return;
+            const warningText = localStorage.getItem('warningText') || 'Peringatan: Prediksi bola memiliki risiko. Harap gunakan saldo dengan bijak!';
+            document.getElementById('view-warning-text').innerText = warningText;
+
+            // Load QRIS & Bank di Modal Deposit
+            const qrisUrl = localStorage.getItem('qris');
+            if(qrisUrl) {
+                document.getElementById('deposit-qris-img').src = qrisUrl;
+                document.getElementById('deposit-qris-container').style.display = 'flex';
+            }
+            const bankList = localStorage.getItem('bank-list');
+            if(bankList) {
+                document.getElementById('deposit-bank-text').innerText = bankList;
+            }
+
+            // Render Banyak Pertandingan yang Diatur Admin
+            renderMatches();
+        };
+
+        function updateTicketDisplay() {
+            const balance = localStorage.getItem('userTickets') || '0';
+            document.getElementById('ticket-balance').innerText = balance;
         }
-        
-        const win = localStorage.getItem('win') || 'Belum diatur';
-        const gol = localStorage.getItem('gol') || 'Belum diatur';
-        const btts = localStorage.getItem('btts') || 'Belum diatur';
-        const corner = localStorage.getItem('corner') || 'Belum diatur';
 
-        alert(`🔥 DETAIL PREDIKSI VIP HARI INI 🔥\n\n⚽ Pemenang: ${win}\n📊 Gol (O/U): ${gol}\n🔄 BTTS: ${btts}\n🚩 Corner: ${corner}`);
-    }
-
-    // 3. FUNGSI LOGIN
-    function handleAuthAction() {
-        const userField = document.getElementById('auth-username');
-        const passField = document.getElementById('auth-password');
-        const authDiv = document.getElementById('auth-container');
-        const mainDiv = document.getElementById('main-app-container');
-
-        if (userField.value.trim() === "" || passField.value.trim() === "") {
-            alert('Harap isi Username dan Password!');
-            return;
+        function toggleModal(id, show) {
+            document.getElementById(id).style.display = show ? 'flex' : 'none';
         }
-        if (authDiv && mainDiv) {
-            authDiv.style.display = 'none';
-            mainDiv.style.display = 'block';
+
+        function renderMatches() {
+            const container = document.getElementById('match-container');
+            const matches = JSON.parse(localStorage.getItem('matches') || '[]');
+            
+            if (matches.length === 0) {
+                container.innerHTML = '<p class="text-xs text-center text-slate-500 py-6">Belum ada jadwal pertandingan dari admin.</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            matches.forEach(m => {
+                container.innerHTML += `
+                    <div class="bg-slate-800/80 border border-slate-700/60 rounded-3xl p-5 shadow-lg space-y-4">
+                        <div class="flex justify-between items-center text-center">
+                            <div class="w-1/3 flex flex-col items-center gap-2">
+                                <img src="${m.logoHome}" class="w-12 h-12 object-contain" alt="Home">
+                                <span class="text-xs font-bold text-slate-200">${m.home}</span>
+                            </div>
+                            <div class="w-1/3 text-emerald-400 font-black text-sm tracking-widest">VS</div>
+                            <div class="w-1/3 flex flex-col items-center gap-2">
+                                <img src="${m.logoAway}" class="w-12 h-12 object-contain" alt="Away">
+                                <span class="text-xs font-bold text-slate-200">${m.away}</span>
+                            </div>
+                        </div>
+
+                        <!-- Tombol Buka Prediksi VIP di Setiap Match -->
+                        <button onclick="unlockVipPrediction(${m.id})" class="w-full bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 text-slate-950 font-black text-xs py-3 rounded-xl tracking-wider uppercase transition shadow-md">
+                            🔒 BUKA PREDIKSI VIP (1 Tiket)
+                        </button>
+                    </div>
+                `;
+            });
         }
-    }
 
-    // 4. FUNGSI DAFTAR & FORM MUTASI
-    function showRegisterAlert() {
-        document.getElementById('auth-container').style.display = 'none';
-        document.getElementById('register-container').style.display = 'flex';
-    }
+        function unlockVipPrediction(matchId) {
+            const vipStatus = localStorage.getItem('vip') || 'Aktif';
+            if (vipStatus === "Tidak Aktif") {
+                alert("Maaf, Sistem Prediksi VIP saat ini sedang dinonaktifkan sementara oleh Admin.");
+                return;
+            }
 
-    function showLoginForm() {
-        document.getElementById('register-container').style.display = 'none';
-        document.getElementById('auth-container').style.display = 'flex';
-    }
+            let currentTickets = parseInt(localStorage.getItem('userTickets') || '0');
+            
+            // Cek ketersediaan tiket user
+            if (currentTickets < 1) {
+                alert("❌ Tiket Anda Habis! Silakan lakukan DEPOSIT terlebih dahulu untuk membeli tiket prediksi VIP.");
+                toggleModal('modal-deposit', true);
+                return;
+            }
 
-    function submitRegister() {
-        const user = document.getElementById('reg-username').value;
-        const pass = document.getElementById('reg-password').value;
-        if (user.trim() === "" || pass.trim() === "") {
-            alert('Harap isi Username dan Password untuk mendaftar!');
-            return;
+            // Ambil data pertandingan spesifik
+            const matches = JSON.parse(localStorage.getItem('matches') || '[]');
+            const matchedData = matches.find(m => m.id === matchId);
+
+            if (!matchedData) return alert('Data pertandingan tidak ditemukan!');
+
+            // Kurangi 1 Tiket
+            currentTickets -= 1;
+            localStorage.setItem('userTickets', currentTickets);
+            updateTicketDisplay();
+
+            // Tampilkan Detail Hasil Prediksi
+            alert(`🔥 DETAIL PREDIKSI VIP UNTUK: ${matchedData.home} VS ${matchedData.away} 🔥\n\n⚽ GOL (O/U): ${matchedData.gol || 'Belum diatur'}\n📊 PEMENANG: ${matchedData.win || 'Belum diatur'}\n🔄 BTTS: ${matchedData.btts || 'Belum diatur'}\n🚩 CORNER: ${matchedData.corner || 'Belum diatur'}\n\nTerima kasih! Tiket Anda telah dipotong 1.`);
         }
-        alert("Pendaftaran Berhasil! Silakan Masuk (Login) menggunakan akun Anda.");
-        showLoginForm();
-    }
 
-    // 5. FUNGSI PEMBAYARAN & DEPOSIT
-    function openPayment(harga, tiket) {
-        document.getElementById('modal-deposit').style.display = 'none';
-        document.getElementById('payment-form').style.display = 'block';
-        window.paketDipilih = { harga, tiket };
-    }
+        function submitDepositForm() {
+            const username = document.getElementById('dep-username').value.trim();
+            const paketRaw = document.getElementById('dep-paket').value.split('|');
+            const bukti = document.getElementById('dep-bukti').value.trim();
 
-    function submitDeposit() {
-        const nama = document.getElementById('nama-pengirim').value;
-        const bank = document.getElementById('bank-asal').value;
-        const targetWa = localStorage.getItem('wa') || '62812123847109';
-        const pesan = `Halo Admin, saya ingin deposit ${window.paketDipilih.tiket} seharga ${window.paketDipilih.harga}. Nama: ${nama}, Bank: ${bank}`;
-        window.open('https://wa.me/' + targetWa + '?text=' + encodeURIComponent(pesan));
-    }
+            if (!username || !bukti) {
+                alert('Harap isi Username Anda dan Masukkan Bukti Pembayaran dengan jelas!');
+                return;
+            }
 
-    // 6. FUNGSI LOGOUT
-    function handleLogout() { 
-        location.reload(); 
-    }
+            const harga = paketRaw[0];
+            const tiket = paketRaw[1];
+
+            let deposits = JSON.parse(localStorage.getItem('deposits') || '[]');
+            
+            const newDeposit = {
+                username,
+                harga,
+                tiket,
+                bukti,
+                status: 'pending'
+            };
+
+            deposits.push(newDeposit);
+            localStorage.setItem('deposits', JSON.stringify(deposits));
+
+            // Reset form bukti pembayaran
+            document.getElementById('dep-username').value = '';
+            document.getElementById('dep-bukti').value = '';
+            
+            toggleModal('modal-deposit', false);
+            alert('✅ Bukti pembayaran Anda telah dikirim! Tunggu Admin meninjau data Anda untuk menambahkan tiket.');
+        }
+
+        function handleLogout() {
+            location.reload();
+        }
     </script>
+</body>
+</html>
