@@ -133,21 +133,24 @@
                 inputValue: '1',
                 text: `Jumlah tiket untuk user "${username}":`,
                 showCancelButton: true,
-                confirmButtonText: 'Setujui',
+                confirmButtonText: 'Setujui & Kirim',
                 showLoaderOnConfirm: true,
                 preConfirm: (amount) => {
                     const ticketToAdd = parseInt(amount);
-                    return db.collection('users').doc(username).get().then(doc => {
+                    const userRef = db.collection('users').doc(username);
+                    
+                    return userRef.get().then(doc => {
                         if(!doc.exists) throw new Error("User tidak ditemukan di koleksi 'users'");
                         
-                        // Mengambil nilai lama, jika tidak ada dianggap 0
+                        // Mengambil data dari salah satu kolom yang ada
                         const current = parseInt(doc.data().ticket || doc.data().tickets || 0);
                         const newTotal = current + ticketToAdd;
 
                         const batch = db.batch();
                         
-                        // Memperbarui DUA versi field sekaligus untuk memastikan sinkron
-                        batch.update(db.collection('users').doc(username), { 
+                        // KITA UPDATE KEDUA KOLOM SEKALIGUS
+                        // Agar aplikasi member Anda pasti membaca angka yang benar
+                        batch.update(userRef, { 
                             ticket: newTotal,
                             tickets: newTotal 
                         });
@@ -159,8 +162,8 @@
             }).then(r => { 
                 if(r.isConfirmed) {
                     Swal.fire('Sukses', 'Tiket berhasil ditambah!', 'success');
-                } else if (r.error) {
-                    Swal.fire('Gagal', r.error.message, 'error');
+                } else if (r.dismiss !== Swal.DismissReason.cancel) {
+                    Swal.fire('Gagal', 'Terjadi kesalahan sistem.', 'error');
                 }
             });
         }
