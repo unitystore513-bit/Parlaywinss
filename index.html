@@ -5,8 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ParlayWins - Portal Utama</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <!-- Library Pop-up Modern SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- SDK Firebase & Firestore Compat Version (Sangat Stabil & Ringan) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <style>
         .modal { display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.85); z-index: 50; align-items: center; justify-content: center; padding: 1rem; }
     </style>
@@ -141,8 +147,37 @@
 
     <!-- MAIN APP JAVASCRIPT SYSTEM -->
     <script>
+        // === INISIALISASI FIREBASE ===
+        const firebaseConfig = {
+          apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8",
+          authDomain: "parlaywins-new.firebaseapp.com",
+          projectId: "parlaywins-new",
+          storageBucket: "parlaywins-new.firebasestorage.app",
+          messagingSenderId: "1025882923334",
+          appId: "1:1025882923334:web:9c8912e08f27e8a7f48547"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // === VARIABEL GLOBAL ===
         let isLoginMode = true;
         let currentUser = sessionStorage.getItem('currentUser') || null;
+
+        // Penampung Unsubscribe Real-time Listener (Menghemat Bandwidth)
+        let userListener = null;
+        let configListener = null;
+        let matchesListener = null;
+
+        let matchesList = [];
+        let globalConfig = {
+            wa: '62812123847109',
+            bannerText: 'Selamat datang di parlaywins',
+            warningText: 'Peringatan: Prediksi bola memiliki risiko.',
+            qris: '',
+            bankList: 'Rekening belum diatur admin.',
+            vip: 'Aktif'
+        };
 
         window.onload = function() {
             checkAuthSession();
@@ -155,12 +190,18 @@
                 document.getElementById('user-display-name').innerText = currentUser;
                 document.getElementById('dep-username').value = currentUser;
                 
-                updateTicketDisplay();
-                loadConfiguration();
-                renderMatches();
+                // Mulai Mendengarkan Database Secara Real-time
+                listenToUserData();
+                listenToConfiguration();
+                listenToMatches();
             } else {
                 document.getElementById('auth-screen').classList.remove('hidden');
                 document.getElementById('main-app').classList.add('hidden');
+                
+                // Matikan Listener Jika User Keluar
+                if (userListener) { userListener(); userListener = null; }
+                if (configListener) { configListener(); configListener = null; }
+                if (matchesListener) { matchesListener(); matchesListener = null; }
             }
         }
 
@@ -172,187 +213,155 @@
             document.getElementById('btn-toggle-auth').innerText = isLoginMode ? 'Belum punya akun? Daftar di sini' : 'Sudah punya akun? Login di sini';
         }
 
+        // === PROSES AUTH (LOGIN & REGISTER ONLINE) ===
         function handleAuth() {
             const user = document.getElementById('auth-username').value.trim().toLowerCase();
             const pass = document.getElementById('auth-password').value.trim();
 
             if (!user || !pass) {
-                alert('Username dan Password wajib diisi!');
-                return;
-            }
-
-            if (!isLoginMode) {
-                if (localStorage.getItem('pwd_' + user)) {
-                    alert('Username sudah terdaftar! Gunakan nama lain.');
-                    return;
-                }
-                localStorage.setItem('pwd_' + user, pass);
-                localStorage.setItem('tickets_' + user, '0');
-                alert('Pendaftaran Berhasil! Silakan klik Masuk Sekarang.');
-                toggleAuthMode();
-            } else {
-                const storedPassword = localStorage.getItem('pwd_' + user);
-                if (storedPassword && storedPassword === pass) {
-                    sessionStorage.setItem('currentUser', user);
-                    currentUser = user;
-                    checkAuthSession();
-                } else {
-                    alert('Username atau Password salah/tidak ditemukan!');
-                }
-            }
-        }
-
-        function updateTicketDisplay() {
-            if (!currentUser) return;
-            const balance = localStorage.getItem('tickets_' + currentUser) || '0';
-            document.getElementById('ticket-balance').innerText = balance;
-        }
-
-        function loadConfiguration() {
-            const targetWa = localStorage.getItem('wa') || '62812123847109';
-            document.getElementById('wa-link').href = 'https://wa.me/' + targetWa;
-            document.getElementById('view-banner-title').innerText = localStorage.getItem('bannerText') || 'Selamat datang di parlaywins';
-            document.getElementById('view-warning-text').innerText = localStorage.getItem('warningText') || 'Peringatan: Prediksi bola memiliki risiko.';
-
-            const qrisUrl = localStorage.getItem('qris');
-            if(qrisUrl) {
-                document.getElementById('deposit-qris-img').src = qrisUrl;
-                document.getElementById('deposit-qris-container').style.display = 'flex';
-            }
-            document.getElementById('deposit-bank-text').innerText = localStorage.getItem('bank-list') || 'Rekening belum diatur admin.';
-        }
-
-        function toggleModal(id, show) {
-            document.getElementById(id).style.display = show ? 'flex' : 'none';
-        }
-
-        function renderMatches() {
-            const container = document.getElementById('match-container');
-            const matches = JSON.parse(localStorage.getItem('matches') || '[]');
-            
-            if (matches.length === 0) {
-                container.innerHTML = '<p class="text-xs text-center text-slate-500 py-6">Belum ada jadwal pertandingan dari admin.</p>';
-                return;
-            }
-
-            container.innerHTML = '';
-            matches.forEach(m => {
-                container.innerHTML += `
-                    <div class="bg-slate-800/80 border border-slate-700/60 rounded-3xl p-5 shadow-lg space-y-4">
-                        <div class="flex justify-between items-center text-center">
-                            <div class="w-1/3 flex flex-col items-center gap-2">
-                                <img src="${m.logoHome}" class="w-12 h-12 object-contain" onerror="this.src='https://via.placeholder.com/150'">
-                                <span class="text-xs font-bold text-slate-200">${m.home}</span>
-                            </div>
-                            <div class="w-1/3 text-emerald-400 font-black text-sm tracking-widest">VS</div>
-                            <div class="w-1/3 flex flex-col items-center gap-2">
-                                <img src="${m.logoAway}" class="w-12 h-12 object-contain" onerror="this.src='https://via.placeholder.com/150'">
-                                <span class="text-xs font-bold text-slate-200">${m.away}</span>
-                            </div>
-                        </div>
-                        <button onclick="unlockVipPrediction(${m.id})" class="w-full bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 text-slate-950 font-black text-xs py-3 rounded-xl tracking-wider uppercase transition">
-                            🔒 BUKA PREDIKSI VIP (1 Tiket)
-                        </button>
-                    </div>
-                `;
-            });
-        }
-
-        function unlockVipPrediction(matchId) {
-            const vipStatus = localStorage.getItem('vip') || 'Aktif';
-            if (vipStatus === "Tidak Aktif") {
-                alert("Maaf, Sistem Prediksi VIP sedang dinonaktifkan oleh Admin.");
-                return;
-            }
-
-            let currentTickets = parseInt(localStorage.getItem('tickets_' + currentUser) || '0');
-            if (currentTickets < 1) {
-                alert("❌ Tiket Anda Habis! Silakan lakukan DEPOSIT terlebih dahulu.");
-                toggleModal('modal-deposit', true);
-                return;
-            }
-
-            const matches = JSON.parse(localStorage.getItem('matches') || '[]');
-            const matchedData = matches.find(m => m.id === matchId);
-            if (!matchedData) return alert('Pertandingan tidak ditemukan!');
-
-            currentTickets -= 1;
-            localStorage.setItem('tickets_' + currentUser, currentTickets.toString());
-            updateTicketDisplay();
-
-            Swal.fire({
-              title: '🔥 DETAIL PREDIKSI VIP 🔥',
-              html: `
-                <div style="text-align: left; font-size: 14px; line-height: 2.2; padding: 10px 5px;">
-                  <p style="font-size: 16px; font-weight: 900; text-align: center; color: #34d399; margin-bottom: 12px; font-style: italic;">
-                    ${matchedData.home.toUpperCase()} VS ${matchedData.away.toUpperCase()}
-                  </p>
-                  <p>⚽ <b>GOL (O/U):</b> <span style="color: #fbbf24">${matchedData.gol || '-'}</span></p>
-                  <p>📊 <b>PEMENANG:</b> <span style="color: #fbbf24">${matchedData.win || '-'}</span></p>
-                  <p>🔄 <b>BTTS:</b> <span style="color: #fbbf24">${matchedData.btts || '-'}</span></p>
-                  <p>🚩 <b>CORNER:</b> <span style="color: #fbbf24">${matchedData.corner || '-'}</span></p>
-                </div>
-              `,
-              background: '#1e293b',
-              color: '#ffffff',
-              confirmButtonText: 'Tutup',
-              confirmButtonColor: '#059669',
-              showCloseButton: true,
-              width: '90%',
-              customClass: {
-                popup: 'rounded-3xl'
-              }
-            });
-        }
-
-        function submitDepositForm() {
-            const username = currentUser;
-            const paketRaw = document.getElementById('dep-paket').value.split('|');
-            const bukti = document.getElementById('dep-bukti').value.trim();
-
-            // 1. POP-UP MODAL JIKA BUKTI MASIH KOSONG
-            if (!bukti) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'Peringatan!',
-                    text: 'Harap isi Bukti Pembayaran!',
-                    background: '#1e293b', // Latar gelap premium
+                    text: 'Username dan Password wajib diisi!',
+                    background: '#1e293b',
                     color: '#ffffff',
-                    confirmButtonText: 'Oke, Mengerti',
-                    confirmButtonColor: '#f59e0b', // Tombol warna orange peringatan
-                    customClass: {
-                        popup: 'rounded-3xl' // Sudut melengkung modern
-                    }
+                    confirmButtonColor: '#f59e0b',
+                    customClass: { popup: 'rounded-3xl' }
                 });
                 return;
             }
 
-            let deposits = JSON.parse(localStorage.getItem('deposits') || '[]');
-            deposits.push({ username, harga: paketRaw[0], tiket: paketRaw[1], bukti, status: 'pending' });
-            localStorage.setItem('deposits', JSON.stringify(deposits));
+            const userRef = db.collection('users').doc(user);
 
-            document.getElementById('dep-bukti').value = '';
-            toggleModal('modal-deposit', false);
+            if (!isLoginMode) {
+                // REGISTRASI USER BARU KE DATABASE
+                userRef.get().then((doc) => {
+                    if (doc.exists) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Pendaftaran Gagal',
+                            text: 'Username sudah terdaftar! Gunakan nama lain.',
+                            background: '#1e293b',
+                            color: '#ffffff',
+                            confirmButtonColor: '#ef4444',
+                            customClass: { popup: 'rounded-3xl' }
+                        });
+                    } else {
+                        userRef.set({
+                            password: pass,
+                            tickets: 0
+                        }).then(() => {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Pendaftaran Berhasil!',
+                                text: 'Silakan masuk menggunakan akun baru Anda.',
+                                background: '#1e293b',
+                                color: '#ffffff',
+                                confirmButtonColor: '#059669',
+                                customClass: { popup: 'rounded-3xl' }
+                            });
+                            toggleAuthMode();
+                        });
+                    }
+                }).catch(err => {
+                    console.error("Registrasi Error: ", err);
+                });
+            } else {
+                // VERIFIKASI LOGIN USER SECARA ONLINE
+                userRef.get().then((doc) => {
+                    if (doc.exists && doc.data().password === pass) {
+                        sessionStorage.setItem('currentUser', user);
+                        currentUser = user;
+                        checkAuthSession();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Login Gagal',
+                            text: 'Username atau Password salah/tidak ditemukan!',
+                            background: '#1e293b',
+                            color: '#ffffff',
+                            confirmButtonColor: '#ef4444',
+                            customClass: { popup: 'rounded-3xl' }
+                        });
+                    }
+                }).catch(err => {
+                    console.error("Login Error: ", err);
+                });
+            }
+        }
 
-            // 2. POP-UP MODAL JIKA BERHASIL DIKIRIM
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil Dikirim!',
-                text: 'Bukti berhasil dikirim! Saldo tiket akan bertambah otomatis jika dikonfirmasi Admin.',
-                background: '#1e293b',
-                color: '#ffffff',
-                confirmButtonText: 'Selesai',
-                confirmButtonColor: '#059669', // Tombol warna hijau sukses
-                customClass: {
-                    popup: 'rounded-3xl'
+        // === LISTENER SALDO TIKET USER (REAL-TIME) ===
+        function listenToUserData() {
+            if (!currentUser) return;
+            if (userListener) userListener();
+
+            userListener = db.collection('users').doc(currentUser).onSnapshot((doc) => {
+                if (doc.exists) {
+                    document.getElementById('ticket-balance').innerText = doc.data().tickets || '0';
                 }
             });
         }
 
-        function handleLogout() {
-            sessionStorage.removeItem('currentUser');
-            location.reload();
+        // === LISTENER KONFIGURASI WEB (REAL-TIME) ===
+        function listenToConfiguration() {
+            if (configListener) configListener();
+
+            configListener = db.collection('config').doc('global').onSnapshot((doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    globalConfig = {
+                        wa: data.wa || '62812123847109',
+                        bannerText: data.bannerText || 'Selamat datang di parlaywins',
+                        warningText: data.warningText || 'Peringatan: Prediksi bola memiliki risiko.',
+                        qris: data.qris || '',
+                        bankList: data.bankList || data['bank-list'] || 'Rekening belum diatur admin.',
+                        vip: data.vip || 'Aktif'
+                    };
+                } else {
+                    // Buat dokumen default otomatis jika kosong agar tidak crash
+                    db.collection('config').doc('global').set(globalConfig);
+                }
+
+                // Perbarui Tampilan Web Sesuai Database
+                document.getElementById('wa-link').href = 'https://wa.me/' + globalConfig.wa;
+                document.getElementById('view-banner-title').innerText = globalConfig.bannerText;
+                document.getElementById('view-warning-text').innerText = globalConfig.warningText;
+
+                if (globalConfig.qris) {
+                    document.getElementById('deposit-qris-img').src = globalConfig.qris;
+                    document.getElementById('deposit-qris-container').style.display = 'flex';
+                } else {
+                    document.getElementById('deposit-qris-container').style.display = 'none';
+                }
+                document.getElementById('deposit-bank-text').innerText = globalConfig.bankList;
+            });
         }
-    </script>
-</body>
-</html>
+
+        // === LISTENER DAFTAR JADWAL PERTANDINGAN (REAL-TIME) ===
+        function listenToMatches() {
+            const container = document.getElementById('match-container');
+            if (matchesListener) matchesListener();
+
+            matchesListener = db.collection('matches').onSnapshot((snapshot) => {
+                matchesList = [];
+                container.innerHTML = '';
+
+                snapshot.forEach(doc => {
+                    matchesList.push({ id: doc.id, ...doc.data() });
+                });
+
+                if (matchesList.length === 0) {
+                    container.innerHTML = '<p class="text-xs text-center text-slate-500 py-6">Belum ada jadwal pertandingan dari admin.</p>';
+                    return;
+                }
+
+                matchesList.forEach(m => {
+                    container.innerHTML += `
+                        <div class="bg-slate-800/80 border border-slate-700/60 rounded-3xl p-5 shadow-lg space-y-4">
+                            <div class="flex justify-between items-center text-center">
+                                <div class="w-1/3 flex flex-col items-center gap-2">
+                                    <img src="${m.logoHome}" class="w-12 h-12 object-contain" onerror="this.src='https://via.placeholder.com/150'">
+                                    <span class="text-xs font-bold text-slate-200">${m.home}</span>
+                                </div>
+                                <div class="w-1/3 text-emerald-400 font-black text-sm tracking-widest">VS</div>
+                        
