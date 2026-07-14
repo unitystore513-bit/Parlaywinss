@@ -28,7 +28,23 @@
             <span onclick="showRegisterAlert()" class="text-emerald-400 font-bold cursor-pointer underline">Daftar</span>
         </p>
         </div>
+<!-- AREA DAFTAR (FORM PENDAFTARAN) -->
+    <div id="register-container" class="w-full flex flex-col items-center p-6 bg-[#0b1329]" style="display: none;">
+        <h2 class="text-2xl font-bold text-white mb-6">DAFTAR AKUN BARU</h2>
+        
+        <input type="text" id="reg-username" placeholder="Buat Username" class="w-full max-w-sm p-4 mb-4 bg-slate-800 text-white rounded-2xl border border-slate-700">
+        <input type="password" id="reg-password" placeholder="Buat Password" class="w-full max-w-sm p-4 mb-4 bg-slate-800 text-white rounded-2xl border border-slate-700">
+        <input type="number" id="reg-wa" placeholder="Nomor WhatsApp (Opsional)" class="w-full max-w-sm p-4 mb-6 bg-slate-800 text-white rounded-2xl border border-slate-700">
 
+        <button onclick="submitRegister()" class="w-full max-w-sm bg-emerald-500 py-4 rounded-2xl font-bold text-white text-lg shadow-lg hover:bg-emerald-600 transition">
+            Daftar Sekarang
+        </button>
+
+        <p class="mt-6 text-slate-400 text-sm">
+            Sudah punya akun? 
+            <span onclick="showLoginForm()" class="text-emerald-400 font-bold cursor-pointer underline">Masuk di sini</span>
+        </p>
+    </div>
     <!-- 2. INTERFACE UTAMA (DASHBOARD) -->
     <div id="main-app-container" class="space-y-4 w-full" style="display: none;">
         <!-- Tombol Deposit -->
@@ -38,10 +54,15 @@
             DEPOSIT
     </button>
 </div>
-        <div class="flex justify-between items-center mb-6">
-            <span class="text-xl font-black text-emerald-400">PARLAYWINS</span>
-            <button onclick="handleLogout()" class="bg-slate-800 px-4 py-2 rounded-lg text-xs"><i class="fa-solid fa-right-from-bracket"></i></button>
-        </div>
+        <!-- Header Dashboard Baru -->
+    <div class="flex justify-between items-center mb-6 w-full">
+        <!-- Tombol Keluar Kiri -->
+        <button onclick="handleLogout()" class="bg-slate-800 px-4 py-2 rounded-lg text-xs font-bold text-white shadow">
+            <i class="fa-solid fa-right-from-bracket"></i> Keluar
+        </button>
+        <!-- Teks ⚽ Parlaywins Kanan -->
+        <span class="text-xl font-black text-emerald-400 tracking-wider">⚽ PARLAYWINS</span>
+    </div>
 
         <div class="bg-slate-900 p-4 rounded-xl border border-slate-700">
             <h2 id="view-banner-title" class="text-sm font-bold">Selamat Datang di Portal Utama</h2>
@@ -62,9 +83,14 @@
         </div>
     </div>
         </div>
-
+<!-- Tombol Buka Prediksi VIP -->
+    <div class="mt-6 w-full text-center">
+        <button class="w-full max-w-sm mx-auto bg-gradient-to-r from-yellow-400 to-yellow-600 text-black font-black text-xl py-4 rounded-2xl shadow-[0_0_15px_rgba(250,204,21,0.5)] uppercase tracking-wider animate-pulse">
+            🔥 BUKA PREDIKSI VIP 🔥
+        </button>
+    </div>
         <div class="mt-4 p-4 bg-slate-800 rounded-lg border border-slate-700">
-    <p class="text-[10px] text-slate-400 font-bold uppercase">Transfer Ke:</p>
+    
     <p id="view-bank-list" class="text-white font-bold text-sm mt-1"></p>
         </div>
     </div>
@@ -99,7 +125,7 @@
     <i class="fa-brands fa-whatsapp text-2xl text-white"></i>
 </a>
     <script>
-    // 1. FUNGSI LOGIN UTAMA
+    // 1. FUNGSI LOGIN
     function handleAuthAction() {
         const userField = document.getElementById('auth-username');
         const passField = document.getElementById('auth-password');
@@ -107,20 +133,35 @@
         const mainDiv = document.getElementById('main-app-container');
 
         if (userField.value.trim() === "" || passField.value.trim() === "") {
-            alert('Harap isi Username dan Password terlebih dahulu!');
+            alert('Harap isi Username dan Password!');
             return;
         }
-
-        // Proses pindah halaman
         if (authDiv && mainDiv) {
             authDiv.style.display = 'none';
             mainDiv.style.display = 'block';
         }
     }
 
-    // 2. FUNGSI POP-UP DAFTAR
+    // 2. FUNGSI BUKA FORM DAFTAR & KEMBALI KE LOGIN
     function showRegisterAlert() {
-        alert("Silakan hubungi Admin melalui WhatsApp untuk proses pendaftaran.");
+        document.getElementById('auth-container').style.display = 'none';
+        document.getElementById('register-container').style.display = 'flex';
+    }
+
+    function showLoginForm() {
+        document.getElementById('register-container').style.display = 'none';
+        document.getElementById('auth-container').style.display = 'flex';
+    }
+
+    function submitRegister() {
+        const user = document.getElementById('reg-username').value;
+        const pass = document.getElementById('reg-password').value;
+        if (user.trim() === "" || pass.trim() === "") {
+            alert('Harap isi Username dan Password untuk mendaftar!');
+            return;
+        }
+        alert("Pendaftaran Berhasil! Silakan Masuk (Login) menggunakan akun Anda.");
+        showLoginForm();
     }
 
     // 3. FUNGSI PEMBAYARAN & DEPOSIT
@@ -137,7 +178,7 @@
         window.open('https://wa.me/62812123847109?text=' + encodeURIComponent(pesan));
     }
 
-    // 4. FUNGSI LOGOUT (KELUAR)
+    // 4. FUNGSI LOGOUT
     function handleLogout() { 
         location.reload(); 
     }
