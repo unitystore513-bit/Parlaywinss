@@ -305,33 +305,7 @@ window.submitDepositForm = function() {
         Swal.fire({ icon: 'error', text: 'Gagal simpan: ' + err.message });
     });
 };
-        // FUNGSI ADMIN: ACC/REJECT DEPOSIT
-function approveDeposit(docId, userId, ticketAmount) {
-    Swal.fire({
-        title: 'Konfirmasi',
-        text: 'Setujui deposit dan tambahkan ' + ticketAmount + ' tiket?',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Setujui',
-        cancelButtonText: 'Batal'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            Swal.fire({ title: 'Memproses...', allowOutsideClick: false });
-            
-            // 1. Update status deposit menjadi 'approved'
-            db.collection('deposits').doc(docId).update({ status: 'approved' });
-
-            // 2. Tambahkan tiket ke user
-            const userRef = db.collection('users').doc(userId);
-            userRef.update({
-                tickets: firebase.firestore.FieldValue.increment(ticketAmount)
-            }).then(() => {
-                Swal.fire({ icon: 'success', text: 'Deposit disetujui, tiket ditambahkan!' });
-                location.reload(); 
-            }).catch(err => Swal.fire({ icon: 'error', text: 'Gagal: ' + err.message }));
-        }
-    });
-}
+        
     </script>
     <!-- MODAL DEPOSIT - PASTIKAN KODE INI ADA DI PALING BAWAH FILE -->
 <div id="modal-deposit" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:999999; align-items:center; justify-content:center; padding:20px;">
