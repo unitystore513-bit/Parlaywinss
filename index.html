@@ -10,8 +10,7 @@
         body { background-color: #0b1329; color: #f8fafc; font-family: sans-serif; }
     </style>
 </head>
-<body class="p-4 max-w-md mx-auto min-h-screen flex flex-col justify-between">
-
+<body class="p-4 max-w-md mx-auto h-screen flex flex-col justify-center items-center bg-[#0b1329]">
     <!-- 1. GERBANG AUTHENTICATION -->
     
         <div class="text-center space-y-1.5 mt-20">
@@ -23,7 +22,7 @@
         <div class="space-y-3.5 mt-8">
             <div>
                 <!-- AREA LOGIN -->
-<div id="auth-container" style="display: block;">
+<div id="auth-container" class="w-full" style="display: block;">
     <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">USERNAME</label>
     <input type="text" id="auth-username" placeholder="Masukkan Username" class="w-full p-3 bg-slate-800 rounded-xl mb-4 text-white">
 
@@ -34,7 +33,6 @@
         Masuk Ke Aplikasi
     </button>
 </div>
-
         <div class="text-center pt-4">
             <p id="auth-toggle-text" class="text-xs text-slate-400">
                 Belum punya ID akun? <button onclick="toggleAuthMode(true)" class="text-emerald-400 font-bold">Daftar</button>
@@ -128,16 +126,19 @@
         }
 
     function handleAuthAction() {
-        const user = document.getElementById('auth-username').value;
-        const pass = document.getElementById('auth-password').value;
+        const userField = document.getElementById('auth-username');
+        const passField = document.getElementById('auth-password');
+        const authContainer = document.getElementById('auth-container');
+        const mainContainer = document.getElementById('main-app-container');
 
-        if (user.trim() === "" || pass.trim() === "") {
+        if (userField.value.trim() === "" || passField.value.trim() === "") {
             alert('Isi semua kolom!');
             return;
         }
 
-        document.getElementById('auth-container').style.display = 'none';
-        document.getElementById('main-app-container').style.display = 'block';
+        // Pindah ke Dashboard
+        authContainer.style.display = 'none';
+        mainContainer.style.display = 'block';
     }
 function openPayment(harga, tiket) {
     document.getElementById('modal-deposit').style.display = 'none';
