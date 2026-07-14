@@ -192,42 +192,49 @@
         }
 
         function handleAuth() {
-    console.log("Tombol Ditekan!"); // Tambahkan baris ini
-    const user = document.getElementById('auth-username').value.trim().toLowerCase();
-    const pass = document.getElementById('auth-password').value.trim();
+    const authUserElement = document.getElementById('auth-username');
+    const authPassElement = document.getElementById('auth-password');
+    
+    if (!authUserElement || !authPassElement) {
+        console.error("Elemen input tidak ditemukan!");
+        return;
+    }
 
-            if (!user || !pass) {
-                Swal.fire({ icon: 'warning', title: 'Peringatan!', text: 'Username dan Password wajib diisi!' });
-                return;
-            }
+    const user = authUserElement.value.trim().toLowerCase();
+    const pass = authPassElement.value.trim();
 
-            Swal.fire({ title: 'Memproses...', text: 'Harap tunggu sebentar', allowOutsideClick: false });
+    if (!user || !pass) {
+        Swal.fire({ icon: 'warning', title: 'Peringatan!', text: 'Username dan Password wajib diisi!' });
+        return;
+    }
 
-            const userRef = db.collection('users').doc(user);
+    Swal.fire({ title: 'Memproses...', text: 'Harap tunggu sebentar', allowOutsideClick: false });
 
-            if (!isLoginMode) {
-                userRef.get().then((doc) => {
-                    if (doc.exists) {
-                        Swal.fire({ icon: 'error', title: 'Pendaftaran Gagal', text: 'Username sudah terdaftar!' });
-                    } else {
-                        userRef.set({ password: pass, tickets: 0 }).then(() => {
-                            Swal.fire({ icon: 'success', title: 'Pendaftaran Berhasil!', text: 'Silakan masuk menggunakan akun Anda' });
-                            toggleAuthMode();
-                        });
-                    }
-                });
+    const userRef = db.collection('users').doc(user);
+
+    if (!isLoginMode) {
+        userRef.get().then((doc) => {
+            if (doc.exists) {
+                Swal.fire({ icon: 'error', title: 'Pendaftaran Gagal', text: 'Username sudah terdaftar!' });
             } else {
-                userRef.get().then((doc) => {
-                    Swal.close();
-                    if (doc.exists && doc.data().password === pass) {
-                        sessionStorage.setItem('currentUser', user);
-                        currentUser = user;
-                        checkAuthSession();
-                    } else {
-                        Swal.fire({ icon: 'error', title: 'Login Gagal', text: 'Username atau Password salah!' });
-                    }
+                userRef.set({ password: pass, tickets: 0 }).then(() => {
+                    Swal.fire({ icon: 'success', title: 'Pendaftaran Berhasil!', text: 'Silakan masuk menggunakan akun Anda' });
+                    toggleAuthMode();
                 });
             }
+        });
+    } else {
+        userRef.get().then((doc) => {
+            Swal.close();
+            if (doc.exists && doc.data().password === pass) {
+                sessionStorage.setItem('currentUser', user);
+                currentUser = user;
+                checkAuthSession();
+            } else {
+                Swal.fire({ icon: 'error', title: 'Login Gagal', text: 'Username atau Password salah!' });
+            }
+        });
+    }
         }
 
         function listenToUserData() {
