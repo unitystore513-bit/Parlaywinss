@@ -14,32 +14,34 @@
     <div class="max-w-md mx-auto space-y-6">
         <!-- 1. PENGATURAN UMUM -->
         <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800">
-            <h2 class="text-xl font-bold text-emerald-400 mb-4">⚙️ Pengaturan Umum & Sistem</h2>
+            <h2 class="text-xl font-bold text-emerald-400 mb-4">⚙️ Pengaturan Umum</h2>
             <div class="space-y-4">
+                <div><label class="text-xs text-slate-400">TEXT SELAMAT DATANG</label><input id="adm-welcome" type="text" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm"></div>
                 <div><label class="text-xs text-slate-400">NOMOR WA ADMIN</label><input id="adm-wa" type="text" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm"></div>
-                <div><label class="text-xs text-slate-400">STATUS PREDIKSI</label><select id="adm-status" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm"><option value="aktif">Aktif</option><option value="tutup">Tutup</option></select></div>
                 <div><label class="text-xs text-slate-400">URL QRIS</label><input id="adm-qris" type="text" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm"></div>
-                <div><label class="text-xs text-slate-400">BANK LIST</label><textarea id="adm-bank" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm h-20"></textarea></div>
-                <div><label class="text-xs text-slate-400">TEKS PERINGATAN</label><textarea id="adm-warning" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm h-20"></textarea></div>
-                <button onclick="saveConfig()" class="w-full bg-emerald-600 py-3 rounded-xl font-bold text-sm">Simpan Konfigurasi Umum</button>
+                <div><label class="text-xs text-slate-400">TEKS PERINGATAN</label><textarea id="adm-warning" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm h-16"></textarea></div>
+                <button onclick="saveConfig()" class="w-full bg-emerald-600 py-3 rounded-xl font-bold text-sm">Simpan Konfigurasi</button>
             </div>
         </div>
 
         <!-- 2. TAMBAH PERTANDINGAN -->
         <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800">
-            <h2 class="text-xl font-bold text-emerald-400 mb-4">⚽ Tambah Pertandingan Baru</h2>
+            <h2 class="text-xl font-bold text-blue-400 mb-4">⚽ Tambah Pertandingan</h2>
             <div class="grid grid-cols-2 gap-3">
                 <input id="match-home" placeholder="Tim Home" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
                 <input id="match-away" placeholder="Tim Away" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
-                <input id="logo-home" placeholder="URL Logo Home" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700 col-span-2">
-                <input id="logo-away" placeholder="URL Logo Away" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700 col-span-2">
                 <input id="match-gol" placeholder="Gol (O/U)" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
-                <input id="match-win" placeholder="Pemenang" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
+                <input id="match-corner" placeholder="Corner (O/U)" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
+                <input id="match-win" placeholder="Pemenang" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700 col-span-2">
             </div>
             <button onclick="addMatch()" class="w-full mt-4 bg-blue-600 py-3 rounded-xl font-bold text-sm">+ Posting Pertandingan</button>
-            
-            <div id="match-list" class="mt-6 space-y-3 border-t border-slate-800 pt-4">
-                <!-- Daftar Match akan muncul disini -->
+        </div>
+
+        <!-- 3. VALIDASI DEPOSIT -->
+        <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800">
+            <h2 class="text-xl font-bold text-yellow-400 mb-4">💰 Validasi Deposit</h2>
+            <div id="deposit-list" class="space-y-3">
+                <p class="text-slate-500 text-sm">Memuat pengajuan...</p>
             </div>
         </div>
     </div>
@@ -56,22 +58,22 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Load Config Awal
+        // Load Config
         db.collection('config').doc('global').get().then(doc => {
             if(doc.exists) {
                 const d = doc.data();
+                document.getElementById('adm-welcome').value = d.welcomeText || '';
                 document.getElementById('adm-wa').value = d.wa || '';
                 document.getElementById('adm-qris').value = d.qris || '';
-                document.getElementById('adm-bank').value = d.bankList || '';
                 document.getElementById('adm-warning').value = d.warningText || '';
             }
         });
 
         function saveConfig() {
             db.collection('config').doc('global').set({
+                welcomeText: document.getElementById('adm-welcome').value,
                 wa: document.getElementById('adm-wa').value,
                 qris: document.getElementById('adm-qris').value,
-                bankList: document.getElementById('adm-bank').value,
                 warningText: document.getElementById('adm-warning').value
             }, {merge: true}).then(() => Swal.fire('Sukses', 'Konfigurasi disimpan', 'success'));
         }
@@ -80,29 +82,34 @@
             db.collection('matches').add({
                 home: document.getElementById('match-home').value,
                 away: document.getElementById('match-away').value,
-                logoHome: document.getElementById('logo-home').value,
-                logoAway: document.getElementById('logo-away').value,
                 gol: document.getElementById('match-gol').value,
-                win: document.getElementById('match-win').value
+                corner: document.getElementById('match-corner').value,
+                win: document.getElementById('match-win').value,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => Swal.fire('Sukses', 'Pertandingan ditambahkan', 'success'));
         }
 
-        // List Matches
-        db.collection('matches').onSnapshot(snap => {
-            const list = document.getElementById('match-list');
-            list.innerHTML = '';
+        // Live Deposit Listener
+        db.collection('deposits').where('status', '==', 'pending').onSnapshot(snap => {
+            const list = document.getElementById('deposit-list');
+            list.innerHTML = snap.empty ? '<p class="text-slate-500">Tidak ada deposit masuk.</p>' : '';
             snap.forEach(doc => {
-                const m = doc.data();
+                const d = doc.data();
                 list.innerHTML += `
-                    <div class="flex justify-between items-center bg-slate-800 p-3 rounded-xl text-xs">
-                        <span>${m.home} vs ${m.away}</span>
-                        <button onclick="deleteMatch('${doc.id}')" class="bg-red-600 px-3 py-1 rounded-lg">Hapus</button>
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 text-sm">
+                        <p>User: <b>${d.username}</b></p>
+                        <p>Bukti: ${d.bukti}</p>
+                        <div class="flex gap-2 mt-3">
+                            <button onclick="updateStatus('${doc.id}', 'approved')" class="bg-green-600 px-4 py-2 rounded-lg text-xs font-bold">SETUJUI</button>
+                            <button onclick="updateStatus('${doc.id}', 'rejected')" class="bg-red-600 px-4 py-2 rounded-lg text-xs font-bold">TOLAK</button>
+                        </div>
                     </div>`;
             });
         });
 
-        function deleteMatch(id) {
-            db.collection('matches').doc(id).delete();
+        function updateStatus(id, status) {
+            db.collection('deposits').doc(id).update({ status: status })
+            .then(() => Swal.fire('Sukses', 'Status deposit diperbarui', 'success'));
         }
     </script>
 </body>
