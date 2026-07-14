@@ -307,19 +307,42 @@ window.submitDepositForm = function() {
         toggleModal('modal-deposit', false);
     }).catch(err => Swal.fire({ icon: 'error', text: 'Gagal: ' + err.message }));
 };
+        window.saveConfig = function() {
+    const wa = document.getElementById('admin-wa').value;
+    const banner = document.getElementById('admin-banner').value;
+    const warning = document.getElementById('admin-warning').value;
+
+    db.collection('config').doc('global').update({
+        wa: wa,
+        bannerText: banner,
+        warningText: warning
+    }).then(() => {
+        Swal.fire({ icon: 'success', text: 'Konfigurasi berhasil disimpan!', timer: 2000 });
+        setTimeout(() => { location.reload(); }, 2000); 
+    }).catch((err) => {
+        Swal.fire({ icon: 'error', text: 'Gagal simpan: ' + err.message });
+    });
+};
     </script>
-    <div id="modal-deposit" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 p-4">
-    <div class="bg-slate-800 p-6 rounded-2xl w-full max-w-sm border border-slate-700">
-        <h2 class="text-white font-bold text-lg mb-4">FORM DEPOSIT</h2>
-        <input id="dep-username" type="text" placeholder="Username Anda" class="w-full p-3 mb-3 bg-slate-900 rounded text-white border border-slate-700">
-        <select id="dep-paket" class="w-full p-3 mb-3 bg-slate-900 rounded text-white border border-slate-700">
+    <div id="modal-deposit" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[9999] p-4 pointer-events-auto">
+    <div class="bg-slate-900 p-6 rounded-2xl w-full max-w-sm border border-slate-700 pointer-events-auto">
+        <h2 class="text-white font-bold text-lg mb-4 text-center">💳 TOP UP TIKET VIP</h2>
+        <label class="text-slate-400 text-xs mb-1 block">METODE PEMBAYARAN RESMI</label>
+        <div class="p-3 mb-3 bg-slate-800 rounded text-slate-300 border border-slate-700 text-sm">
+            Tampilkan Data Bank/QR Disini
+        </div>
+        <label class="text-slate-400 text-xs mb-1 block">USERNAME AKUN ANDA</label>
+        <input id="dep-username" type="text" placeholder="Masukkan Username..." class="w-full p-3 mb-3 bg-slate-800 rounded text-white border border-slate-700 focus:ring-2 focus:ring-emerald-500 outline-none">
+        <label class="text-slate-400 text-xs mb-1 block">PILIH PAKET TIKET</label>
+        <select id="dep-paket" class="w-full p-3 mb-3 bg-slate-800 rounded text-white border border-slate-700">
             <option value="Rp 20.000 (Dapat 2 Tiket)">Rp 20.000 (Dapat 2 Tiket)</option>
             <option value="Rp 45.000 (Dapat 4 Tiket)">Rp 45.000 (Dapat 4 Tiket)</option>
         </select>
-        <textarea id="dep-bukti" placeholder="Bukti Pembayaran / Nomor Ref" class="w-full p-3 mb-4 bg-slate-900 rounded text-white border border-slate-700"></textarea>
+        <label class="text-slate-400 text-xs mb-1 block">BUKTI PEMBAYARAN / NOMOR REFERENSI</label>
+        <textarea id="dep-bukti" placeholder="Contoh: Transfer Mandiri An. Budi" class="w-full p-3 mb-4 bg-slate-800 rounded text-white border border-slate-700"></textarea>
         <div class="flex gap-2">
-            <button onclick="toggleModal('modal-deposit', false)" class="w-1/2 bg-slate-700 p-3 rounded text-white font-bold">Batal</button>
-            <button onclick="submitDepositForm()" class="w-1/2 bg-emerald-600 p-3 rounded text-white font-bold">Kirim</button>
+            <button onclick="toggleModal('modal-deposit', false)" class="w-1/2 bg-slate-700 p-3 rounded text-white font-bold">Tutup</button>
+            <button onclick="submitDepositForm()" class="w-1/2 bg-emerald-600 p-3 rounded text-white font-bold">Kirim Bukti</button>
         </div>
     </div>
     </div>
