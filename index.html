@@ -143,6 +143,10 @@
         </div>
     </div>
 
+    <!-- ================= IMPORT FIREBASE SECARA INSTAN & STABIL ================= -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
     <!-- MAIN APP SYSTEM & ENGINE JAVASCRIPT -->
     <script>
         // === KONFIGURASI UTAMA FIREBASE ===
@@ -173,43 +177,25 @@
             vip: 'Aktif'
         };
 
-        // Memuat Firebase secara asinkronus dan aman agar tidak memblokir tombol klik
-        function loadFirebaseScripts() {
-            return new Promise((resolve, reject) => {
-                if (window.firebase) return resolve();
-                
-                const appScript = document.createElement('script');
-                appScript.src = "https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js";
-                appScript.onload = () => {
-                    const firestoreScript = document.createElement('script');
-                    firestoreScript.src = "https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js";
-                    firestoreScript.onload = () => resolve();
-                    firestoreScript.onerror = (e) => reject(new Error("Gagal memuat sistem database (Firestore)."));
-                    document.head.appendChild(firestoreScript);
-                };
-                appScript.onerror = (e) => reject(new Error("Gagal memuat inti sistem (Firebase App)."));
-                document.head.appendChild(appScript);
-            });
-        }
-
-        window.onload = function() {
-            loadFirebaseScripts().then(() => {
+        // Langsung inisialisasi tanpa menunggu halaman selesai dimuat gambar-gambarnya
+        try {
+            if (typeof firebase !== 'undefined') {
                 if (!firebase.apps.length) {
                     firebase.initializeApp(firebaseConfig);
                 }
                 db = firebase.firestore();
-                checkAuthSession();
-            }).catch(err => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Sistem Terblokir Browser',
-                    text: 'Koneksi atau browser Anda memblokir database. Coba matikan VPN/AdBlocker Anda atau ganti jaringan internet.',
-                    background: '#1e293b',
-                    color: '#ffffff',
-                    confirmButtonColor: '#ef4444'
-                });
-            });
-        };
+                console.log("Firebase berhasil dihubungkan!");
+            } else {
+                console.error("Firebase SDK gagal dimuat dari CDN.");
+            }
+        } catch (e) {
+            console.error("Kesalahan inisialisasi Firebase: ", e);
+        }
+
+        // Jalankan pengecekan session secara instan
+        document.addEventListener("DOMContentLoaded", function() {
+            checkAuthSession();
+        });
 
         function checkAuthSession() {
             if (currentUser && db) {
@@ -257,14 +243,16 @@
                 return;
             }
 
+            // Jika karena alasan tertentu Firebase gagal/adblock aktif
             if (!db) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Sistem Belum Siap',
-                    text: 'Menghubungkan ke database gagal atau terhambat. Silakan muat ulang halaman ini.',
+                    title: 'Masalah Koneksi Database',
+                    text: 'Gagal terhubung ke database. Silakan muat ulang (refresh) halaman ini atau matikan VPN/AdBlocker Anda.',
                     background: '#1e293b',
                     color: '#ffffff',
-                    confirmButtonColor: '#ef4444'
+                    confirmButtonColor: '#ef4444',
+                    customClass: { popup: 'rounded-3xl' }
                 });
                 return;
             }
@@ -342,7 +330,7 @@
                     <div class="text-left text-xs space-y-2">
                         <p class="font-bold text-red-400">Detail Kendala:</p>
                         <p class="bg-slate-950 p-2 rounded border border-slate-800 text-slate-300 font-mono text-[10px]">${err.message}</p>
-                        <p class="text-slate-400 mt-2">💡 <b>Solusi Admin:</b> Pastikan pengaturan di <b>Firebase Console -> Firestore Database -> Rules</b> sudah diset menjadi open/public (`allow read, write: if true;`) agar diizinkan bertukar data.</p>
+                        <p class="text-slate-400 mt-2">💡 <b>Solusi Admin:</b> Pastikan di Firebase Console -> Firestore Database -> Rules sudah diset open (`allow read, write: if true;`).</p>
                     </div>
                 `,
                 background: '#1e293b',
@@ -371,4 +359,17 @@
             configListener = db.collection('config').doc('global').onSnapshot((doc) => {
                 if (doc.exists) {
                     const data = doc.data();
-                    globalConfi
+                    globalConfig = {
+                        wa: data.wa || '62812123847109',
+                        bannerText: data.bannerText || 'Selamat datang di parlaywins',
+                        warningText: data.warningText || 'Peringatan: Prediksi bola memiliki risiko.',
+                        qris: data.qris || '',
+                        bankList: data.bankList || data['bank-list'] || 'Rekening belum diatur admin.',
+                        vip: data.vip || 'Aktif'
+                    };
+                } else {
+                    db.collection('config').doc('global').set(globalConfig);
+                }
+
+                document.getElementById('wa-link').href = 'https://wa.me/' + globalConfig.wa;
+                document.getElement
