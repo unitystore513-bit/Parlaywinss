@@ -39,7 +39,7 @@
 
             <div class="space-y-3 pt-2">
                 <button id="btn-primary-auth" onclick="handleAuth()" class="w-full bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-bold text-sm shadow-lg shadow-emerald-600/20 transition text-white">
-                    Masuk Sekarang
+                    Masuk Sekarang!
                 </button>
                 <button id="btn-toggle-auth" onclick="toggleAuthMode()" class="w-full bg-transparent text-xs text-slate-400 hover:text-white py-1 transition text-center block">
                     Belum punya akun? Daftar di sini
@@ -192,8 +192,9 @@
         }
 
         function handleAuth() {
-            const user = document.getElementById('auth-username').value.trim().toLowerCase();
-            const pass = document.getElementById('auth-password').value.trim();
+    console.log("Tombol Ditekan!"); // Tambahkan baris ini
+    const user = document.getElementById('auth-username').value.trim().toLowerCase();
+    const pass = document.getElementById('auth-password').value.trim();
 
             if (!user || !pass) {
                 Swal.fire({ icon: 'warning', title: 'Peringatan!', text: 'Username dan Password wajib diisi!' });
