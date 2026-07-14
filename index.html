@@ -13,7 +13,7 @@
 <body class="p-4 max-w-md mx-auto min-h-screen flex flex-col justify-between">
 
     <!-- 1. GERBANG AUTHENTICATION -->
-    <div id="auth-container" style="display: block;">
+    
         <div class="text-center space-y-1.5 mt-20">
             <i class="fa-solid fa-user-lock text-4xl text-emerald-500"></i>
             <h2 class="text-xl font-black tracking-wider text-slate-100 uppercase">PARLAYWINS</h2>
@@ -128,15 +128,10 @@
         }
 
     function handleAuthAction() {
-        const userField = document.getElementById('auth-username');
-        const passField = document.getElementById('auth-password');
+        const user = document.getElementById('auth-username').value;
+        const pass = document.getElementById('auth-password').value;
 
-        if (!userField || !passField) {
-            alert("ID elemen tidak ditemukan!");
-            return;
-        }
-
-        if (userField.value.trim() === "" || passField.value.trim() === "") {
+        if (user.trim() === "" || pass.trim() === "") {
             alert('Isi semua kolom!');
             return;
         }
