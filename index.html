@@ -75,9 +75,9 @@
     </div>
         </div>
 
-        <div class="mt-4 p-4 bg-white rounded-xl text-center">
-            <p class="text-[10px] text-slate-500 font-bold mb-2">SCAN QRIS UNTUK DEPOSIT</p>
-            <img id="view-qris" src="" alt="QRIS" class="w-full rounded-lg border-2 border-emerald-500">
+        <div class="mt-4 p-4 bg-slate-800 rounded-lg border border-slate-700">
+    <p class="text-[10px] text-slate-400 font-bold uppercase">Transfer Ke:</p>
+    <p id="view-bank-list" class="text-white font-bold text-sm mt-1"></p>
         </div>
     </div>
 
@@ -126,16 +126,19 @@
             }
         }
 
-        function handleAuthAction() {
-            const user = document.getElementById('auth-username').value.trim();
-            const pass = document.getElementById('auth-password').value.trim();
-            if(!user || !pass) { alert('Isi semua kolom!'); return; }
-            
-            document.getElementById('auth-container').style.display = 'none';
-            document.getElementById('main-app-container').style.display = 'block';
-            document.getElementById('user-profile-name').innerText = user;
-            alert('Selamat datang, ' + user);
-        }
+    function handleAuthAction() {
+    const user = document.getElementById('auth-username').value.trim();
+    const pass = document.getElementById('auth-password').value.trim();
+    
+    if(user === "" || pass === "") { 
+        alert('Isi semua kolom!'); 
+        return; 
+    }
+    
+    document.getElementById('auth-container').style.display = 'none';
+    document.getElementById('main-app-container').style.display = 'block';
+    document.getElementById('user-profile-name').innerText = user;
+    }
 function openPayment(harga, tiket) {
     document.getElementById('modal-deposit').style.display = 'none';
     document.getElementById('payment-form').style.display = 'block';
@@ -151,11 +154,14 @@ function submitDeposit() {
         function handleLogout() { location.reload(); }
 
         window.onload = function() {
-    // Update Teks Pertandingan
     if(localStorage.getItem('homeText')) document.getElementById('view-match-home').innerText = localStorage.getItem('homeText');
     if(localStorage.getItem('awayText')) document.getElementById('view-match-away').innerText = localStorage.getItem('awayText');
-    
-    // Update Logo Terpisah (Baru)
+    if(localStorage.getItem('logoHomeText')) document.getElementById('logo-home').src = localStorage.getItem('logoHomeText');
+    if(localStorage.getItem('logoAwayText')) document.getElementById('logo-away').src = localStorage.getItem('logoAwayText');
+    if(localStorage.getItem('bannerTextText')) document.getElementById('view-banner-title').innerText = localStorage.getItem('bannerTextText');
+    if(localStorage.getItem('qrisTextText')) document.getElementById('view-qris').src = localStorage.getItem('qrisTextText');
+    if(localStorage.getItem('bank-listTextText')) document.getElementById('view-bank-list').innerText = localStorage.getItem('bank-listTextText');
+};
     if(localStorage.getItem('logoHome')) document.getElementById('logo-home').src = localStorage.getItem('logoHome');
     if(localStorage.getItem('logoAway')) document.getElementById('logo-away').src = localStorage.getItem('logoAway');
     
