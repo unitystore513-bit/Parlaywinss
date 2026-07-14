@@ -107,30 +107,7 @@
 
     
 
-            <div class="space-y-3 text-left">
-                <div>
-                    <label class="text-[10px] text-slate-400 font-bold block mb-1">USERNAME AKUN ANDA</label>
-                    <input id="dep-username" type="text" class="w-full p-2 bg-slate-800 rounded-xl text-xs border border-slate-700 text-slate-300 font-bold" readonly>
-                </div>
-                <div>
-                    <label class="text-[10px] text-slate-400 font-bold block mb-1">PILIH PAKET TIKET</label>
-                    <select id="dep-paket" class="w-full p-2 bg-slate-800 rounded-xl text-xs border border-slate-700 text-white">
-                        <option value="20rb|2">Rp 20.000 (Dapat 2 Tiket)</option>
-                        <option value="45rb|4">Rp 45.000 (Dapat 4 Tiket)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-[10px] text-slate-400 font-bold block mb-1">BUKTI PEMBAYARAN / NOMOR REFERENSI</label>
-                    <textarea id="dep-bukti" rows="2" class="w-full p-2 bg-slate-800 rounded-xl text-xs border border-slate-700 text-white" placeholder="Contoh: Transfer Mandiri An. Budi / Ref 001923"></textarea>
-                </div>
-            </div>
 
-            <div class="flex gap-2 pt-2">
-                <button onclick="toggleModal('modal-deposit', false)" class="flex-1 bg-slate-800 text-slate-400 text-xs py-2.5 rounded-xl font-bold">Tutup</button>
-                <button onclick="submitDepositForm()" class="flex-1 bg-emerald-600 text-white text-xs py-2.5 rounded-xl font-bold">Kirim Bukti</button>
-            </div>
-        </div>
-    </div>
 
     <!-- ================= IMPORT FIREBASE SECARA INSTAN & STABIL ================= -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -211,10 +188,17 @@ function listenToConfiguration() {
     db.collection('config').doc('global').onSnapshot((doc) => {
         if (doc.exists) {
             const data = doc.data();
-            // Tampilkan rekening
-            document.getElementById('display-bank-list').innerText = data.bankList || "Rekening belum diatur admin.";
-            // Tampilkan warning
-            if(document.getElementById('view-warning-text')) document.getElementById('view-warning-text').innerText = data.warningText || 'Info admin...';
+            
+            // Menampilkan daftar bank
+            const bankDisplay = document.getElementById('display-bank-list');
+            if (bankDisplay) {
+                bankDisplay.innerText = data.bankList || "Rekening belum diatur admin.";
+            }
+
+            // Menampilkan teks peringatan
+            if(document.getElementById('view-warning-text')) {
+                document.getElementById('view-warning-text').innerText = data.warningText || 'Info admin...';
+            }
         }
     });
 }
@@ -315,7 +299,7 @@ window.submitDepositForm = function() {
     });
 };
     </script>
-    <!-- MODAL DEPOSIT - SATU-SATUNYA MODAL -->
+    <!-- MODAL DEPOSIT - PASTIKAN KODE INI ADA DI PALING BAWAH FILE -->
 <div id="modal-deposit" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:999999; align-items:center; justify-content:center; padding:20px;">
     <div style="background:#1e293b; padding:25px; border-radius:16px; width:100%; max-width:400px; border:1px solid #334155; color:white;">
         <h2 style="font-weight:bold; margin-bottom:20px; text-align:center; font-size:18px;">💳 TOP UP TIKET VIP</h2>
