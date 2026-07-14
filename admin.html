@@ -42,7 +42,10 @@
 
         <!-- QRIS -->
         <div><label class="text-[10px] text-slate-400">URL GAMBAR QRIS</label><input id="admin-qris" type="text" class="w-full p-2 bg-slate-800 rounded text-sm"></div>
-
+<div class="mt-4">
+        <label class="text-[10px] text-slate-400">DAFTAR REKENING (BCA, DANA, dll)</label>
+        <textarea id="admin-bank-list" class="w-full p-2 bg-slate-800 rounded text-white text-sm" placeholder="Contoh: BCA 123456, DANA 08123..."></textarea>
+</div>
         <button onclick="saveAll()" class="w-full bg-emerald-600 p-3 rounded-xl font-bold text-sm">SIMPAN SEMUA DATA</button>
 
         <hr class="border-slate-700">
@@ -62,12 +65,15 @@
 
     <script>
         function saveAll() {
-            const fields = ['wa', 'vip', 'home', 'away', 'gol', 'win', 'btts', 'corner', 'qris', 'logoHome', 'logoAway', 'bannerText'];
-            fields.forEach(field => {
-                const element = document.getElementById('admin-' + field);
-                if (element) {
-                    localStorage.setItem(field + 'Text', element.value);
-                }
+        const fields = ['wa', 'vip', 'home', 'away', 'logoHome', 'logoAway', 'bannerText', 'gol', 'win', 'btts', 'corner', 'qris', 'bank-list'];
+        fields.forEach(field => {
+            const element = document.getElementById('admin-' + field);
+            if (element) {
+                localStorage.setItem(field + 'Text', element.value);
+            }
+        });
+        alert('Semua data berhasil diperbarui!');
+        }
             });
             alert('Semua data berhasil diperbarui!');
         }
