@@ -160,7 +160,10 @@ const firebaseConfig = {
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// --- FUNGSI LOGIN ---
+let isLoginMode = true;
+let currentUser = sessionStorage.getItem('currentUser') || null;
+
+// --- FUNGSI LOGIN & AUTH ---
 window.handleAuth = function() {
     const user = document.getElementById('auth-username').value.trim().toLowerCase();
     const pass = document.getElementById('auth-password').value.trim();
@@ -171,14 +174,90 @@ window.handleAuth = function() {
     }
 
     db.collection('users').doc(user).get().then((doc) => {
-        if (doc.exists && doc.data().password === pass) {
-            sessionStorage.setItem('currentUser', user);
-            location.reload();
+        if (!isLoginMode) {
+            if (doc.exists) {
+                alert("Username sudah terdaftar!");
+            } else {
+                db.collection('users').doc(user).set({ password: pass, tickets: 0 }).then(() => {
+                    alert("Berhasil! Silakan masuk.");
+                    toggleAuthMode();
+                });
+            }
         } else {
-            alert("Username atau Password salah!");
+            if (doc.exists && doc.data().password === pass) {
+                sessionStorage.setItem('currentUser', user);
+                location.reload();
+            } else {
+                alert("Username atau Password salah!");
+            }
         }
-    }).catch(err => alert("Terjadi kesalahan jaringan."));
+    }).catch(err => alert("Error jaringan."));
 };
+
+window.toggleAuthMode = function() {
+    isLoginMode = !isLoginMode;
+    document.getElementById('auth-title').innerText = isLoginMode ? 'MASUK AKUN' : 'DAFTAR AKUN';
+    document.getElementById('btn-primary-auth').innerText = isLoginMode ? 'Masuk Sekarang' : 'Daftar Sekarang';
+};
+
+// --- FUNGSI UTAMA APLIKASI ---
+function checkAuthSession() {
+    if (currentUser) {
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('main-app').classList.remove('hidden');
+        document.getElementById('user-display-name').innerText = currentUser;
+        listenToUserData();
+        listenToConfiguration();
+        listenToMatches();
+    }
+}
+
+function listenToUserData() {
+    db.collection('users').doc(currentUser).onSnapshot((doc) => {
+        if (doc.exists) document.getElementById('ticket-balance').innerText = doc.data().tickets || '0';
+    });
+}
+
+function listenToConfiguration() {
+    db.collection('config').doc('global').onSnapshot((doc) => {
+        if (doc.exists) {
+            const data = doc.data();
+            document.getElementById('wa-link').href = 'https://wa.me/' + (data.wa || '62812123847109');
+            document.getElementById('view-banner-title').innerText = data.bannerText || 'Selamat datang';
+        }
+    });
+}
+
+function listenToMatches() {
+    const container = document.getElementById('match-container');
+    db.collection('matches').onSnapshot((snapshot) => {
+        container.innerHTML = '';
+        snapshot.forEach((doc) => {
+            const m = doc.data();
+            container.innerHTML += `
+            <div class="bg-slate-800 p-5 rounded-2xl mb-4 text-center">
+                <p class="font-bold text-white">${m.home} vs ${m.away}</p>
+                <button onclick="unlockVipPrediction('${doc.id}')" class="bg-emerald-600 p-2 mt-2 w-full rounded text-white">BUKA PREDIKSI</button>
+            </div>`;
+        });
+    });
+}
+
+window.unlockVipPrediction = function(matchId) {
+    db.collection('users').doc(currentUser).get().then((doc) => {
+        if ((doc.data().tickets || 0) < 1) {
+            alert("Tiket Habis!");
+        } else {
+            db.collection('users').doc(currentUser).update({ tickets: firebase.firestore.FieldValue.increment(-1) });
+            alert("Prediksi terbuka!");
+        }
+    });
+};
+
+window.handleLogout = function() { sessionStorage.removeItem('currentUser'); location.reload(); };
+window.toggleModal = function(id, show) { document.getElementById(id).style.display = show ? 'flex' : 'none'; };
+
+document.addEventListener('DOMContentLoaded', checkAuthSession);
     </script>
 </body>
 </html>
