@@ -1,36 +1,20 @@
-<!DOCTYPE HTML>
-<html lang="id">
+<!DOCTYPE html>
+<html>
 <head>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ParlayWins - Perbaikan</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>Test Page</title>
 </head>
-<body class="bg-slate-950 text-white font-sans">
+<body style="display:flex; justify-content:center; align-items:center; height:100vh; background:#111;">
 
-    <!-- Screen Login -->
-    <div id="auth-screen" class="min-h-screen flex items-center justify-center p-6">
-        <div class="w-full max-w-sm bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-2xl">
-            <h2 id="auth-title" class="text-2xl font-black text-emerald-400 italic text-center mb-6">MASUK AKUN</h2>
-            
-            <input id="auth-username" type="text" class="w-full p-3 mb-4 bg-slate-800 rounded-xl border border-slate-700" placeholder="Username">
-            <input id="auth-password" type="password" class="w-full p-3 mb-6 bg-slate-800 rounded-xl border border-slate-700" placeholder="Password">
-            
-            <button id="btn-login" onclick="tesTombol()" class="w-full bg-emerald-600 py-3 rounded-xl font-bold">
-                Masuk Sekarang
-            </button>
-        </div>
-    </div>
+    <button id="btn-tes" style="padding: 20px 40px; font-size: 20px; background: green; color: white; border: none; border-radius: 10px;">
+        KLIK SAYA SEKARANG
+    </button>
 
     <script>
-        function tesTombol() {
-            // INI ADALAH DEBUGGER: Jika tombol ditekan, ini akan muncul.
-            alert("Tombol berhasil ditekan! Sistem JavaScript sudah berjalan.");
-            
-            // Logika login akan dijalankan setelah ini
-            console.log("Memulai proses login...");
-        }
+        document.getElementById('btn-tes').onclick = function() {
+            alert('BERHASIL! Kode baru sudah aktif.');
+        };
     </script>
+
 </body>
 </html>
