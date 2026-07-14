@@ -19,6 +19,7 @@
                 <div><label class="text-xs text-slate-400">TEXT SELAMAT DATANG</label><input id="adm-welcome" type="text" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm"></div>
                 <div><label class="text-xs text-slate-400">NOMOR WA ADMIN</label><input id="adm-wa" type="text" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm"></div>
                 <div><label class="text-xs text-slate-400">URL QRIS</label><input id="adm-qris" type="text" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm"></div>
+                <div><label class="text-xs text-slate-400">BANK LIST</label><textarea id="adm-bank" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm h-16"></textarea></div>
                 <div><label class="text-xs text-slate-400">TEKS PERINGATAN</label><textarea id="adm-warning" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm h-16"></textarea></div>
                 <button onclick="saveConfig()" class="w-full bg-emerald-600 py-3 rounded-xl font-bold text-sm">Simpan Konfigurasi</button>
             </div>
@@ -30,6 +31,8 @@
             <div class="grid grid-cols-2 gap-3">
                 <input id="match-home" placeholder="Tim Home" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
                 <input id="match-away" placeholder="Tim Away" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
+                <input id="match-logo-home" placeholder="Logo Home URL" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700 col-span-2">
+                <input id="match-logo-away" placeholder="Logo Away URL" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700 col-span-2">
                 <input id="match-gol" placeholder="Gol (O/U)" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
                 <input id="match-corner" placeholder="Corner (O/U)" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
                 <input id="match-win" placeholder="Pemenang" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700 col-span-2">
@@ -65,6 +68,7 @@
                 document.getElementById('adm-welcome').value = d.welcomeText || '';
                 document.getElementById('adm-wa').value = d.wa || '';
                 document.getElementById('adm-qris').value = d.qris || '';
+                document.getElementById('adm-bank').value = d.bankList || '';
                 document.getElementById('adm-warning').value = d.warningText || '';
             }
         });
@@ -74,6 +78,7 @@
                 welcomeText: document.getElementById('adm-welcome').value,
                 wa: document.getElementById('adm-wa').value,
                 qris: document.getElementById('adm-qris').value,
+                bankList: document.getElementById('adm-bank').value,
                 warningText: document.getElementById('adm-warning').value
             }, {merge: true}).then(() => Swal.fire('Sukses', 'Konfigurasi disimpan', 'success'));
         }
@@ -82,6 +87,8 @@
             db.collection('matches').add({
                 home: document.getElementById('match-home').value,
                 away: document.getElementById('match-away').value,
+                logoHome: document.getElementById('match-logo-home').value,
+                logoAway: document.getElementById('match-logo-away').value,
                 gol: document.getElementById('match-gol').value,
                 corner: document.getElementById('match-corner').value,
                 win: document.getElementById('match-win').value,
