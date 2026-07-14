@@ -132,51 +132,34 @@
                     <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 text-sm">
                         <p>User: <b>${d.username}</b></p>
                         <p class="text-xs text-slate-400">Bukti: ${d.bukti}</p>
-                        <button onclick="approveDeposit('${doc.id}', '${d.username}')" class="w-full mt-3 bg-green-600 py-2 rounded-lg font-bold text-xs">SETUJUI & TAMBAH TIKET</button>
+                        <button onclick="approveDeposit('${doc.id}', '${d.username}', ${d.tickets || 0})" class="w-full mt-2 bg-green-600 text-white p-2 rounded">SETUJU & KIRIM</button>
                     </div>`;
             });
         });
 
-        function approveDeposit(depositId, username) {
-            Swal.fire({
-                title: 'Setujui Deposit',
-                input: 'number',
-                inputValue: '1',
-                text: `Jumlah tiket untuk user "${username}":`,
-                showCancelButton: true,
-                confirmButtonText: 'Setujui & Kirim',
-                showLoaderOnConfirm: true,
-                preConfirm: (amount) => {
-                    const ticketToAdd = parseInt(amount);
-                    const userRef = db.collection('users').doc(username);
-                    
-                    return userRef.get().then(doc => {
-                        if(!doc.exists) throw new Error("User tidak ditemukan di koleksi 'users'");
-                        
-                        // Mengambil data dari salah satu kolom yang ada
-                        const current = parseInt(doc.data().ticket || doc.data().tickets || 0);
-                        const newTotal = current + ticketToAdd;
+        function approveDeposit(depositId, username, ticketAmount) {
+    Swal.fire({
+        title: 'Konfirmasi Deposit',
+        text: 'Setujui ' + ticketAmount + ' tiket untuk ' + username + '?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Setujui',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({ title: 'Memproses...', allowOutsideClick: false });
+            
+            // 1. Update status deposit menjadi 'approved'
+            db.collection('deposits').doc(depositId).update({ status: 'approved' });
 
-                        const batch = db.batch();
-                        
-                        // KITA UPDATE KEDUA KOLOM SEKALIGUS
-                        // Agar aplikasi member Anda pasti membaca angka yang benar
-                        batch.update(userRef, { 
-                            ticket: newTotal,
-                            tickets: newTotal 
-                        });
-                        
-                        batch.update(db.collection('deposits').doc(depositId), { status: 'approved' });
-                        return batch.commit();
-                    });
-                }
-            }).then(r => { 
-                if(r.isConfirmed) {
-                    Swal.fire('Sukses', 'Tiket berhasil ditambah!', 'success');
-                } else if (r.dismiss !== Swal.DismissReason.cancel) {
-                    Swal.fire('Gagal', 'Terjadi kesalahan sistem.', 'error');
-                }
-            });
+            // 2. Tambahkan tiket ke akun user
+            db.collection('users').doc(username).update({
+                tickets: firebase.firestore.FieldValue.increment(ticketAmount)
+            }).then(() => {
+                Swal.fire({ icon: 'success', text: 'Tiket berhasil ditambahkan!' });
+            }).catch(err => Swal.fire({ icon: 'error', text: 'Gagal: ' + err.message }));
+        }
+    });
         }
     </script>
 </body>
