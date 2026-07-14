@@ -147,6 +147,11 @@
 
     <!-- MAIN APP JAVASCRIPT SYSTEM -->
     <script>
+        // === DETEKSI COOLDOWN JIKA SDK GAGAL LOAD ===
+        if (typeof firebase === 'undefined') {
+            alert("Sistem Firebase gagal dimuat! Silakan periksa koneksi internet Anda atau muat ulang halaman.");
+        }
+
         // === INISIALISASI FIREBASE ===
         const firebaseConfig = {
           apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8",
@@ -213,7 +218,7 @@
             document.getElementById('btn-toggle-auth').innerText = isLoginMode ? 'Belum punya akun? Daftar di sini' : 'Sudah punya akun? Login di sini';
         }
 
-        // === PROSES AUTH (LOGIN & REGISTER ONLINE) ===
+        // === PROSES AUTH (LOGIN & REGISTER ONLINE) WITH ERROR DIAGNOSTIC ===
         function handleAuth() {
             const user = document.getElementById('auth-username').value.trim().toLowerCase();
             const pass = document.getElementById('auth-password').value.trim();
@@ -230,6 +235,9 @@
                 });
                 return;
             }
+
+            // Animasi loading sederhana agar user tahu proses sedang berjalan
+            Swal.showLoading();
 
             const userRef = db.collection('users').doc(user);
 
@@ -261,14 +269,17 @@
                                 customClass: { popup: 'rounded-3xl' }
                             });
                             toggleAuthMode();
+                        }).catch(err => {
+                            showDiagnosticError("Gagal Mendaftar Akun", err);
                         });
                     }
                 }).catch(err => {
-                    console.error("Registrasi Error: ", err);
+                    showDiagnosticError("Gagal Membaca Data Pendaftaran", err);
                 });
             } else {
                 // VERIFIKASI LOGIN USER SECARA ONLINE
                 userRef.get().then((doc) => {
+                    Swal.close(); // Tutup loading
                     if (doc.exists && doc.data().password === pass) {
                         sessionStorage.setItem('currentUser', user);
                         currentUser = user;
@@ -277,7 +288,7 @@
                         Swal.fire({
                             icon: 'error',
                             title: 'Login Gagal',
-                            text: 'Username atau Password salah/tidak ditemukan!',
+                            text: 'Username atau Password salah / belum terdaftar!',
                             background: '#1e293b',
                             color: '#ffffff',
                             confirmButtonColor: '#ef4444',
@@ -285,9 +296,29 @@
                         });
                     }
                 }).catch(err => {
-                    console.error("Login Error: ", err);
+                    showDiagnosticError("Gagal Melakukan Login", err);
                 });
             }
+        }
+
+        // FUNGSI DIAGNOSTIK KESALAHAN DATABASE (MEMUDAHKAN PENELUSURAN)
+        function showDiagnosticError(context, err) {
+            Swal.fire({
+                icon: 'error',
+                title: context,
+                html: `
+                    <div class="text-left text-xs space-y-2">
+                        <p class="font-bold text-red-400">Detail Error:</p>
+                        <p class="bg-slate-950 p-2 rounded border border-slate-800 text-slate-300 font-mono">${err.message}</p>
+                        <p class="text-slate-400 mt-2">💡 <b>Solusi:</b> Kemungkinan besar aturan keamanan <b>(Rules)</b> di Firebase Console Anda masih terkunci. Silakan buka menu <b>Firestore Database &gt; Rules</b> dan ubah menjadi publik agar data bisa dibaca & ditulis.</p>
+                    </div>
+                `,
+                background: '#1e293b',
+                color: '#ffffff',
+                confirmButtonText: 'Saya Mengerti',
+                confirmButtonColor: '#ef4444',
+                customClass: { popup: 'rounded-3xl' }
+            });
         }
 
         // === LISTENER SALDO TIKET USER (REAL-TIME) ===
@@ -299,6 +330,8 @@
                 if (doc.exists) {
                     document.getElementById('ticket-balance').innerText = doc.data().tickets || '0';
                 }
+            }, (err) => {
+                console.error("User listener error: ", err);
             });
         }
 
@@ -319,7 +352,9 @@
                     };
                 } else {
                     // Buat dokumen default otomatis jika kosong agar tidak crash
-                    db.collection('config').doc('global').set(globalConfig);
+                    db.collection('config').doc('global').set(globalConfig).catch(err => {
+                        console.error("Gagal membuat config default: ", err);
+                    });
                 }
 
                 // Perbarui Tampilan Web Sesuai Database
@@ -329,39 +364,4 @@
 
                 if (globalConfig.qris) {
                     document.getElementById('deposit-qris-img').src = globalConfig.qris;
-                    document.getElementById('deposit-qris-container').style.display = 'flex';
-                } else {
-                    document.getElementById('deposit-qris-container').style.display = 'none';
-                }
-                document.getElementById('deposit-bank-text').innerText = globalConfig.bankList;
-            });
-        }
-
-        // === LISTENER DAFTAR JADWAL PERTANDINGAN (REAL-TIME) ===
-        function listenToMatches() {
-            const container = document.getElementById('match-container');
-            if (matchesListener) matchesListener();
-
-            matchesListener = db.collection('matches').onSnapshot((snapshot) => {
-                matchesList = [];
-                container.innerHTML = '';
-
-                snapshot.forEach(doc => {
-                    matchesList.push({ id: doc.id, ...doc.data() });
-                });
-
-                if (matchesList.length === 0) {
-                    container.innerHTML = '<p class="text-xs text-center text-slate-500 py-6">Belum ada jadwal pertandingan dari admin.</p>';
-                    return;
-                }
-
-                matchesList.forEach(m => {
-                    container.innerHTML += `
-                        <div class="bg-slate-800/80 border border-slate-700/60 rounded-3xl p-5 shadow-lg space-y-4">
-                            <div class="flex justify-between items-center text-center">
-                                <div class="w-1/3 flex flex-col items-center gap-2">
-                                    <img src="${m.logoHome}" class="w-12 h-12 object-contain" onerror="this.src='https://via.placeholder.com/150'">
-                                    <span class="text-xs font-bold text-slate-200">${m.home}</span>
-                                </div>
-                                <div class="w-1/3 text-emerald-400 font-black text-sm tracking-widest">VS</div>
-                        
+                    document.getElemen
