@@ -85,7 +85,7 @@
         </div>
 <!-- Tombol Buka Prediksi VIP -->
     <div class="mt-6 w-full text-center">
-        <button class="w-full max-w-sm mx-auto bg-gradient-to-r from-yellow-400 to-yellow-600 text-black font-black text-xl py-4 rounded-2xl shadow-[0_0_15px_rgba(250,204,21,0.5)] uppercase tracking-wider animate-pulse">
+        <button onclick="openVipPrediction()" class="w-full max-w-sm mx-auto bg-gradient-to-r from-yellow-400 to-yellow-600 text-black font-black text-xl py-4 rounded-2xl shadow-[0_0_15px_rgba(250,204,21,0.5)] uppercase tracking-wider animate-pulse">
             🔥 BUKA PREDIKSI VIP 🔥
         </button>
     </div>
@@ -125,7 +125,42 @@
     <i class="fa-brands fa-whatsapp text-2xl text-white"></i>
 </a>
     <script>
-    // 1. FUNGSI LOGIN
+    // 1. FUNGSI OTOMATIS AMBIL DATA DARI PANEL ADMIN
+    window.onload = function() {
+        const homeName = localStorage.getItem('home');
+        const awayName = localStorage.getItem('away');
+        const logoHomeUrl = localStorage.getItem('logoHome');
+        const logoAwayUrl = localStorage.getItem('logoAway');
+        const bannerText = localStorage.getItem('bannerText');
+        const bankList = localStorage.getItem('bank-list');
+
+        if (homeName) document.getElementById('view-match-home').innerText = homeName;
+        if (awayName) document.getElementById('view-match-away').innerText = awayName;
+        if (logoHomeUrl) document.getElementById('logo-home').src = logoHomeUrl;
+        if (logoAwayUrl) document.getElementById('logo-away').src = logoAwayUrl;
+        if (bannerText) document.getElementById('view-banner-title').innerText = bannerText;
+        
+        const bankElement = document.getElementById('view-bank-list');
+        if (bankElement && bankList) bankElement.innerText = bankList;
+    };
+
+    // 2. FUNGSI KETIK USER KLIK TOMBOL BUKA PREDIKSI VIP
+    function openVipPrediction() {
+        const vipStatus = localStorage.getItem('vip');
+        if (vipStatus === "Tidak Aktif") {
+            alert("Maaf, Prediksi VIP saat ini sedang dinonaktifkan oleh Admin.");
+            return;
+        }
+        
+        const win = localStorage.getItem('win') || 'Belum diatur';
+        const gol = localStorage.getItem('gol') || 'Belum diatur';
+        const btts = localStorage.getItem('btts') || 'Belum diatur';
+        const corner = localStorage.getItem('corner') || 'Belum diatur';
+
+        alert(`🔥 DETAIL PREDIKSI VIP HARI INI 🔥\n\n⚽ Pemenang: ${win}\n📊 Gol (O/U): ${gol}\n🔄 BTTS: ${btts}\n🚩 Corner: ${corner}`);
+    }
+
+    // 3. FUNGSI LOGIN
     function handleAuthAction() {
         const userField = document.getElementById('auth-username');
         const passField = document.getElementById('auth-password');
@@ -142,7 +177,7 @@
         }
     }
 
-    // 2. FUNGSI BUKA FORM DAFTAR & KEMBALI KE LOGIN
+    // 4. FUNGSI DAFTAR & FORM MUTASI
     function showRegisterAlert() {
         document.getElementById('auth-container').style.display = 'none';
         document.getElementById('register-container').style.display = 'flex';
@@ -164,7 +199,7 @@
         showLoginForm();
     }
 
-    // 3. FUNGSI PEMBAYARAN & DEPOSIT
+    // 5. FUNGSI PEMBAYARAN & DEPOSIT
     function openPayment(harga, tiket) {
         document.getElementById('modal-deposit').style.display = 'none';
         document.getElementById('payment-form').style.display = 'block';
@@ -174,11 +209,12 @@
     function submitDeposit() {
         const nama = document.getElementById('nama-pengirim').value;
         const bank = document.getElementById('bank-asal').value;
+        const targetWa = localStorage.getItem('wa') || '62812123847109';
         const pesan = `Halo Admin, saya ingin deposit ${window.paketDipilih.tiket} seharga ${window.paketDipilih.harga}. Nama: ${nama}, Bank: ${bank}`;
-        window.open('https://wa.me/62812123847109?text=' + encodeURIComponent(pesan));
+        window.open('https://wa.me/' + targetWa + '?text=' + encodeURIComponent(pesan));
     }
 
-    // 4. FUNGSI LOGOUT
+    // 6. FUNGSI LOGOUT
     function handleLogout() { 
         location.reload(); 
     }
