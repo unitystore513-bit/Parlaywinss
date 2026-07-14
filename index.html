@@ -310,8 +310,20 @@
             const paketRaw = document.getElementById('dep-paket').value.split('|');
             const bukti = document.getElementById('dep-bukti').value.trim();
 
+            // 1. POP-UP MODAL JIKA BUKTI MASIH KOSONG
             if (!bukti) {
-                alert('Harap isi Bukti Pembayaran!');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Peringatan!',
+                    text: 'Harap isi Bukti Pembayaran!',
+                    background: '#1e293b', // Latar gelap premium
+                    color: '#ffffff',
+                    confirmButtonText: 'Oke, Mengerti',
+                    confirmButtonColor: '#f59e0b', // Tombol warna orange peringatan
+                    customClass: {
+                        popup: 'rounded-3xl' // Sudut melengkung modern
+                    }
+                });
                 return;
             }
 
@@ -321,7 +333,20 @@
 
             document.getElementById('dep-bukti').value = '';
             toggleModal('modal-deposit', false);
-            alert('✅ Bukti berhasil dikirim! Saldo tiket akan bertambah otomatis jika dikonfirmasi Admin.');
+
+            // 2. POP-UP MODAL JIKA BERHASIL DIKIRIM
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil Dikirim!',
+                text: 'Bukti berhasil dikirim! Saldo tiket akan bertambah otomatis jika dikonfirmasi Admin.',
+                background: '#1e293b',
+                color: '#ffffff',
+                confirmButtonText: 'Selesai',
+                confirmButtonColor: '#059669', // Tombol warna hijau sukses
+                customClass: {
+                    popup: 'rounded-3xl'
+                }
+            });
         }
 
         function handleLogout() {
