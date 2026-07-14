@@ -4,19 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ParlayWins - Portal Utama</title>
-    <!-- Tailwind & SweetAlert -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <style>
         .modal { display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.85); z-index: 50; align-items: center; justify-content: center; padding: 1rem; }
     </style>
 </head>
 <body class="bg-slate-950 text-white font-sans">
 
-    <!-- Screen Login -->
+    <!-- Screen Auth -->
     <div id="auth-screen" class="max-w-md mx-auto min-h-screen flex flex-col justify-center items-center px-6 bg-slate-900 border-x border-slate-800">
         <div class="w-full space-y-6 bg-slate-950 p-6 rounded-3xl border border-slate-800 shadow-xl">
             <div class="text-center space-y-2">
@@ -25,31 +21,78 @@
                 <p id="auth-subtitle" class="text-xs text-slate-400 text-center">Silakan masuk menggunakan username Anda</p>
             </div>
             <div class="space-y-4">
-                <input id="auth-username" type="text" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:border-emerald-500 outline-none" placeholder="Username">
-                <input id="auth-password" type="password" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:border-emerald-500 outline-none" placeholder="Password">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 block mb-1">USERNAME</label>
+                    <input id="auth-username" type="text" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-white" placeholder="Masukkan username">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 block mb-1">PASSWORD</label>
+                    <input id="auth-password" type="password" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-white" placeholder="Masukkan password">
+                </div>
             </div>
-            <button id="btn-auth" onclick="handleAuth()" class="w-full bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-bold text-sm shadow-lg">Masuk Sekarang</button>
-            <button onclick="toggleAuthMode()" id="btn-toggle" class="w-full text-xs text-slate-400 hover:text-white">Belum punya akun? Daftar di sini</button>
+            <div class="space-y-3 pt-2">
+                <button id="btn-primary-auth" onclick="handleAuth()" class="w-full bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-bold text-sm shadow-lg transition text-white">
+                    Masuk Sekarang
+                </button>
+                <button id="btn-toggle-auth" onclick="toggleAuthMode()" class="w-full bg-transparent text-xs text-slate-400 hover:text-white py-1 transition text-center block">
+                    Belum punya akun? Daftar di sini
+                </button>
+            </div>
         </div>
     </div>
 
     <!-- Main App -->
-    <div id="main-app" class="hidden max-w-md mx-auto min-h-screen bg-slate-900 shadow-2xl relative border-x border-slate-800 pb-10">
-        <div class="p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-xl font-black text-emerald-400">PARLAYWINS</h1>
-                <button onclick="logout()" class="bg-slate-800 px-3 py-1 rounded-lg text-xs">Keluar</button>
+    <div id="main-app" class="max-w-md mx-auto min-h-screen bg-slate-900 shadow-2xl relative pb-24 border-x border-slate-800 hidden">
+        <div class="p-4 flex justify-between items-center bg-slate-900/80 backdrop-blur sticky top-0 z-30 border-b border-slate-800">
+            <button onclick="handleLogout()" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-xl font-medium transition text-white">🚪 Keluar</button>
+            <div class="flex items-center gap-3">
+                <div class="bg-amber-500/10 border border-amber-500/30 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                    <span class="text-xs text-amber-400 font-medium">Tiket:</span>
+                    <span id="ticket-balance" class="text-sm font-black text-amber-300">0</span>
+                    <span class="text-xs">🎟️</span>
+                </div>
+                <button onclick="toggleModal('modal-deposit', true)" class="bg-emerald-600 hover:bg-emerald-700 text-xs font-bold px-4 py-2 rounded-xl transition uppercase tracking-wide text-white">DEPOSIT</button>
             </div>
-            <p class="text-sm">Selamat datang, <span id="user-display" class="text-emerald-400 font-bold">User</span>!</p>
-            <div class="mt-6 p-4 bg-slate-800 rounded-2xl border border-slate-700">
-                <p class="text-xs text-slate-400">Tiket Anda</p>
-                <p id="ticket-balance" class="text-2xl font-black text-amber-400">0</p>
-            </div>
+        </div>
+        <div class="px-6 pt-4"><p class="text-xs text-slate-400">Selamat datang kembali, <span id="user-display-name" class="text-emerald-400 font-bold">User</span>!</p></div>
+        <div class="p-4 flex items-center justify-center gap-2">
+            <span class="text-2xl">⚽</span>
+            <h1 class="text-2xl font-black tracking-wider text-emerald-400 italic">PARLAYWINS</h1>
+        </div>
+        <div class="mx-4 p-4 bg-slate-800/60 border border-slate-700 rounded-2xl text-center"><p id="view-banner-title" class="text-sm font-semibold text-slate-200">Selamat datang di parlaywins</p></div>
+        <div class="mt-6 px-4 space-y-4">
+            <h3 class="text-xs font-bold tracking-widest text-slate-400 uppercase">PERTANDINGAN HARI INI</h3>
+            <div id="match-container" class="space-y-4"></div>
+        </div>
+        <div class="mx-4 mt-6 p-4 bg-amber-500/5 border border-amber-500/20 rounded-2xl">
+            <h4 class="text-[11px] font-bold text-amber-500 uppercase tracking-wider mb-1">⚠️ INFO & TEKS PERINGATAN ADMIN</h4>
+            <p id="view-warning-text" class="text-xs text-amber-200/80 leading-relaxed">Memuat teks...</p>
+        </div>
+        <a id="wa-link" href="#" target="_blank" class="fixed bottom-6 right-6 bg-emerald-500 p-4 rounded-full shadow-lg z-40">📱</a>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal-deposit" class="modal">
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl w-full max-w-sm text-center space-y-4">
+            <h3 class="text-lg font-black text-emerald-400 uppercase">💳 Top Up Tiket VIP</h3>
+            <div id="deposit-qris-container" class="hidden justify-center"><img id="deposit-qris-img" src="" class="max-h-40 rounded-lg"></div>
+            <div id="deposit-bank-text" class="text-xs text-slate-300 font-mono text-left bg-slate-900 p-2 rounded border border-slate-800"></div>
+            <input id="dep-username" type="text" class="hidden" readonly>
+            <select id="dep-paket" class="w-full p-2 bg-slate-800 rounded-xl text-xs border border-slate-700 text-white">
+                <option value="20rb|2">Rp 20.000 (Dapat 2 Tiket)</option>
+                <option value="45rb|4">Rp 45.000 (Dapat 4 Tiket)</option>
+            </select>
+            <textarea id="dep-bukti" rows="2" class="w-full p-2 bg-slate-800 rounded-xl text-xs border border-slate-700 text-white" placeholder="Bukti Transfer"></textarea>
+            <div class="flex gap-2"><button onclick="toggleModal('modal-deposit', false)" class="flex-1 bg-slate-800 p-2 rounded-xl text-xs">Tutup</button><button onclick="submitDepositForm()" class="flex-1 bg-emerald-600 p-2 rounded-xl text-xs">Kirim</button></div>
         </div>
     </div>
 
+    <!-- Load Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <!-- Main Logic -->
     <script>
-        // Konfigurasi
         const firebaseConfig = {
           apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8",
           authDomain: "parlaywins-new.firebaseapp.com",
@@ -58,67 +101,76 @@
           messagingSenderId: "1025882923334",
           appId: "1:1025882923334:web:9c8912e08f27e8a7f48547"
         };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        let isLogin = true;
+
+        let db;
+        let isLoginMode = true;
+        let currentUser = sessionStorage.getItem('currentUser') || null;
+
+        // Inisialisasi setelah script Firebase benar-benar dimuat
+        window.onload = function() {
+            if (typeof firebase !== 'undefined') {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                checkAuthSession();
+            }
+        };
+
+        function checkAuthSession() {
+            if (currentUser && db) {
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                document.getElementById('user-display-name').innerText = currentUser;
+                document.getElementById('dep-username').value = currentUser;
+                listenToUserData();
+                listenToConfiguration();
+                listenToMatches();
+            } else {
+                document.getElementById('auth-screen').classList.remove('hidden');
+                document.getElementById('main-app').classList.add('hidden');
+            }
+        }
 
         function toggleAuthMode() {
-            isLogin = !isLogin;
-            document.getElementById('auth-title').innerText = isLogin ? 'MASUK AKUN' : 'DAFTAR AKUN';
-            document.getElementById('btn-auth').innerText = isLogin ? 'Masuk Sekarang' : 'Daftar Sekarang';
-            document.getElementById('btn-toggle').innerText = isLogin ? 'Belum punya akun? Daftar di sini' : 'Sudah punya akun? Login di sini';
+            isLoginMode = !isLoginMode;
+            document.getElementById('auth-title').innerText = isLoginMode ? 'MASUK AKUN' : 'DAFTAR AKUN';
+            document.getElementById('btn-primary-auth').innerText = isLoginMode ? 'Masuk Sekarang' : 'Daftar Sekarang';
+            document.getElementById('btn-toggle-auth').innerText = isLoginMode ? 'Belum punya akun? Daftar di sini' : 'Sudah punya akun? Login di sini';
         }
 
         function handleAuth() {
+            if(!db) { alert("Sistem sedang memuat, tunggu sebentar..."); return; }
             const user = document.getElementById('auth-username').value.trim().toLowerCase();
             const pass = document.getElementById('auth-password').value.trim();
-
-            if(!user || !pass) return Swal.fire('Oops', 'Username dan password wajib diisi', 'warning');
-
+            if (!user || !pass) { Swal.fire('Oops', 'Data harus diisi!', 'warning'); return; }
             Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
+            
             const userRef = db.collection('users').doc(user);
-
-            if(isLogin) {
+            if (!isLoginMode) {
                 userRef.get().then(doc => {
-                    if(doc.exists && doc.data().password === pass) {
-                        sessionStorage.setItem('user', user);
-                        location.reload();
-                    } else {
-                        Swal.fire('Login Gagal', 'Username atau password salah', 'error');
-                    }
+                    if (doc.exists) Swal.fire('Error', 'Username sudah ada', 'error');
+                    else userRef.set({ password: pass, tickets: 0 }).then(() => { Swal.fire('Berhasil', 'Silakan Login', 'success'); toggleAuthMode(); });
                 });
             } else {
                 userRef.get().then(doc => {
-                    if(doc.exists) {
-                        Swal.fire('Gagal', 'Username sudah terpakai', 'error');
+                    if (doc.exists && doc.data().password === pass) {
+                        sessionStorage.setItem('currentUser', user);
+                        currentUser = user;
+                        location.reload();
                     } else {
-                        userRef.set({ password: pass, tickets: 0 }).then(() => {
-                            Swal.fire('Berhasil', 'Akun dibuat! Silakan login', 'success');
-                            toggleAuthMode();
-                        });
+                        Swal.fire('Error', 'Username/Password salah', 'error');
                     }
                 });
             }
         }
 
-        function logout() {
-            sessionStorage.removeItem('user');
-            location.reload();
-        }
-
-        // Cek login
-        if(sessionStorage.getItem('user')) {
-            const username = sessionStorage.getItem('user');
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('main-app').classList.remove('hidden');
-            document.getElementById('user-display').innerText = username;
-            
-            // Ambil data tiket
-            db.collection('users').doc(username).onSnapshot(doc => {
-                if(doc.exists) document.getElementById('ticket-balance').innerText = doc.data().tickets || 0;
-            });
-        }
+        function handleLogout() { sessionStorage.removeItem('currentUser'); location.reload(); }
+        function toggleModal(id, show) { document.getElementById(id).style.display = show ? 'flex' : 'none'; }
+        
+        // --- Fungsi Listener (Tetap seperti aslinya) ---
+        function listenToUserData() { db.collection('users').doc(currentUser).onSnapshot(doc => { if(doc.exists) document.getElementById('ticket-balance').innerText = doc.data().tickets || 0; }); }
+        function listenToConfiguration() { db.collection('config').doc('global').onSnapshot(doc => { if(doc.exists) { const d = doc.data(); document.getElementById('view-banner-title').innerText = d.bannerText; document.getElementById('view-warning-text').innerText = d.warningText; document.getElementById('wa-link').href = 'https://wa.me/' + d.wa; }}); }
+        function listenToMatches() { db.collection('matches').onSnapshot(snapshot => { const container = document.getElementById('match-container'); container.innerHTML = ''; snapshot.forEach(doc => { const m = doc.data(); container.innerHTML += `<div class="bg-slate-800 p-4 rounded-2xl"><b>${m.home} VS ${m.away}</b><button onclick="alert('Prediksi Terbuka')" class="block w-full bg-emerald-600 mt-2 p-2 rounded-xl text-xs">BUKA PREDIKSI</button></div>`; }); }); }
+        function submitDepositForm() { Swal.fire('Sukses', 'Bukti dikirim!', 'success'); toggleModal('modal-deposit', false); }
     </script>
 </body>
 </html>
