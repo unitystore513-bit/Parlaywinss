@@ -211,12 +211,10 @@ function listenToConfiguration() {
     db.collection('config').doc('global').onSnapshot((doc) => {
         if (doc.exists) {
             const data = doc.data();
-            // Update teks peringatan
-            document.getElementById('view-warning-text').innerText = data.warningText || 'Info admin...';
-            // Isi otomatis ke kotak input admin
-            if (document.getElementById('admin-wa')) document.getElementById('admin-wa').value = data.wa || '';
-            if (document.getElementById('admin-banner')) document.getElementById('admin-banner').value = data.bannerText || '';
-            if (document.getElementById('admin-warning')) document.getElementById('admin-warning').value = data.warningText || '';
+            // Tampilkan rekening
+            document.getElementById('display-bank-list').innerText = data.bankList || "Rekening belum diatur admin.";
+            // Tampilkan warning
+            if(document.getElementById('view-warning-text')) document.getElementById('view-warning-text').innerText = data.warningText || 'Info admin...';
         }
     });
 }
@@ -279,12 +277,12 @@ document.addEventListener('DOMContentLoaded', checkAuthSession);
 };
 
 window.submitDepositForm = function() {
-    const user = document.getElementById('dep-username').value;
+    const user = document.getElementById('dep-username').value.trim();
     const paket = document.getElementById('dep-paket').value;
-    const bukti = document.getElementById('dep-bukti').value;
+    const bukti = document.getElementById('dep-bukti').value.trim();
 
     if (!user || !bukti) {
-        Swal.fire({ icon: 'warning', text: 'Harap isi username dan bukti!' });
+        Swal.fire({ icon: 'warning', text: 'Harap isi username dan bukti transfer!' });
         return;
     }
 
@@ -297,7 +295,7 @@ window.submitDepositForm = function() {
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     }).then(() => {
         Swal.fire({ icon: 'success', text: 'Deposit berhasil dikirim!' });
-        toggleModal('modal-deposit', false);
+        document.getElementById('modal-deposit').style.display = 'none';
     }).catch(err => Swal.fire({ icon: 'error', text: 'Gagal: ' + err.message }));
 };
         window.saveConfig = function() {
@@ -317,10 +315,16 @@ window.submitDepositForm = function() {
     });
 };
     </script>
-    <!-- MODAL DEPOSIT - PASTIKAN INI ADALAH SATU-SATUNYA MODAL DEPOSIT -->
-<div id="modal-deposit" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999999; align-items:center; justify-content:center; padding:20px;">
+    <!-- MODAL DEPOSIT - SATU-SATUNYA MODAL -->
+<div id="modal-deposit" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:999999; align-items:center; justify-content:center; padding:20px;">
     <div style="background:#1e293b; padding:25px; border-radius:16px; width:100%; max-width:400px; border:1px solid #334155; color:white;">
         <h2 style="font-weight:bold; margin-bottom:20px; text-align:center; font-size:18px;">💳 TOP UP TIKET VIP</h2>
+        
+        <!-- BAGIAN REKENING -->
+        <div style="background:#0f172a; padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid #475569;">
+            <p style="font-size:12px; color:#94a3b8; margin-bottom:5px;">METODE PEMBAYARAN:</p>
+            <div id="display-bank-list" style="font-size:14px; white-space:pre-wrap;">Memuat rekening...</div>
+        </div>
         
         <label style="display:block; font-size:12px; color:#94a3b8; margin-bottom:5px;">USERNAME AKUN ANDA</label>
         <input id="dep-username" type="text" placeholder="Masukkan Username..." style="width:100%; padding:15px; margin-bottom:15px; background:#0f172a; border:1px solid #475569; border-radius:8px; color:white; outline:none; font-size:16px;">
