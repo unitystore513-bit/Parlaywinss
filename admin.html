@@ -136,16 +136,33 @@
                 confirmButtonText: 'Setujui',
                 showLoaderOnConfirm: true,
                 preConfirm: (amount) => {
+                    const ticketToAdd = parseInt(amount);
                     return db.collection('users').doc(username).get().then(doc => {
-                        if(!doc.exists) throw new Error("User tidak ditemukan di koleksi users");
-                        const current = parseInt(doc.data().ticket || 0);
+                        if(!doc.exists) throw new Error("User tidak ditemukan di koleksi 'users'");
+                        
+                        // Mengambil nilai lama, jika tidak ada dianggap 0
+                        const current = parseInt(doc.data().ticket || doc.data().tickets || 0);
+                        const newTotal = current + ticketToAdd;
+
                         const batch = db.batch();
-                        batch.update(db.collection('users').doc(username), { ticket: current + parseInt(amount) });
+                        
+                        // Memperbarui DUA versi field sekaligus untuk memastikan sinkron
+                        batch.update(db.collection('users').doc(username), { 
+                            ticket: newTotal,
+                            tickets: newTotal 
+                        });
+                        
                         batch.update(db.collection('deposits').doc(depositId), { status: 'approved' });
                         return batch.commit();
                     });
                 }
-            }).then(r => { if(r.isConfirmed) Swal.fire('Sukses', 'Tiket berhasil ditambah', 'success'); });
+            }).then(r => { 
+                if(r.isConfirmed) {
+                    Swal.fire('Sukses', 'Tiket berhasil ditambah!', 'success');
+                } else if (r.error) {
+                    Swal.fire('Gagal', r.error.message, 'error');
+                }
+            });
         }
     </script>
 </body>
