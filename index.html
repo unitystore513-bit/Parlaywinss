@@ -22,17 +22,18 @@
 
         <div class="space-y-3.5 mt-8">
             <div>
-                <!-- Bagian Input Login -->
-<label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Username</label>
-<input type="text" id="auth-username" placeholder="Masukkan Username" class="w-full p-3 bg-slate-800 rounded-xl mb-4">
+                <!-- AREA LOGIN -->
+<div id="auth-container" style="display: block;">
+    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">USERNAME</label>
+    <input type="text" id="auth-username" placeholder="Masukkan Username" class="w-full p-3 bg-slate-800 rounded-xl mb-4 text-white">
 
-<label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Password</label>
-<input type="password" id="auth-password" placeholder="Masukkan Password" class="w-full p-3 bg-slate-800 rounded-xl mb-6">
+    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">PASSWORD</label>
+    <input type="password" id="auth-password" placeholder="Masukkan Password" class="w-full p-3 bg-slate-800 rounded-xl mb-6 text-white">
 
-<button onclick="handleAuthAction()" id="btn-auth-submit" class="w-full bg-emerald-500 p-3 rounded-xl font-bold text-white">
-    Masuk Ke Aplikasi
-</button>
-        </div>
+    <button onclick="handleAuthAction()" id="btn-auth-submit" class="w-full bg-emerald-500 p-3 rounded-xl font-bold text-white">
+        Masuk Ke Aplikasi
+    </button>
+</div>
 
         <div class="text-center pt-4">
             <p id="auth-toggle-text" class="text-xs text-slate-400">
@@ -127,23 +128,21 @@
         }
 
     function handleAuthAction() {
-    const userField = document.getElementById('auth-username');
-    const passField = document.getElementById('auth-password');
-    
-    // Validasi
-    if (!userField || !passField) {
-    alert("Elemen input tidak ditemukan!");
-    return;
-    }
+        const userField = document.getElementById('auth-username');
+        const passField = document.getElementById('auth-password');
 
-    if (userField.value.trim() === "" || passField.value.trim() === "") {
-        alert('Isi semua kolom!');
-        return;
-    }
+        if (!userField || !passField) {
+            alert("ID elemen tidak ditemukan!");
+            return;
+        }
 
-    // Eksekusi Pindah ke Dashboard
-    document.getElementById('auth-container').style.display = 'none';
-    document.getElementById('main-app-container').style.display = 'block';
+        if (userField.value.trim() === "" || passField.value.trim() === "") {
+            alert('Isi semua kolom!');
+            return;
+        }
+
+        document.getElementById('auth-container').style.display = 'none';
+        document.getElementById('main-app-container').style.display = 'block';
     }
 function openPayment(harga, tiket) {
     document.getElementById('modal-deposit').style.display = 'none';
