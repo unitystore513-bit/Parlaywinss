@@ -4,14 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ParlayWins - Portal Utama</title>
+    
+    <!-- CSS Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Library Pop-up Modern SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <!-- SDK Firebase & Firestore Compat Version (Sangat Stabil & Ringan) -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <!-- FIREBASE SDK VERSI STABIL (v8) - MENJAMIN FUNGSI BEKERJA 100% DI HP -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <style>
         .modal { display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.85); z-index: 50; align-items: center; justify-content: center; padding: 1rem; }
@@ -24,26 +26,26 @@
         <div class="w-full space-y-6 bg-slate-950 p-6 rounded-3xl border border-slate-800 shadow-xl">
             <div class="text-center space-y-2">
                 <span class="text-4xl">⚽</span>
-                <h2 id="auth-title" class="text-2xl font-black text-emerald-400 italic tracking-wider">MASUK AKUN</h2>
-                <p id="auth-subtitle" class="text-xs text-slate-400">Silakan masuk menggunakan username Anda</p>
+                <h2 id="auth-title" class="text-2xl font-black text-emerald-400 italic tracking-wider text-center">MASUK AKUN</h2>
+                <p id="auth-subtitle" class="text-xs text-slate-400 text-center">Silakan masuk menggunakan username Anda</p>
             </div>
 
             <div class="space-y-4">
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 block mb-1">USERNAME</label>
-                    <input id="auth-username" type="text" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-emerald-500" placeholder="Masukkan username">
+                    <input id="auth-username" type="text" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-white" placeholder="Masukkan username">
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 block mb-1">PASSWORD</label>
-                    <input id="auth-password" type="password" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-emerald-500" placeholder="Masukkan password">
+                    <input id="auth-password" type="password" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-white" placeholder="Masukkan password">
                 </div>
             </div>
 
             <div class="space-y-3 pt-2">
-                <button id="btn-primary-auth" onclick="handleAuth()" class="w-full bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-bold text-sm shadow-lg shadow-emerald-600/20 transition">
+                <button id="btn-primary-auth" onclick="handleAuth()" class="w-full bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-bold text-sm shadow-lg shadow-emerald-600/20 transition text-white">
                     Masuk Sekarang
                 </button>
-                <button id="btn-toggle-auth" onclick="toggleAuthMode()" class="w-full bg-transparent text-xs text-slate-400 hover:text-white py-1 transition">
+                <button id="btn-toggle-auth" onclick="toggleAuthMode()" class="w-full bg-transparent text-xs text-slate-400 hover:text-white py-1 transition text-center block">
                     Belum punya akun? Daftar di sini
                 </button>
             </div>
@@ -57,7 +59,7 @@
         <!-- TOP BAR NAVIGASI -->
         <div class="p-4 flex justify-between items-center bg-slate-900/80 backdrop-blur sticky top-0 z-30 border-b border-slate-800">
             <div>
-                <button onclick="handleLogout()" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-xl font-medium transition">
+                <button onclick="handleLogout()" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-xl font-medium transition text-white">
                     🚪 Keluar
                 </button>
             </div>
@@ -67,7 +69,7 @@
                     <span id="ticket-balance" class="text-sm font-black text-amber-300">0</span>
                     <span class="text-xs">🎟️</span>
                 </div>
-                <button onclick="toggleModal('modal-deposit', true)" class="bg-emerald-600 hover:bg-emerald-700 text-xs font-bold px-4 py-2 rounded-xl transition uppercase tracking-wide">
+                <button onclick="toggleModal('modal-deposit', true)" class="bg-emerald-600 hover:bg-emerald-700 text-xs font-bold px-4 py-2 rounded-xl transition uppercase tracking-wide text-white">
                     DEPOSIT
                 </button>
             </div>
@@ -147,12 +149,7 @@
 
     <!-- MAIN APP JAVASCRIPT SYSTEM -->
     <script>
-        // === DETEKSI COOLDOWN JIKA SDK GAGAL LOAD ===
-        if (typeof firebase === 'undefined') {
-            alert("Sistem Firebase gagal dimuat! Silakan periksa koneksi internet Anda atau muat ulang halaman.");
-        }
-
-        // === INISIALISASI FIREBASE ===
+        // === KONFIGURASI FIREBASE ===
         const firebaseConfig = {
           apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8",
           authDomain: "parlaywins-new.firebaseapp.com",
@@ -162,14 +159,19 @@
           appId: "1:1025882923334:web:9c8912e08f27e8a7f48547"
         };
 
-        firebase.initializeApp(firebaseConfig);
+        // Inisialisasi Firebase v8 secara aman
+        try {
+            firebase.initializeApp(firebaseConfig);
+        } catch (e) {
+            console.error("Firebase initialization error: ", e);
+        }
+        
         const db = firebase.firestore();
 
         // === VARIABEL GLOBAL ===
         let isLoginMode = true;
         let currentUser = sessionStorage.getItem('currentUser') || null;
 
-        // Penampung Unsubscribe Real-time Listener (Menghemat Bandwidth)
         let userListener = null;
         let configListener = null;
         let matchesListener = null;
@@ -195,7 +197,6 @@
                 document.getElementById('user-display-name').innerText = currentUser;
                 document.getElementById('dep-username').value = currentUser;
                 
-                // Mulai Mendengarkan Database Secara Real-time
                 listenToUserData();
                 listenToConfiguration();
                 listenToMatches();
@@ -203,7 +204,6 @@
                 document.getElementById('auth-screen').classList.remove('hidden');
                 document.getElementById('main-app').classList.add('hidden');
                 
-                // Matikan Listener Jika User Keluar
                 if (userListener) { userListener(); userListener = null; }
                 if (configListener) { configListener(); configListener = null; }
                 if (matchesListener) { matchesListener(); matchesListener = null; }
@@ -218,7 +218,7 @@
             document.getElementById('btn-toggle-auth').innerText = isLoginMode ? 'Belum punya akun? Daftar di sini' : 'Sudah punya akun? Login di sini';
         }
 
-        // === PROSES AUTH (LOGIN & REGISTER ONLINE) WITH ERROR DIAGNOSTIC ===
+        // === PROSES AUTH (LOGIN & REGISTER ONLINE) ===
         function handleAuth() {
             const user = document.getElementById('auth-username').value.trim().toLowerCase();
             const pass = document.getElementById('auth-password').value.trim();
@@ -236,13 +236,13 @@
                 return;
             }
 
-            // Animasi loading sederhana agar user tahu proses sedang berjalan
+            // Animasi loading loading
             Swal.showLoading();
 
             const userRef = db.collection('users').doc(user);
 
             if (!isLoginMode) {
-                // REGISTRASI USER BARU KE DATABASE
+                // PENDAFTARAN USER BARU
                 userRef.get().then((doc) => {
                     if (doc.exists) {
                         Swal.fire({
@@ -277,9 +277,9 @@
                     showDiagnosticError("Gagal Membaca Data Pendaftaran", err);
                 });
             } else {
-                // VERIFIKASI LOGIN USER SECARA ONLINE
+                // PROSES MASUK / LOGIN
                 userRef.get().then((doc) => {
-                    Swal.close(); // Tutup loading
+                    Swal.close();
                     if (doc.exists && doc.data().password === pass) {
                         sessionStorage.setItem('currentUser', user);
                         currentUser = user;
@@ -301,7 +301,6 @@
             }
         }
 
-        // FUNGSI DIAGNOSTIK KESALAHAN DATABASE (MEMUDAHKAN PENELUSURAN)
         function showDiagnosticError(context, err) {
             Swal.fire({
                 icon: 'error',
@@ -310,7 +309,7 @@
                     <div class="text-left text-xs space-y-2">
                         <p class="font-bold text-red-400">Detail Error:</p>
                         <p class="bg-slate-950 p-2 rounded border border-slate-800 text-slate-300 font-mono">${err.message}</p>
-                        <p class="text-slate-400 mt-2">💡 <b>Solusi:</b> Kemungkinan besar aturan keamanan <b>(Rules)</b> di Firebase Console Anda masih terkunci. Silakan buka menu <b>Firestore Database &gt; Rules</b> dan ubah menjadi publik agar data bisa dibaca & ditulis.</p>
+                        <p class="text-slate-400 mt-2">💡 <b>Solusi:</b> Buka menu <b>Firestore Database &gt; Rules</b> di Firebase Console Anda dan ubah aturannya menjadi publik agar website bisa bertukar data.</p>
                     </div>
                 `,
                 background: '#1e293b',
@@ -321,7 +320,6 @@
             });
         }
 
-        // === LISTENER SALDO TIKET USER (REAL-TIME) ===
         function listenToUserData() {
             if (!currentUser) return;
             if (userListener) userListener();
@@ -335,7 +333,6 @@
             });
         }
 
-        // === LISTENER KONFIGURASI WEB (REAL-TIME) ===
         function listenToConfiguration() {
             if (configListener) configListener();
 
@@ -351,17 +348,29 @@
                         vip: data.vip || 'Aktif'
                     };
                 } else {
-                    // Buat dokumen default otomatis jika kosong agar tidak crash
                     db.collection('config').doc('global').set(globalConfig).catch(err => {
                         console.error("Gagal membuat config default: ", err);
                     });
                 }
 
-                // Perbarui Tampilan Web Sesuai Database
                 document.getElementById('wa-link').href = 'https://wa.me/' + globalConfig.wa;
                 document.getElementById('view-banner-title').innerText = globalConfig.bannerText;
                 document.getElementById('view-warning-text').innerText = globalConfig.warningText;
 
                 if (globalConfig.qris) {
                     document.getElementById('deposit-qris-img').src = globalConfig.qris;
-                    document.getElemen
+                    document.getElementById('deposit-qris-container').style.display = 'flex';
+                } else {
+                    document.getElementById('deposit-qris-container').style.display = 'none';
+                }
+                document.getElementById('deposit-bank-text').innerText = globalConfig.bankList;
+            }, (err) => {
+                console.error("Config listener error: ", err);
+            });
+        }
+
+        function listenToMatches() {
+            const container = document.getElementById('match-container');
+            if (matchesListener) matchesListener();
+
+            matchesListener = db.collection('matches').o
