@@ -99,12 +99,16 @@
             }).then(() => Swal.fire('Sukses', 'Pertandingan ditambahkan', 'success'));
         }
 
-        db.collection('matches').orderBy('timestamp', 'desc').onSnapshot(snap => {
+        db.collection('matches').onSnapshot(snap => {
             const list = document.getElementById('match-list');
-            list.innerHTML = '';
+            list.innerHTML = snap.empty ? '<p class="text-slate-500 text-xs">Tidak ada pertandingan aktif.</p>' : '';
             snap.forEach(doc => {
                 const m = doc.data();
-                list.innerHTML += `<div class="flex justify-between items-center bg-slate-800 p-3 rounded-xl text-xs border border-slate-700"><span>${m.home} vs ${m.away}</span><button onclick="deleteMatch('${doc.id}')" class="bg-red-600 px-3 py-1.5 rounded-lg font-bold">Hapus</button></div>`;
+                list.innerHTML += `
+                    <div class="flex justify-between items-center bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
+                        <span>${m.home || 'Tanpa Nama'} vs ${m.away || 'Tanpa Nama'}</span>
+                        <button onclick="deleteMatch('${doc.id}')" class="bg-red-600 px-3 py-1.5 rounded-lg font-bold">Hapus</button>
+                    </div>`;
             });
         });
 
