@@ -127,17 +127,15 @@
         }
 
     function handleAuthAction() {
-    const user = document.getElementById('auth-username').value.trim();
-    const pass = document.getElementById('auth-password').value.trim();
+    const user = document.getElementById('auth-username').value;
+    const pass = document.getElementById('auth-password').value;
     
-    if(user === "" || pass === "") { 
-        alert('Isi semua kolom!'); 
-        return; 
+    if(user.trim() === "" || pass.trim() === "") {
+        alert('Isi semua kolom!');
+        return;
     }
-    
     document.getElementById('auth-container').style.display = 'none';
     document.getElementById('main-app-container').style.display = 'block';
-    document.getElementById('user-profile-name').innerText = user;
     }
 function openPayment(harga, tiket) {
     document.getElementById('modal-deposit').style.display = 'none';
