@@ -110,67 +110,37 @@
     <i class="fa-brands fa-whatsapp text-2xl text-white"></i>
 </a>
     <script>
-        function toggleAuthMode(isRegister) {
-            const sub = document.getElementById('auth-subtitle');
-            const btn = document.getElementById('btn-auth-submit');
-            const tog = document.getElementById('auth-toggle-text');
-            if(isRegister) {
-                sub.innerText = "Buat akun baru VIP Anda";
-                btn.innerText = "Daftar Akun Baru";
-                tog.innerHTML = 'Sudah punya ID? <button onclick="toggleAuthMode(false)" class="text-emerald-400 font-bold">Masuk</button>';
-            } else {
-                sub.innerText = "Silakan masuk ke akun Anda";
-                btn.innerText = "Masuk Ke Aplikasi";
-                tog.innerHTML = 'Belum punya ID? <button onclick="toggleAuthMode(true)" class="text-emerald-400 font-bold">Daftar</button>';
-            }
-        }
-
     function handleAuthAction() {
-        const userField = document.getElementById('auth-username');
-        const passField = document.getElementById('auth-password');
-        const authContainer = document.getElementById('auth-container');
-        const mainContainer = document.getElementById('main-app-container');
-
-        if (userField.value.trim() === "" || passField.value.trim() === "") {
-            alert('Isi semua kolom!');
+        const user = document.getElementById('auth-username').value;
+        const pass = document.getElementById('auth-password').value;
+        if (user.trim() === "" || pass.trim() === "") {
+            alert('Isi username dan password!');
             return;
         }
-
-        // Pindah ke Dashboard
-        authContainer.style.display = 'none';
-        mainContainer.style.display = 'block';
+        document.getElementById('auth-container').style.display = 'none';
+        document.getElementById('main-app-container').style.display = 'block';
     }
-function openPayment(harga, tiket) {
-    document.getElementById('modal-deposit').style.display = 'none';
-    document.getElementById('payment-form').style.display = 'block';
-    window.paketDipilih = { harga, tiket };
-}
 
-function submitDeposit() {
-    const nama = document.getElementById('nama-pengirim').value;
-    const bank = document.getElementById('bank-asal').value;
-    const pesan = `Halo Admin, saya ingin deposit ${window.paketDipilih.tiket} seharga ${window.paketDipilih.harga}. Nama Pengirim: ${nama}, Bank: ${bank}`;
-    window.open(`https://wa.me/6281213847109?text=${encodeURIComponent(pesan)}`);
-}
-        function handleLogout() { location.reload(); }
+    function toggleAuthMode(isRegister) {
+        const btn = document.getElementById('btn-auth-submit');
+        if (isRegister) {
+            btn.innerText = "Daftar Akun Baru";
+            alert("Silakan hubungi Admin untuk pendaftaran.");
+        } else {
+            btn.innerText = "Masuk Ke Aplikasi";
+        }
+    }
 
-        window.onload = function() {
-    if(localStorage.getItem('homeText')) document.getElementById('view-match-home').innerText = localStorage.getItem('homeText');
-    if(localStorage.getItem('awayText')) document.getElementById('view-match-away').innerText = localStorage.getItem('awayText');
-    if(localStorage.getItem('logoHomeText')) document.getElementById('logo-home').src = localStorage.getItem('logoHomeText');
-    if(localStorage.getItem('logoAwayText')) document.getElementById('logo-away').src = localStorage.getItem('logoAwayText');
-    if(localStorage.getItem('bannerTextText')) document.getElementById('view-banner-title').innerText = localStorage.getItem('bannerTextText');
-    if(localStorage.getItem('qrisTextText')) document.getElementById('view-qris').src = localStorage.getItem('qrisTextText');
-    if(localStorage.getItem('bank-listTextText')) document.getElementById('view-bank-list').innerText = localStorage.getItem('bank-listTextText');
-};
-    if(localStorage.getItem('logoHome')) document.getElementById('logo-home').src = localStorage.getItem('logoHome');
-    if(localStorage.getItem('logoAway')) document.getElementById('logo-away').src = localStorage.getItem('logoAway');
-    
-    // Update Banner/Selamat Datang (Baru)
-    if(localStorage.getItem('bannerText')) document.getElementById('view-banner-title').innerText = localStorage.getItem('bannerText');
-    
-    // Update QRIS
-    if(localStorage.getItem('qrisText')) document.getElementById('view-qris').src = localStorage.getItem('qrisText');
-};
-</body>
-</html>
+    function openPayment(harga, tiket) {
+        document.getElementById('modal-deposit').style.display = 'none';
+        document.getElementById('payment-form').style.display = 'block';
+        window.paketDipilih = { harga, tiket };
+    }
+
+    function submitDeposit() {
+        const nama = document.getElementById('nama-pengirim').value;
+        const bank = document.getElementById('bank-asal').value;
+        const pesan = `Halo Admin, saya ingin deposit ${window.paketDipilih.tiket} seharga ${window.paketDipilih.harga}. Nama: ${nama}, Bank: ${bank}`;
+        window.open('https://wa.me/62812123847109?text=' + encodeURIComponent(pesan));
+    }
+    </script>
