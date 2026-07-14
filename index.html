@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ParlayWins - Portal Utama</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Library Pop-up Modern SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         .modal { display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.85); z-index: 50; align-items: center; justify-content: center; padding: 1rem; }
     </style>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 </head>
 <body class="bg-slate-950 text-white font-sans">
 
@@ -45,7 +45,7 @@
     </div>
 
 
-    <!-- ================= UTAMA APLIKASI WEB USER (HIDDEN SEBELUM LOGIN) ================= -->
+    <!-- ================= UTAMA APLIKASI WEB USER ================= -->
     <div id="main-app" class="max-w-md mx-auto min-h-screen bg-slate-900 shadow-2xl relative pb-24 border-x border-slate-800 hidden">
         
         <!-- TOP BAR NAVIGASI -->
@@ -56,7 +56,6 @@
                 </button>
             </div>
             <div class="flex items-center gap-3">
-                <!-- TIKET SALDO AKUN SPESIFIK -->
                 <div class="bg-amber-500/10 border border-amber-500/30 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
                     <span class="text-xs text-amber-400 font-medium">Tiket:</span>
                     <span id="ticket-balance" class="text-sm font-black text-amber-300">0</span>
@@ -183,17 +182,15 @@
             }
 
             if (!isLoginMode) {
-                // REGISTER MODE
                 if (localStorage.getItem('pwd_' + user)) {
                     alert('Username sudah terdaftar! Gunakan nama lain.');
                     return;
                 }
                 localStorage.setItem('pwd_' + user, pass);
-                localStorage.setItem('tickets_' + user, '0'); // Init 0 tiket
+                localStorage.setItem('tickets_' + user, '0');
                 alert('Pendaftaran Berhasil! Silakan klik Masuk Sekarang.');
                 toggleAuthMode();
             } else {
-                // LOGIN MODE
                 const storedPassword = localStorage.getItem('pwd_' + user);
                 if (storedPassword && storedPassword === pass) {
                     sessionStorage.setItem('currentUser', user);
@@ -284,28 +281,29 @@
             updateTicketDisplay();
 
             Swal.fire({
-          title: '🔥 DETAIL PREDIKSI VIP 🔥',
-          html: `
-            <div style="text-align: left; font-size: 14px; line-height: 2.2; padding: 10px 5px;">
-              <p style="font-size: 16px; font-weight: 900; text-align: center; color: #34d399; margin-bottom: 12px; font-style: italic;">
-                ${matchedData.home.toUpperCase()} VS ${matchedData.away.toUpperCase()}
-              </p>
-              <p>⚽ <b>GOL (O/U):</b> <span style="color: #fbbf24">${matchedData.gol || '-'}</span></p>
-              <p>📊 <b>PEMENANG:</b> <span style="color: #fbbf24">${matchedData.win || '-'}</span></p>
-              <p>🔄 <b>BTTS:</b> <span style="color: #fbbf24">${matchedData.btts || '-'}</span></p>
-              <p>🚩 <b>CORNER:</b> <span style="color: #fbbf24">${matchedData.corner || '-'}</span></p>
-            </div>
-          `,
-          background: '#1e293b',
-          color: '#ffffff',
-          confirmButtonText: 'Tutup',
-          confirmButtonColor: '#059669',
-          showCloseButton: true,
-          width: '90%',
-          customClass: {
-            popup: 'rounded-3xl'
-          }
-        });
+              title: '🔥 DETAIL PREDIKSI VIP 🔥',
+              html: `
+                <div style="text-align: left; font-size: 14px; line-height: 2.2; padding: 10px 5px;">
+                  <p style="font-size: 16px; font-weight: 900; text-align: center; color: #34d399; margin-bottom: 12px; font-style: italic;">
+                    ${matchedData.home.toUpperCase()} VS ${matchedData.away.toUpperCase()}
+                  </p>
+                  <p>⚽ <b>GOL (O/U):</b> <span style="color: #fbbf24">${matchedData.gol || '-'}</span></p>
+                  <p>📊 <b>PEMENANG:</b> <span style="color: #fbbf24">${matchedData.win || '-'}</span></p>
+                  <p>🔄 <b>BTTS:</b> <span style="color: #fbbf24">${matchedData.btts || '-'}</span></p>
+                  <p>🚩 <b>CORNER:</b> <span style="color: #fbbf24">${matchedData.corner || '-'}</span></p>
+                </div>
+              `,
+              background: '#1e293b',
+              color: '#ffffff',
+              confirmButtonText: 'Tutup',
+              confirmButtonColor: '#059669',
+              showCloseButton: true,
+              width: '90%',
+              customClass: {
+                popup: 'rounded-3xl'
+              }
+            });
+        }
 
         function submitDepositForm() {
             const username = currentUser;
@@ -332,4 +330,4 @@
         }
     </script>
 </body>
-    </html>
+</html>
