@@ -11,10 +11,6 @@
     <!-- Library Pop-up Modern SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <!-- FIREBASE SDK VERSI STABIL (v8) - MENJAMIN FUNGSI BEKERJA 100% DI HP -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
     <style>
         .modal { display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.85); z-index: 50; align-items: center; justify-content: center; padding: 1rem; }
     </style>
@@ -147,9 +143,9 @@
         </div>
     </div>
 
-    <!-- MAIN APP JAVASCRIPT SYSTEM -->
+    <!-- MAIN APP SYSTEM & ENGINE JAVASCRIPT -->
     <script>
-        // === KONFIGURASI FIREBASE ===
+        // === KONFIGURASI UTAMA FIREBASE ===
         const firebaseConfig = {
           apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8",
           authDomain: "parlaywins-new.firebaseapp.com",
@@ -159,16 +155,7 @@
           appId: "1:1025882923334:web:9c8912e08f27e8a7f48547"
         };
 
-        // Inisialisasi Firebase v8 secara aman
-        try {
-            firebase.initializeApp(firebaseConfig);
-        } catch (e) {
-            console.error("Firebase initialization error: ", e);
-        }
-        
-        const db = firebase.firestore();
-
-        // === VARIABEL GLOBAL ===
+        let db = null;
         let isLoginMode = true;
         let currentUser = sessionStorage.getItem('currentUser') || null;
 
@@ -186,12 +173,46 @@
             vip: 'Aktif'
         };
 
+        // Memuat Firebase secara asinkronus dan aman agar tidak memblokir tombol klik
+        function loadFirebaseScripts() {
+            return new Promise((resolve, reject) => {
+                if (window.firebase) return resolve();
+                
+                const appScript = document.createElement('script');
+                appScript.src = "https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js";
+                appScript.onload = () => {
+                    const firestoreScript = document.createElement('script');
+                    firestoreScript.src = "https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js";
+                    firestoreScript.onload = () => resolve();
+                    firestoreScript.onerror = (e) => reject(new Error("Gagal memuat sistem database (Firestore)."));
+                    document.head.appendChild(firestoreScript);
+                };
+                appScript.onerror = (e) => reject(new Error("Gagal memuat inti sistem (Firebase App)."));
+                document.head.appendChild(appScript);
+            });
+        }
+
         window.onload = function() {
-            checkAuthSession();
+            loadFirebaseScripts().then(() => {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                db = firebase.firestore();
+                checkAuthSession();
+            }).catch(err => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Sistem Terblokir Browser',
+                    text: 'Koneksi atau browser Anda memblokir database. Coba matikan VPN/AdBlocker Anda atau ganti jaringan internet.',
+                    background: '#1e293b',
+                    color: '#ffffff',
+                    confirmButtonColor: '#ef4444'
+                });
+            });
         };
 
         function checkAuthSession() {
-            if (currentUser) {
+            if (currentUser && db) {
                 document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
                 document.getElementById('user-display-name').innerText = currentUser;
@@ -236,8 +257,26 @@
                 return;
             }
 
-            // Animasi loading loading
-            Swal.showLoading();
+            if (!db) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Sistem Belum Siap',
+                    text: 'Menghubungkan ke database gagal atau terhambat. Silakan muat ulang halaman ini.',
+                    background: '#1e293b',
+                    color: '#ffffff',
+                    confirmButtonColor: '#ef4444'
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: 'Memproses...',
+                text: 'Harap tunggu sebentar',
+                allowOutsideClick: false,
+                background: '#1e293b',
+                color: '#ffffff',
+                didOpen: () => { Swal.showLoading(); }
+            });
 
             const userRef = db.collection('users').doc(user);
 
@@ -269,13 +308,9 @@
                                 customClass: { popup: 'rounded-3xl' }
                             });
                             toggleAuthMode();
-                        }).catch(err => {
-                            showDiagnosticError("Gagal Mendaftar Akun", err);
-                        });
+                        }).catch(err => { showDiagnosticError("Gagal Mendaftar Akun", err); });
                     }
-                }).catch(err => {
-                    showDiagnosticError("Gagal Membaca Data Pendaftaran", err);
-                });
+                }).catch(err => { showDiagnosticError("Gagal Membaca Data", err); });
             } else {
                 // PROSES MASUK / LOGIN
                 userRef.get().then((doc) => {
@@ -295,9 +330,7 @@
                             customClass: { popup: 'rounded-3xl' }
                         });
                     }
-                }).catch(err => {
-                    showDiagnosticError("Gagal Melakukan Login", err);
-                });
+                }).catch(err => { showDiagnosticError("Gagal Melakukan Login", err); });
             }
         }
 
@@ -307,70 +340,35 @@
                 title: context,
                 html: `
                     <div class="text-left text-xs space-y-2">
-                        <p class="font-bold text-red-400">Detail Error:</p>
-                        <p class="bg-slate-950 p-2 rounded border border-slate-800 text-slate-300 font-mono">${err.message}</p>
-                        <p class="text-slate-400 mt-2">💡 <b>Solusi:</b> Buka menu <b>Firestore Database &gt; Rules</b> di Firebase Console Anda dan ubah aturannya menjadi publik agar website bisa bertukar data.</p>
+                        <p class="font-bold text-red-400">Detail Kendala:</p>
+                        <p class="bg-slate-950 p-2 rounded border border-slate-800 text-slate-300 font-mono text-[10px]">${err.message}</p>
+                        <p class="text-slate-400 mt-2">💡 <b>Solusi Admin:</b> Pastikan pengaturan di <b>Firebase Console -> Firestore Database -> Rules</b> sudah diset menjadi open/public (`allow read, write: if true;`) agar diizinkan bertukar data.</p>
                     </div>
                 `,
                 background: '#1e293b',
                 color: '#ffffff',
-                confirmButtonText: 'Saya Mengerti',
+                confirmButtonText: 'Oke',
                 confirmButtonColor: '#ef4444',
                 customClass: { popup: 'rounded-3xl' }
             });
         }
 
         function listenToUserData() {
-            if (!currentUser) return;
+            if (!currentUser || !db) return;
             if (userListener) userListener();
 
             userListener = db.collection('users').doc(currentUser).onSnapshot((doc) => {
                 if (doc.exists) {
                     document.getElementById('ticket-balance').innerText = doc.data().tickets || '0';
                 }
-            }, (err) => {
-                console.error("User listener error: ", err);
-            });
+            }, (err) => { console.error(err); });
         }
 
         function listenToConfiguration() {
+            if (!db) return;
             if (configListener) configListener();
 
             configListener = db.collection('config').doc('global').onSnapshot((doc) => {
                 if (doc.exists) {
                     const data = doc.data();
-                    globalConfig = {
-                        wa: data.wa || '62812123847109',
-                        bannerText: data.bannerText || 'Selamat datang di parlaywins',
-                        warningText: data.warningText || 'Peringatan: Prediksi bola memiliki risiko.',
-                        qris: data.qris || '',
-                        bankList: data.bankList || data['bank-list'] || 'Rekening belum diatur admin.',
-                        vip: data.vip || 'Aktif'
-                    };
-                } else {
-                    db.collection('config').doc('global').set(globalConfig).catch(err => {
-                        console.error("Gagal membuat config default: ", err);
-                    });
-                }
-
-                document.getElementById('wa-link').href = 'https://wa.me/' + globalConfig.wa;
-                document.getElementById('view-banner-title').innerText = globalConfig.bannerText;
-                document.getElementById('view-warning-text').innerText = globalConfig.warningText;
-
-                if (globalConfig.qris) {
-                    document.getElementById('deposit-qris-img').src = globalConfig.qris;
-                    document.getElementById('deposit-qris-container').style.display = 'flex';
-                } else {
-                    document.getElementById('deposit-qris-container').style.display = 'none';
-                }
-                document.getElementById('deposit-bank-text').innerText = globalConfig.bankList;
-            }, (err) => {
-                console.error("Config listener error: ", err);
-            });
-        }
-
-        function listenToMatches() {
-            const container = document.getElementById('match-container');
-            if (matchesListener) matchesListener();
-
-            matchesListener = db.collection('matches').o
+                    globalConfi
