@@ -29,13 +29,14 @@
         <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800">
             <h2 class="text-xl font-bold text-blue-400 mb-4">⚽ Tambah Pertandingan</h2>
             <div class="grid grid-cols-2 gap-3">
-                <input id="match-home" placeholder="Tim Home" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
-                <input id="match-away" placeholder="Tim Away" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
-                <input id="match-logo-home" placeholder="Logo Home URL" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700 col-span-2">
-                <input id="match-logo-away" placeholder="Logo Away URL" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700 col-span-2">
-                <input id="match-gol" placeholder="Gol (O/U)" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
-                <input id="match-corner" placeholder="Corner (O/U)" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
-                <input id="match-win" placeholder="Pemenang" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700 col-span-2">
+    <input id="match-home" placeholder="Tim Home" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
+    <input id="match-away" placeholder="Tim Away" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
+    <input id="match-logo-home" placeholder="Logo Home URL" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700 col-span-2">
+    <input id="match-logo-away" placeholder="Logo Away URL" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700 col-span-2">
+    <input id="match-gol" placeholder="Gol (O/U)" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
+    <input id="match-corner" placeholder="Corner (O/U)" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
+    <input id="match-win" placeholder="Pemenang" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700 col-span-2">
+    <input id="match-btts" placeholder="BTTS (Yes/No)" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700 col-span-2">
             </div>
             <button onclick="addMatch()" class="w-full mt-4 bg-blue-600 py-3 rounded-xl font-bold text-sm">+ Posting Pertandingan</button>
 
@@ -87,16 +88,22 @@
         }
 
         function addMatch() {
-            db.collection('matches').add({
-                home: document.getElementById('match-home').value,
-                away: document.getElementById('match-away').value,
-                logoHome: document.getElementById('match-logo-home').value,
-                logoAway: document.getElementById('match-logo-away').value,
-                gol: document.getElementById('match-gol').value,
-                corner: document.getElementById('match-corner').value,
-                win: document.getElementById('match-win').value,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => Swal.fire('Sukses', 'Pertandingan ditambahkan', 'success'));
+    db.collection('matches').add({
+        home: document.getElementById('match-home').value,
+        away: document.getElementById('match-away').value,
+        logoHome: document.getElementById('match-logo-home').value,
+        logoAway: document.getElementById('match-logo-away').value,
+        gol: document.getElementById('match-gol').value,
+        corner: document.getElementById('match-corner').value,
+        win: document.getElementById('match-win').value,
+        btts: document.getElementById('match-btts').value,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+        Swal.fire('Sukses', 'Pertandingan berhasil ditambahkan', 'success');
+        // Kosongkan input setelah sukses
+        document.getElementById('match-home').value = '';
+        document.getElementById('match-away').value = '';
+    });
         }
 
         db.collection('matches').onSnapshot(snap => {
