@@ -196,21 +196,21 @@
             const pass = document.getElementById('auth-password').value.trim();
 
             if (!user || !pass) {
-                Swal.fire({ icon: 'warning', title: 'Peringatan!', text: 'Username dan Password wajib diisi!', background: '#1e293b', color: '#ffffff', confirmButtonColor: '#f59e0b', customClass: { popup: 'rounded-3xl' } });
+                Swal.fire({ icon: 'warning', title: 'Peringatan!', text: 'Username dan Password wajib diisi!' });
                 return;
             }
 
-            Swal.fire({ title: 'Memproses...', text: 'Harap tunggu sebentar', allowOutsideClick: false, background: '#1e293b', color: '#ffffff', didOpen: () => { Swal.showLoading(); } });
+            Swal.fire({ title: 'Memproses...', text: 'Harap tunggu sebentar', allowOutsideClick: false });
 
             const userRef = db.collection('users').doc(user);
 
             if (!isLoginMode) {
                 userRef.get().then((doc) => {
                     if (doc.exists) {
-                        Swal.fire({ icon: 'error', title: 'Pendaftaran Gagal', text: 'Username sudah terdaftar!', background: '#1e293b', color: '#ffffff', confirmButtonColor: '#ef4444', customClass: { popup: 'rounded-3xl' } });
+                        Swal.fire({ icon: 'error', title: 'Pendaftaran Gagal', text: 'Username sudah terdaftar!' });
                     } else {
                         userRef.set({ password: pass, tickets: 0 }).then(() => {
-                            Swal.fire({ icon: 'success', title: 'Pendaftaran Berhasil!', text: 'Silakan masuk menggunakan akun baru.', background: '#1e293b', color: '#ffffff', confirmButtonColor: '#059669', customClass: { popup: 'rounded-3xl' } });
+                            Swal.fire({ icon: 'success', title: 'Pendaftaran Berhasil!', text: 'Silakan masuk menggunakan akun Anda' });
                             toggleAuthMode();
                         });
                     }
@@ -223,7 +223,7 @@
                         currentUser = user;
                         checkAuthSession();
                     } else {
-                        Swal.fire({ icon: 'error', title: 'Login Gagal', text: 'Username atau Password salah!', background: '#1e293b', color: '#ffffff', confirmButtonColor: '#ef4444', customClass: { popup: 'rounded-3xl' } });
+                        Swal.fire({ icon: 'error', title: 'Login Gagal', text: 'Username atau Password salah!' });
                     }
                 });
             }
