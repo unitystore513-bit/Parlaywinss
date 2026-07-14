@@ -157,10 +157,8 @@ const firebaseConfig = {
     messagingSenderId: "1025882923334",
     appId: "1:1025882923334:web:9c8912e08f27e8a7f48547"
 };
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-
-let isLoginMode = true;
 
 // --- FUNGSI LOGIN ---
 window.handleAuth = function() {
@@ -168,162 +166,19 @@ window.handleAuth = function() {
     const pass = document.getElementById('auth-password').value.trim();
 
     if (!user || !pass) {
-        Swal.fire({ icon: 'warning', title: 'Peringatan!', text: 'Username dan Password wajib diisi!' });
+        alert("Username dan Password wajib diisi!");
         return;
     }
 
-    Swal.fire({ title: 'Memproses...', text: 'Harap tunggu...', allowOutsideClick: false });
-
     db.collection('users').doc(user).get().then((doc) => {
-        Swal.close();
-        if (!isLoginMode) {
-<script>
-// --- CONFIG & DB ---
-const firebaseConfig = {
-    apiKey: "AizaSyADISf9vTDZRTWSpVuAUzX6GNtXcqdKM8",
-    authDomain: "parlaywins-new.firebaseapp.com",
-    projectId: "parlaywins-new",
-    storageBucket: "parlaywins-new.appspot.com",
-    messagingSenderId: "1025882923334",
-    appId: "1:1025882923334:web:9c8912e08f27e8a7f48547"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-let isLoginMode = true;
-let currentUser = sessionStorage.getItem('currentUser') || null;
-
-// --- FUNGSI LOGIN ---
-window.handleAuth = function() {
-    const user = document.getElementById('auth-username').value.trim().toLowerCase();
-    const pass = document.getElementById('auth-password').value.trim();
-
-    if (!user || !pass) {
-        Swal.fire({ icon: 'warning', title: 'Peringatan!', text: 'Username dan Password wajib diisi!' });
-        return;
-    }
-
-    Swal.fire({ title: 'Memproses...', text: 'Harap tunggu...', allowOutsideClick: false });
-
-    db.collection('users').doc(user).get().then((doc) => {
-        Swal.close();
-        if (!isLoginMode) {
-            if (doc.exists) {
-                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Username sudah terdaftar!' });
-            } else {
-                db.collection('users').doc(user).set({ password: pass, tickets: 0 }).then(() => {
-                    Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Silakan masuk' });
-                    toggleAuthMode();
-                });
-            }
+        if (doc.exists && doc.data().password === pass) {
+            sessionStorage.setItem('currentUser', user);
+            location.reload();
         } else {
-            if (doc.exists && doc.data().password === pass) {
-                sessionStorage.setItem('currentUser', user);
-                currentUser = user;
-                location.reload();
-            } else {
-                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Username atau Password salah!' });
-            }
+            alert("Username atau Password salah!");
         }
-    }).catch(err => {
-        Swal.fire({ icon: 'error', title: 'Oops', text: 'Terjadi kendala jaringan' });
-    });
+    }).catch(err => alert("Terjadi kesalahan jaringan."));
 };
-
-window.toggleAuthMode = function() {
-    isLoginMode = !isLoginMode;
-    document.getElementById('auth-title').innerText = isLoginMode ? 'MASUK AKUN' : 'DAFTAR AKUN';
-    document.getElementById('btn-primary-auth').innerText = isLoginMode ? 'Masuk Sekarang' : 'Daftar Sekarang';
-};
-
-// --- FUNGSI SISTEM (JANGAN HAPUS) ---
-window.handleLogout = function() { sessionStorage.removeItem('currentUser'); location.reload(); };
-window.toggleModal = function(id, show) { document.getElementById(id).style.display = show ? 'flex' : 'none'; };
-
-function checkAuthSession() {
-    if (currentUser) {
-        document.getElementById('auth-screen').classList.add('hidden');
-        document.getElementById('main-app').classList.remove('hidden');
-        document.getElementById('user-display-name').innerText = currentUser;
-        listenToUserData();
-        listenToConfiguration();
-        listenToMatches();
-    } else {
-        document.getElementById('auth-screen').classList.remove('hidden');
-        document.getElementById('main-app').classList.add('hidden');
-    }
-}
-
-function listenToUserData() {
-    db.collection('users').doc(currentUser).onSnapshot((doc) => {
-        if (doc.exists) document.getElementById('ticket-balance').innerText = doc.data().tickets || '0';
-    });
-}
-
-function listenToConfiguration() {
-    db.collection('config').doc('global').onSnapshot((doc) => {
-        if (doc.exists) {
-            const data = doc.data();
-            document.getElementById('wa-link').href = 'https://wa.me/' + (data.wa || '62812123847109');
-            document.getElementById('view-banner-title').innerText = data.bannerText || 'Selamat datang di parlaywins';
-            document.getElementById('view-warning-text').innerText = data.warningText || 'Peringatan: Prediksi bola';
-        }
-    });
-}
-
-function listenToMatches() {
-    const container = document.getElementById('match-container');
-    db.collection('matches').onSnapshot((snapshot) => {
-        container.innerHTML = '';
-        snapshot.forEach((doc) => {
-            const m = doc.data();
-            container.innerHTML += `
-            <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
-                <div class="flex justify-between items-center text-center">
-                    <div class="w-1/3 flex flex-col items-center gap-2">
-                        <img src="${m.logoHome}" class="w-12 h-12 object-contain">
-                        <span class="text-xs font-bold text-slate-200">${m.home}</span>
-                    </div>
-                    <div class="w-1/3 font-black text-emerald-400 text-sm tracking-widest">VS</div>
-                    <div class="w-1/3 flex flex-col items-center gap-2">
-                        <img src="${m.logoAway}" class="w-12 h-12 object-contain">
-                        <span class="text-xs font-bold text-slate-200">${m.away}</span>
-                    </div>
-                </div>
-                <button onclick="unlockVipPrediction('${doc.id}')" class="w-full bg-gradient-to-r from-yellow-500 to-amber-600 p-3 rounded-xl font-bold text-black">
-                    💰 BUKA PREDIKSI VIP (1 Tiket)
-                </button>
-            </div>`;
-        });
-    });
-}
-
-window.unlockVipPrediction = function(matchId) {
-    db.collection('users').doc(currentUser).get().then((doc) => {
-        if ((doc.data().tickets || 0) < 1) {
-            Swal.fire({ icon: 'warning', title: 'Tiket Habis!', text: 'Tiket Anda Habis!', confirmButtonText: 'Deposit' });
-            return;
-        }
-        db.collection('users').doc(currentUser).update({ tickets: firebase.firestore.FieldValue.increment(-1) });
-        db.collection('matches').doc(matchId).get().then((m) => {
-            const data = m.data();
-            Swal.fire({
-                title: 'PREDIKSI VIP',
-                background: '#1e293b',
-                color: '#fff',
-                html: `<div class="text-left text-sm space-y-2 mt-4">
-                        <p class="text-center font-bold text-lg mb-2">${data.home} vs ${data.away}</p>
-                        <p>⚽ Gol: <b class="text-emerald-400">${data.gol}</b></p>
-                        <p>Corner: <b class="text-emerald-400">${data.corner}</b></p>
-                        <p>BTTS: <b class="text-emerald-400">${data.btts}</b></p>
-                        <p>🏆 Win: <b class="text-emerald-400">${data.win}</b></p>
-                       </div>`
-            });
-        });
-    });
-};
-
-document.addEventListener('DOMContentLoaded', checkAuthSession);
-</script>
+    </script>
 </body>
 </html>
