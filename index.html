@@ -8,6 +8,8 @@
     <style>
         .modal { display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.85); z-index: 50; align-items: center; justify-content: center; padding: 1rem; }
     </style>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 <body class="bg-slate-950 text-white font-sans">
 
@@ -281,8 +283,29 @@
             localStorage.setItem('tickets_' + currentUser, currentTickets.toString());
             updateTicketDisplay();
 
-            alert(`🔥 DETAIL PREDIKSI VIP: ${matchedData.home} VS ${matchedData.away} 🔥\n\n⚽ GOL (O/U): ${matchedData.gol}\n📊 PEMENANG: ${matchedData.win}\n🔄 BTTS: ${matchedData.btts}\n🚩 CORNER: ${matchedData.corner}`);
-        }
+            Swal.fire({
+          title: '🔥 DETAIL PREDIKSI VIP 🔥',
+          html: `
+            <div style="text-align: left; font-size: 14px; line-height: 2.2; padding: 10px 5px;">
+              <p style="font-size: 16px; font-weight: 900; text-align: center; color: #34d399; margin-bottom: 12px; font-style: italic;">
+                ${matchedData.home.toUpperCase()} VS ${matchedData.away.toUpperCase()}
+              </p>
+              <p>⚽ <b>GOL (O/U):</b> <span style="color: #fbbf24">${matchedData.gol || '-'}</span></p>
+              <p>📊 <b>PEMENANG:</b> <span style="color: #fbbf24">${matchedData.win || '-'}</span></p>
+              <p>🔄 <b>BTTS:</b> <span style="color: #fbbf24">${matchedData.btts || '-'}</span></p>
+              <p>🚩 <b>CORNER:</b> <span style="color: #fbbf24">${matchedData.corner || '-'}</span></p>
+            </div>
+          `,
+          background: '#1e293b',
+          color: '#ffffff',
+          confirmButtonText: 'Tutup',
+          confirmButtonColor: '#059669',
+          showCloseButton: true,
+          width: '90%',
+          customClass: {
+            popup: 'rounded-3xl'
+          }
+        });
 
         function submitDepositForm() {
             const username = currentUser;
