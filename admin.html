@@ -16,26 +16,11 @@
         <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800">
             <h2 class="text-xl font-bold text-emerald-400 mb-4">⚙️ Pengaturan Umum</h2>
             <div class="space-y-4">
-                <div>
-                    <label class="text-xs text-slate-400">TEXT SELAMAT DATANG</label>
-                    <input id="adm-welcome" type="text" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm">
-                </div>
-                <div>
-                    <label class="text-xs text-slate-400">NOMOR WA ADMIN</label>
-                    <input id="adm-wa" type="text" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm">
-                </div>
-                <div>
-                    <label class="text-xs text-slate-400">URL QRIS</label>
-                    <input id="adm-qris" type="text" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm">
-                </div>
-                <div>
-                    <label class="text-xs text-slate-400">BANK LIST</label>
-                    <textarea id="adm-bank" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm h-16"></textarea>
-                </div>
-                <div>
-                    <label class="text-xs text-slate-400">TEKS PERINGATAN</label>
-                    <textarea id="adm-warning" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm h-16"></textarea>
-                </div>
+                <div><label class="text-xs text-slate-400">TEXT SELAMAT DATANG</label><input id="adm-welcome" type="text" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm"></div>
+                <div><label class="text-xs text-slate-400">NOMOR WA ADMIN</label><input id="adm-wa" type="text" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm"></div>
+                <div><label class="text-xs text-slate-400">URL QRIS</label><input id="adm-qris" type="text" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm"></div>
+                <div><label class="text-xs text-slate-400">BANK LIST</label><textarea id="adm-bank" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm h-16"></textarea></div>
+                <div><label class="text-xs text-slate-400">TEKS PERINGATAN</label><textarea id="adm-warning" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm h-16"></textarea></div>
                 <button onclick="saveConfig()" class="w-full bg-emerald-600 py-3 rounded-xl font-bold text-sm">Simpan Konfigurasi</button>
             </div>
         </div>
@@ -54,21 +39,16 @@
             </div>
             <button onclick="addMatch()" class="w-full mt-4 bg-blue-600 py-3 rounded-xl font-bold text-sm">+ Posting Pertandingan</button>
 
-            <!-- DAFTAR PERTANDINGAN AKTIF UNTUK DIHAPUS -->
             <div class="mt-6 border-t border-slate-800 pt-4">
                 <h3 class="text-sm font-semibold text-slate-400 mb-3">Daftar Pertandingan Aktif</h3>
-                <div id="match-list" class="space-y-3">
-                    <p class="text-slate-500 text-xs">Memuat pertandingan...</p>
-                </div>
+                <div id="match-list" class="space-y-3"></div>
             </div>
         </div>
 
         <!-- 3. VALIDASI DEPOSIT -->
         <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800">
             <h2 class="text-xl font-bold text-yellow-400 mb-4">💰 Validasi Deposit</h2>
-            <div id="deposit-list" class="space-y-3">
-                <p class="text-slate-500 text-sm">Memuat pengajuan...</p>
-            </div>
+            <div id="deposit-list" class="space-y-3"></div>
         </div>
     </div>
 
@@ -84,7 +64,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // 1. Load Config Awal (Menggunakan 'bannerText' agar sinkron dengan halaman user)
+        // Load Config
         db.collection('config').doc('global').get().then(doc => {
             if(doc.exists) {
                 const d = doc.data();
@@ -98,184 +78,74 @@
 
         function saveConfig() {
             db.collection('config').doc('global').set({
-                bannerText: document.getElementById('adm-welcome').value, // Disamakan menjadi bannerText
+                bannerText: document.getElementById('adm-welcome').value,
                 wa: document.getElementById('adm-wa').value,
                 qris: document.getElementById('adm-qris').value,
                 bankList: document.getElementById('adm-bank').value,
                 warningText: document.getElementById('adm-warning').value
-            }, {merge: true}).then(() => {
-                Swal.fire('Sukses', 'Konfigurasi berhasil disimpan!', 'success');
-            }).catch(err => {
-                Swal.fire('Gagal', err.message, 'error');
-            });
+            }, {merge: true}).then(() => Swal.fire('Sukses', 'Konfigurasi disimpan', 'success'));
         }
 
-        // 2. Tambah Pertandingan Baru
         function addMatch() {
-            const home = document.getElementById('match-home').value;
-            const away = document.getElementById('match-away').value;
-            const logoHome = document.getElementById('match-logo-home').value;
-            const logoAway = document.getElementById('match-logo-away').value;
-            const gol = document.getElementById('match-gol').value;
-            const corner = document.getElementById('match-corner').value;
-            const win = document.getElementById('match-win').value;
-
-            if(!home || !away) {
-                return Swal.fire('Gagal', 'Nama tim home dan away wajib diisi!', 'warning');
-            }
-
             db.collection('matches').add({
-                home: home,
-                away: away,
-                logoHome: logoHome,
-                logoAway: logoAway,
-                gol: gol,
-                corner: corner,
-                win: win,
+                home: document.getElementById('match-home').value,
+                away: document.getElementById('match-away').value,
+                logoHome: document.getElementById('match-logo-home').value,
+                logoAway: document.getElementById('match-logo-away').value,
+                gol: document.getElementById('match-gol').value,
+                corner: document.getElementById('match-corner').value,
+                win: document.getElementById('match-win').value,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                Swal.fire('Sukses', 'Pertandingan berhasil diposting!', 'success');
-                // Reset form input
-                document.getElementById('match-home').value = '';
-                document.getElementById('match-away').value = '';
-                document.getElementById('match-logo-home').value = '';
-                document.getElementById('match-logo-away').value = '';
-                document.getElementById('match-gol').value = '';
-                document.getElementById('match-corner').value = '';
-                document.getElementById('match-win').value = '';
-            }).catch(err => {
-                Swal.fire('Gagal', err.message, 'error');
-            });
+            }).then(() => Swal.fire('Sukses', 'Pertandingan ditambahkan', 'success'));
         }
 
-        // 3. Menampilkan Daftar Pertandingan Aktif & Tombol Hapus
         db.collection('matches').orderBy('timestamp', 'desc').onSnapshot(snap => {
             const list = document.getElementById('match-list');
-            list.innerHTML = snap.empty ? '<p class="text-slate-500 text-xs">Tidak ada pertandingan aktif.</p>' : '';
+            list.innerHTML = '';
             snap.forEach(doc => {
                 const m = doc.data();
-                list.innerHTML += `
-                    <div class="flex justify-between items-center bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
-                        <div class="flex flex-col">
-                            <span class="font-bold text-slate-200">${m.home} vs ${m.away}</span>
-                            <span class="text-[10px] text-slate-400">Gol: ${m.gol || '-'} | Corner: ${m.corner || '-'}</span>
-                        </div>
-                        <button onclick="deleteMatch('${doc.id}')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg font-bold transition">Hapus</button>
-                    </div>`;
+                list.innerHTML += `<div class="flex justify-between items-center bg-slate-800 p-3 rounded-xl text-xs border border-slate-700"><span>${m.home} vs ${m.away}</span><button onclick="deleteMatch('${doc.id}')" class="bg-red-600 px-3 py-1.5 rounded-lg font-bold">Hapus</button></div>`;
             });
         });
 
         function deleteMatch(id) {
-            Swal.fire({
-                title: 'Hapus Pertandingan?',
-                text: "Tindakan ini tidak dapat dibatalkan!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Ya, Hapus!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    db.collection('matches').doc(id).delete().then(() => {
-                        Swal.fire('Terhapus!', 'Pertandingan telah dihapus dari database.', 'success');
-                    });
-                }
-            });
+            db.collection('matches').doc(id).delete();
         }
 
-        // 4. Live Monitor Antrean Deposit
         db.collection('deposits').where('status', '==', 'pending').onSnapshot(snap => {
             const list = document.getElementById('deposit-list');
-            list.innerHTML = snap.empty ? '<p class="text-slate-500 text-sm">Tidak ada deposit masuk.</p>' : '';
+            list.innerHTML = snap.empty ? '<p class="text-slate-500">Tidak ada deposit.</p>' : '';
             snap.forEach(doc => {
                 const d = doc.data();
                 list.innerHTML += `
-                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 text-sm space-y-2">
-                        <p>User: <b class="text-emerald-400">${d.username}</b></p>
-                        <p class="text-xs text-slate-300">Keterangan/Bukti: "${d.bukti || '-'}"</p>
-                        <div class="flex gap-2 pt-2">
-                            <button onclick="approveDeposit('${doc.id}', '${d.username}')" class="flex-1 bg-green-600 hover:bg-green-700 py-2 rounded-lg text-xs font-bold transition">SETUJUI & TAMBAH TIKET</button>
-                            <button onclick="rejectDeposit('${doc.id}')" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-xs font-bold transition">TOLAK</button>
-                        </div>
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 text-sm">
+                        <p>User: <b>${d.username}</b></p>
+                        <p class="text-xs text-slate-400">Bukti: ${d.bukti}</p>
+                        <button onclick="approveDeposit('${doc.id}', '${d.username}')" class="w-full mt-3 bg-green-600 py-2 rounded-lg font-bold text-xs">SETUJUI & TAMBAH TIKET</button>
                     </div>`;
             });
         });
 
-        // 5. Logika Setujui Deposit & Tambahkan Tiket Pengguna
         function approveDeposit(depositId, username) {
             Swal.fire({
-                title: 'Proses Deposit',
-                text: `Masukkan jumlah tiket yang ingin diberikan ke user "${username}":`,
+                title: 'Setujui Deposit',
                 input: 'number',
                 inputValue: '1',
-                inputAttributes: {
-                    min: 1,
-                    step: 1
-                },
+                text: `Jumlah tiket untuk user "${username}":`,
                 showCancelButton: true,
-                confirmButtonText: 'Setujui & Kirim',
+                confirmButtonText: 'Setujui',
                 showLoaderOnConfirm: true,
-                preConfirm: (ticketAmount) => {
-                    const ticketsToAdd = parseInt(ticketAmount);
-                    if (!ticketsToAdd || ticketsToAdd <= 0) {
-                        Swal.showValidationMessage('Jumlah tiket harus lebih dari 0!');
-                        return false;
-                    }
-                    
-                    // Mencari user di dalam koleksi 'users' berdasarkan field 'username'
-                    return db.collection('users').where('username', '==', username).get()
-                        .then(userSnap => {
-                            if (userSnap.empty) {
-                                throw new Error(`User "${username}" tidak ditemukan di database.`);
-                            }
-                            
-                            // Ambil document user pertama yang cocok
-                            const userDoc = userSnap.docs[0];
-                            const userRef = userDoc.ref;
-                            const currentTickets = parseInt(userDoc.data().ticket || 0);
-                            const newTickets = currentTickets + ticketsToAdd;
-
-                            // Jalankan proses update berurutan (Batch update)
-                            const batch = db.batch();
-                            
-                            // 1. Update jumlah tiket user
-                            batch.update(userRef, { ticket: newTickets });
-                            
-                            // 2. Ubah status deposit menjadi approved
-                            const depositRef = db.collection('deposits').doc(depositId);
-                            batch.update(depositRef, { status: 'approved' });
-
-                            return batch.commit();
-                        })
-                        .catch(error => {
-                            Swal.showValidationMessage(`Gagal: ${error.message}`);
-                        });
-                },
-                allowOutsideClick: () => !Swal.isLoading()
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire('Sukses!', 'Deposit berhasil disetujui dan tiket user telah bertambah.', 'success');
-                }
-            });
-        }
-
-        // 6. Logika Tolak Deposit
-        function rejectDeposit(id) {
-            Swal.fire({
-                title: 'Tolak Deposit?',
-                text: "Transaksi ini akan ditandai sebagai ditolak.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                confirmButtonText: 'Ya, Tolak'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    db.collection('deposits').doc(id).update({ status: 'rejected' })
-                    .then(() => {
-                        Swal.fire('Ditolak!', 'Deposit berhasil ditolak.', 'success');
+                preConfirm: (amount) => {
+                    return db.collection('users').doc(username).get().then(doc => {
+                        if(!doc.exists) throw new Error("User tidak ditemukan di koleksi users");
+                        const current = parseInt(doc.data().ticket || 0);
+                        const batch = db.batch();
+                        batch.update(db.collection('users').doc(username), { ticket: current + parseInt(amount) });
+                        batch.update(db.collection('deposits').doc(depositId), { status: 'approved' });
+                        return batch.commit();
                     });
                 }
-            });
+            }).then(r => { if(r.isConfirmed) Swal.fire('Sukses', 'Tiket berhasil ditambah', 'success'); });
         }
     </script>
 </body>
