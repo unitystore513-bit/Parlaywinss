@@ -222,11 +222,15 @@ function listenToConfiguration() {
     db.collection('config').doc('global').onSnapshot((doc) => {
         if (doc.exists) {
             const data = doc.data();
+            // Update teks peringatan
             document.getElementById('view-warning-text').innerText = data.warningText || 'Info admin...';
+            // Isi otomatis ke kotak input admin
+            if (document.getElementById('admin-wa')) document.getElementById('admin-wa').value = data.wa || '';
+            if (document.getElementById('admin-banner')) document.getElementById('admin-banner').value = data.bannerText || '';
+            if (document.getElementById('admin-warning')) document.getElementById('admin-warning').value = data.warningText || '';
         }
     });
 }
-
 function listenToMatches() {
     const container = document.getElementById('match-container');
     db.collection('matches').onSnapshot((snapshot) => {
@@ -324,27 +328,28 @@ window.submitDepositForm = function() {
     });
 };
     </script>
-    <div id="modal-deposit" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[9999] p-4 pointer-events-auto">
-    <div class="bg-slate-900 p-6 rounded-2xl w-full max-w-sm border border-slate-700 pointer-events-auto">
-        <h2 class="text-white font-bold text-lg mb-4 text-center">💳 TOP UP TIKET VIP</h2>
-        <label class="text-slate-400 text-xs mb-1 block">METODE PEMBAYARAN RESMI</label>
-        <div class="p-3 mb-3 bg-slate-800 rounded text-slate-300 border border-slate-700 text-sm">
-            Tampilkan Data Bank/QR Disini
-        </div>
-        <label class="text-slate-400 text-xs mb-1 block">USERNAME AKUN ANDA</label>
-        <input id="dep-username" type="text" placeholder="Masukkan Username..." class="w-full p-3 mb-3 bg-slate-800 rounded text-white border border-slate-700 focus:ring-2 focus:ring-emerald-500 outline-none">
-        <label class="text-slate-400 text-xs mb-1 block">PILIH PAKET TIKET</label>
-        <select id="dep-paket" class="w-full p-3 mb-3 bg-slate-800 rounded text-white border border-slate-700">
+    <!-- Modal Deposit Versi Baru -->
+<div id="modal-deposit" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:99999; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#1e293b; padding:20px; border-radius:16px; width:100%; max-width:400px; border:1px solid #475569; color:white;">
+        <h2 style="font-weight:bold; margin-bottom:15px; text-align:center;">💳 TOP UP TIKET VIP</h2>
+        
+        <label style="display:block; font-size:12px; color:#94a3b8; margin-bottom:5px;">USERNAME AKUN ANDA</label>
+        <input id="dep-username" type="text" placeholder="Masukkan Username..." style="width:100%; padding:12px; margin-bottom:15px; background:#0f172a; border:1px solid #334155; border-radius:8px; color:white;">
+        
+        <label style="display:block; font-size:12px; color:#94a3b8; margin-bottom:5px;">PILIH PAKET</label>
+        <select id="dep-paket" style="width:100%; padding:12px; margin-bottom:15px; background:#0f172a; border:1px solid #334155; border-radius:8px; color:white;">
             <option value="Rp 20.000 (Dapat 2 Tiket)">Rp 20.000 (Dapat 2 Tiket)</option>
             <option value="Rp 45.000 (Dapat 4 Tiket)">Rp 45.000 (Dapat 4 Tiket)</option>
         </select>
-        <label class="text-slate-400 text-xs mb-1 block">BUKTI PEMBAYARAN / NOMOR REFERENSI</label>
-        <textarea id="dep-bukti" placeholder="Contoh: Transfer Mandiri An. Budi" class="w-full p-3 mb-4 bg-slate-800 rounded text-white border border-slate-700"></textarea>
-        <div class="flex gap-2">
-            <button onclick="toggleModal('modal-deposit', false)" class="w-1/2 bg-slate-700 p-3 rounded text-white font-bold">Tutup</button>
-            <button onclick="submitDepositForm()" class="w-1/2 bg-emerald-600 p-3 rounded text-white font-bold">Kirim Bukti</button>
+
+        <label style="display:block; font-size:12px; color:#94a3b8; margin-bottom:5px;">BUKTI TRANSFER</label>
+        <textarea id="dep-bukti" placeholder="Contoh: Transfer Mandiri An. Budi" style="width:100%; padding:12px; margin-bottom:15px; background:#0f172a; border:1px solid #334155; border-radius:8px; color:white;"></textarea>
+        
+        <div style="display:flex; gap:10px;">
+            <button onclick="toggleModal('modal-deposit', false)" style="flex:1; padding:12px; background:#475569; border:none; border-radius:8px; font-weight:bold; color:white;">Tutup</button>
+            <button onclick="submitDepositForm()" style="flex:1; padding:12px; background:#059669; border:none; border-radius:8px; font-weight:bold; color:white;">Kirim Bukti</button>
         </div>
     </div>
-    </div>
+</div>
 </body>
 </html>
