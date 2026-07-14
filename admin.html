@@ -72,19 +72,18 @@
     </div>
 
     <script>
-        function saveAll() {
+    function saveAll() {
         const fields = ['wa', 'vip', 'home', 'away', 'logoHome', 'logoAway', 'bannerText', 'gol', 'win', 'btts', 'corner', 'qris', 'bank-list'];
+        
         fields.forEach(field => {
             const element = document.getElementById('admin-' + field);
             if (element) {
-                localStorage.setItem(field + 'Text', element.value);
+                localStorage.setItem(field, element.value);
             }
         });
+        
         alert('Semua data berhasil diperbarui!');
-        }
-            });
-            alert('Semua data berhasil diperbarui!');
-        }
+    }
     </script>
 </body>
 </html>
