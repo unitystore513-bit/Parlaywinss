@@ -3,168 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel Pro - ParlayWins</title>
+    <title>Admin Panel - ParlayWins</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
-<body class="bg-slate-950 text-white p-4 md:p-8">
-    <div class="max-w-4xl mx-auto space-y-6">
-        
-        <!-- PENGATURAN UMUM -->
-        <div class="bg-slate-900 p-6 rounded-2xl shadow-xl border border-slate-800">
-            <h1 class="text-2xl font-bold text-emerald-400 mb-4">⚙️ Pengaturan Umum & Sistem</h1>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="text-xs text-slate-400 font-bold">NOMOR WA ADMIN</label>
-                    <input id="cfg-wa" type="text" class="w-full p-2.5 bg-slate-800 rounded-lg text-sm border border-slate-700 mt-1">
-                </div>
-                <div>
-                    <label class="text-xs text-slate-400 font-bold">STATUS PREDIKSI VIP</label>
-                    <select id="cfg-vip" class="w-full p-2.5 bg-slate-800 rounded-lg text-sm border border-slate-700 mt-1">
-                        <option value="Aktif">Aktif (Butuh Tiket)</option>
-                        <option value="Tidak Aktif">Nonaktifkan Semua</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-xs text-slate-400 font-bold">URL GAMBAR QRIS PEMBAYARAN</label>
-                    <input id="cfg-qris" type="text" class="w-full p-2.5 bg-slate-800 rounded-lg text-sm border border-slate-700 mt-1">
-                </div>
-                <div>
-                    <label class="text-xs text-slate-400 font-bold">TEXT DATA REKENING BANK</label>
-                    <textarea id="cfg-bank" rows="2" class="w-full p-2.5 bg-slate-800 rounded-lg text-sm border border-slate-700 mt-1"></textarea>
-                </div>
+<body class="bg-slate-950 text-white font-sans p-4">
+
+    <div class="max-w-md mx-auto space-y-6">
+        <!-- 1. PENGATURAN UMUM -->
+        <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800">
+            <h2 class="text-xl font-bold text-emerald-400 mb-4">⚙️ Pengaturan Umum & Sistem</h2>
+            <div class="space-y-4">
+                <div><label class="text-xs text-slate-400">NOMOR WA ADMIN</label><input id="adm-wa" type="text" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm"></div>
+                <div><label class="text-xs text-slate-400">STATUS PREDIKSI</label><select id="adm-status" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm"><option value="aktif">Aktif</option><option value="tutup">Tutup</option></select></div>
+                <div><label class="text-xs text-slate-400">URL QRIS</label><input id="adm-qris" type="text" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm"></div>
+                <div><label class="text-xs text-slate-400">BANK LIST</label><textarea id="adm-bank" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm h-20"></textarea></div>
+                <div><label class="text-xs text-slate-400">TEKS PERINGATAN</label><textarea id="adm-warning" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm h-20"></textarea></div>
+                <button onclick="saveConfig()" class="w-full bg-emerald-600 py-3 rounded-xl font-bold text-sm">Simpan Konfigurasi Umum</button>
             </div>
-            <div class="mt-4">
-                <label class="text-xs text-slate-400 font-bold">⚠️ TEKS PERINGATAN (HALAMAN USER)</label>
-                <textarea id="cfg-warning" rows="2" class="w-full p-2.5 bg-slate-800 rounded-lg text-sm border border-slate-700 mt-1 text-amber-300"></textarea>
-            </div>
-            <button onclick="saveGeneralConfig()" class="mt-4 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg text-sm transition">
-                Simpan Konfigurasi Umum
-            </button>
         </div>
 
-        <!-- POSTING MATCH -->
-        <div class="bg-slate-900 p-6 rounded-2xl shadow-xl border border-slate-800">
-            <h2 class="text-xl font-bold text-sky-400 mb-4">⚽ Tambah Pertandingan Baru</h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <div><label class="text-xs text-slate-400">Tim Home</label><input id="match-home" type="text" class="w-full p-2 bg-slate-800 rounded text-sm mt-1"></div>
-                <div><label class="text-xs text-slate-400">Tim Away</label><input id="match-away" type="text" class="w-full p-2 bg-slate-800 rounded text-sm mt-1"></div>
-                <div><label class="text-xs text-slate-400">URL Logo Home</label><input id="match-logoHome" type="text" class="w-full p-2 bg-slate-800 rounded text-sm mt-1"></div>
-                <div><label class="text-xs text-slate-400">URL Logo Away</label><input id="match-logoAway" type="text" class="w-full p-2 bg-slate-800 rounded text-sm mt-1"></div>
+        <!-- 2. TAMBAH PERTANDINGAN -->
+        <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800">
+            <h2 class="text-xl font-bold text-emerald-400 mb-4">⚽ Tambah Pertandingan Baru</h2>
+            <div class="grid grid-cols-2 gap-3">
+                <input id="match-home" placeholder="Tim Home" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
+                <input id="match-away" placeholder="Tim Away" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
+                <input id="logo-home" placeholder="URL Logo Home" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700 col-span-2">
+                <input id="logo-away" placeholder="URL Logo Away" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700 col-span-2">
+                <input id="match-gol" placeholder="Gol (O/U)" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
+                <input id="match-win" placeholder="Pemenang" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
-                <div><label class="text-xs text-slate-400">Gol (O/U)</label><input id="pred-gol" type="text" class="w-full p-2 bg-slate-800 rounded text-sm mt-1"></div>
-                <div><label class="text-xs text-slate-400">Pemenang</label><input id="pred-win" type="text" class="w-full p-2 bg-slate-800 rounded text-sm mt-1"></div>
-                <div><label class="text-xs text-slate-400">BTTS</label><input id="pred-btts" type="text" class="w-full p-2 bg-slate-800 rounded text-sm mt-1"></div>
-                <div><label class="text-xs text-slate-400">Corner (O/U)</label><input id="pred-corner" type="text" class="w-full p-2 bg-slate-800 rounded text-sm mt-1"></div>
+            <button onclick="addMatch()" class="w-full mt-4 bg-blue-600 py-3 rounded-xl font-bold text-sm">+ Posting Pertandingan</button>
+            
+            <div id="match-list" class="mt-6 space-y-3 border-t border-slate-800 pt-4">
+                <!-- Daftar Match akan muncul disini -->
             </div>
-            <button onclick="addMatch()" class="mt-4 w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-2.5 rounded-lg text-sm transition">
-                + Posting Pertandingan Ke Halaman Utama
-            </button>
-            <div class="mt-4"><div id="admin-match-list" class="space-y-2"></div></div>
-        </div>
-
-        <!-- MONITOR DEPOSIT -->
-        <div class="bg-slate-900 p-6 rounded-2xl shadow-xl border border-slate-800">
-            <h2 class="text-xl font-bold text-amber-400 mb-4">📥 Sistem Validasi & Persetujuan Deposit Member</h2>
-            <div id="admin-deposit-list" class="space-y-3"></div>
         </div>
     </div>
 
     <script>
-        let matches = JSON.parse(localStorage.getItem('matches') || '[]');
-        let deposits = JSON.parse(localStorage.getItem('deposits') || '[]');
-
-        window.onload = function() {
-            document.getElementById('cfg-wa').value = localStorage.getItem('wa') || '62812123847109';
-            document.getElementById('cfg-vip').value = localStorage.getItem('vip') || 'Aktif';
-            document.getElementById('cfg-qris').value = localStorage.getItem('qris') || '';
-            document.getElementById('cfg-bank').value = localStorage.getItem('bank-list') || '';
-            document.getElementById('cfg-warning').value = localStorage.getItem('warningText') || 'Peringatan: Prediksi bola memiliki risiko.';
-            renderMatches();
-            renderDeposits();
+        const firebaseConfig = {
+          apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8",
+          authDomain: "parlaywins-new.firebaseapp.com",
+          projectId: "parlaywins-new",
+          storageBucket: "parlaywins-new.firebasestorage.app",
+          messagingSenderId: "1025882923334",
+          appId: "1:1025882923334:web:9c8912e08f27e8a7f48547"
         };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-        function saveGeneralConfig() {
-            localStorage.setItem('wa', document.getElementById('cfg-wa').value);
-            localStorage.setItem('vip', document.getElementById('cfg-vip').value);
-            localStorage.setItem('qris', document.getElementById('cfg-qris').value);
-            localStorage.setItem('bank-list', document.getElementById('cfg-bank').value);
-            localStorage.setItem('warningText', document.getElementById('cfg-warning').value);
-            alert('Konfigurasi berhasil disimpan!');
+        // Load Config Awal
+        db.collection('config').doc('global').get().then(doc => {
+            if(doc.exists) {
+                const d = doc.data();
+                document.getElementById('adm-wa').value = d.wa || '';
+                document.getElementById('adm-qris').value = d.qris || '';
+                document.getElementById('adm-bank').value = d.bankList || '';
+                document.getElementById('adm-warning').value = d.warningText || '';
+            }
+        });
+
+        function saveConfig() {
+            db.collection('config').doc('global').set({
+                wa: document.getElementById('adm-wa').value,
+                qris: document.getElementById('adm-qris').value,
+                bankList: document.getElementById('adm-bank').value,
+                warningText: document.getElementById('adm-warning').value
+            }, {merge: true}).then(() => Swal.fire('Sukses', 'Konfigurasi disimpan', 'success'));
         }
 
         function addMatch() {
-            const home = document.getElementById('match-home').value;
-            const away = document.getElementById('match-away').value;
-            const logoHome = document.getElementById('match-logoHome').value;
-            const logoAway = document.getElementById('match-logoAway').value;
-            const gol = document.getElementById('pred-gol').value;
-            const win = document.getElementById('pred-win').value;
-            const btts = document.getElementById('pred-btts').value;
-            const corner = document.getElementById('pred-corner').value;
-
-            if(!home || !away) return alert('Nama tim wajib diisi!');
-
-            matches.push({ id: Date.now(), home, away, logoHome, logoAway, gol, win, btts, corner });
-            localStorage.setItem('matches', JSON.stringify(matches));
-            renderMatches();
-            alert('Pertandingan ditambahkan!');
+            db.collection('matches').add({
+                home: document.getElementById('match-home').value,
+                away: document.getElementById('match-away').value,
+                logoHome: document.getElementById('logo-home').value,
+                logoAway: document.getElementById('logo-away').value,
+                gol: document.getElementById('match-gol').value,
+                win: document.getElementById('match-win').value
+            }).then(() => Swal.fire('Sukses', 'Pertandingan ditambahkan', 'success'));
         }
+
+        // List Matches
+        db.collection('matches').onSnapshot(snap => {
+            const list = document.getElementById('match-list');
+            list.innerHTML = '';
+            snap.forEach(doc => {
+                const m = doc.data();
+                list.innerHTML += `
+                    <div class="flex justify-between items-center bg-slate-800 p-3 rounded-xl text-xs">
+                        <span>${m.home} vs ${m.away}</span>
+                        <button onclick="deleteMatch('${doc.id}')" class="bg-red-600 px-3 py-1 rounded-lg">Hapus</button>
+                    </div>`;
+            });
+        });
 
         function deleteMatch(id) {
-            matches = matches.filter(m => m.id !== id);
-            localStorage.setItem('matches', JSON.stringify(matches));
-            renderMatches();
-        }
-
-        function renderMatches() {
-            const container = document.getElementById('admin-match-list');
-            container.innerHTML = '';
-            matches.forEach(m => {
-                container.innerHTML += `
-                    <div class="p-3 bg-slate-800 rounded-lg flex justify-between items-center text-xs">
-                        <div><span class="font-bold text-white">${m.home} vs ${m.away}</span></div>
-                        <button onclick="deleteMatch(${m.id})" class="bg-red-600 px-2 py-1 rounded">Hapus</button>
-                    </div>`;
-            });
-        }
-
-        function renderDeposits() {
-            const container = document.getElementById('admin-deposit-list');
-            container.innerHTML = deposits.length === 0 ? '<p class="text-xs text-slate-500">Tidak ada pengajuan deposit masuk.</p>' : '';
-            
-            deposits.forEach((d, index) => {
-                container.innerHTML += `
-                    <div class="p-4 bg-slate-800 rounded-xl border border-slate-700 space-y-2">
-                        <div class="flex justify-between items-center text-xs">
-                            <p class="text-sm font-bold text-white">Username: <span class="text-sky-400">${d.username}</span></p>
-                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-900">${d.status.toUpperCase()}</span>
-                        </div>
-                        <div class="text-xs text-slate-300">Paket: ${d.tiket} Tiket (${d.harga}) <br> <strong>Bukti:</strong> ${d.bukti}</div>
-                        ${d.status === 'pending' ? `
-                            <div class="flex gap-2 pt-1">
-                                <button onclick="processDeposit(${index}, 'approved')" class="flex-1 bg-emerald-600 py-1 rounded text-xs font-bold">Setujui</button>
-                                <button onclick="processDeposit(${index}, 'rejected')" class="flex-1 bg-red-600 py-1 rounded text-xs font-bold">Tolak</button>
-                            </div>
-                        ` : ''}
-                    </div>`;
-            });
-        }
-
-        function processDeposit(index, action) {
-            let dep = deposits[index];
-            dep.status = action;
-
-            if(action === 'approved') {
-                // MENAMBAH SALDO TIKET KHUSUS KEPADA USERNAME TERKAIT
-                let userKey = 'tickets_' + dep.username.toLowerCase();
-                let currentTickets = parseInt(localStorage.getItem(userKey) || '0');
-                localStorage.setItem(userKey, (currentTickets + parseInt(dep.tiket)).toString());
-            }
-
-            localStorage.setItem('deposits', JSON.stringify(deposits));
-            renderDeposits();
-            alert(`Selesai! Status deposit ${dep.username} diubah menjadi ${action.toUpperCase()}`);
+            db.collection('matches').doc(id).delete();
         }
     </script>
 </body>
