@@ -1,20 +1,92 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE HTML>
+<html lang="id">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Page</title>
+    <title>ParlayWins - Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <style>
+        .modal { display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.85); z-index: 50; align-items: center; justify-content: center; padding: 1rem; }
+    </style>
 </head>
-<body style="display:flex; justify-content:center; align-items:center; height:100vh; background:#111;">
+<body class="bg-slate-950 text-white font-sans">
 
-    <button id="btn-tes" style="padding: 20px 40px; font-size: 20px; background: green; color: white; border: none; border-radius: 10px;">
-        KLIK SAYA SEKARANG
-    </button>
+    <!-- Screen Login -->
+    <div id="auth-screen" class="max-w-md mx-auto min-h-screen flex flex-col justify-center items-center px-6 bg-slate-900">
+        <div class="w-full space-y-6 bg-slate-950 p-6 rounded-3xl border border-slate-800 shadow-xl">
+            <h2 id="auth-title" class="text-2xl font-black text-emerald-400 italic text-center">MASUK AKUN</h2>
+            <input id="auth-username" type="text" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-white" placeholder="Username">
+            <input id="auth-password" type="password" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-white" placeholder="Password">
+            <button onclick="handleAuth()" class="w-full bg-emerald-600 hover:bg-emerald-700 py-3 rounded-xl font-bold text-white">Masuk Sekarang</button>
+            <button onclick="toggleAuthMode()" id="btn-toggle" class="w-full text-xs text-slate-400">Belum punya akun? Daftar di sini</button>
+        </div>
+    </div>
+
+    <!-- Main Content (Hidden by default) -->
+    <div id="main-app" class="hidden max-w-md mx-auto min-h-screen bg-slate-900 p-6">
+        <h1 class="text-2xl font-black text-emerald-400">PARLAYWINS</h1>
+        <p class="text-slate-400 mt-4">Selamat datang! Sistem sudah aktif.</p>
+        <button onclick="logout()" class="mt-6 bg-red-600 px-4 py-2 rounded-xl text-xs">Keluar</button>
+    </div>
 
     <script>
-        document.getElementById('btn-tes').onclick = function() {
-            alert('BERHASIL! Kode baru sudah aktif.');
+        // Konfigurasi Firebase
+        const firebaseConfig = {
+          apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8",
+          authDomain: "parlaywins-new.firebaseapp.com",
+          projectId: "parlaywins-new",
+          storageBucket: "parlaywins-new.firebasestorage.app",
+          messagingSenderId: "1025882923334",
+          appId: "1:1025882923334:web:9c8912e08f27e8a7f48547"
         };
-    </script>
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        let isLogin = true;
 
+        function toggleAuthMode() {
+            isLogin = !isLogin;
+            document.getElementById('auth-title').innerText = isLogin ? 'MASUK AKUN' : 'DAFTAR AKUN';
+        }
+
+        function handleAuth() {
+            const user = document.getElementById('auth-username').value.trim().toLowerCase();
+            const pass = document.getElementById('auth-password').value.trim();
+
+            if(!user || !pass) return Swal.fire('Error', 'Isi username dan password', 'error');
+
+            Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            if(isLogin) {
+                db.collection('users').doc(user).get().then(doc => {
+                    if(doc.exists && doc.data().password === pass) {
+                        sessionStorage.setItem('user', user);
+                        location.reload();
+                    } else {
+                        Swal.fire('Gagal', 'Username/Password salah', 'error');
+                    }
+                });
+            } else {
+                db.collection('users').doc(user).set({ password: pass, tickets: 0 }).then(() => {
+                    Swal.fire('Berhasil', 'Akun dibuat, silakan login', 'success');
+                    toggleAuthMode();
+                });
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('user');
+            location.reload();
+        }
+
+        // Cek login otomatis
+        if(sessionStorage.getItem('user')) {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+        }
+    </script>
 </body>
 </html>
