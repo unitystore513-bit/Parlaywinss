@@ -105,18 +105,7 @@
         </a>
     </div>
 
-    <!-- MODAL DEPOSIT UI MODERN -->
-    <div id="modal-deposit" class="modal">
-        <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl w-full max-w-sm shadow-2xl relative text-center space-y-4">
-            <h3 class="text-lg font-black text-emerald-400 uppercase tracking-wide">💳 Top Up Tiket VIP</h3>
-            
-            <div class="bg-slate-950 p-3 rounded-2xl space-y-3 border border-slate-800">
-                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Metode Pembayaran Resmi</p>
-                <div id="deposit-qris-container" class="hidden justify-center">
-                    <img id="deposit-qris-img" src="" alt="QRIS Admin" class="max-h-40 rounded-lg border border-slate-800 shadow">
-                </div>
-                <div id="deposit-bank-text" class="text-xs text-slate-300 font-mono whitespace-pre-line text-left bg-slate-900 p-2 rounded border border-slate-800"></div>
-            </div>
+    
 
             <div class="space-y-3 text-left">
                 <div>
@@ -328,26 +317,26 @@ window.submitDepositForm = function() {
     });
 };
     </script>
-    <!-- Modal Deposit Versi Baru -->
-<div id="modal-deposit" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:99999; align-items:center; justify-content:center; padding:20px;">
-    <div style="background:#1e293b; padding:20px; border-radius:16px; width:100%; max-width:400px; border:1px solid #475569; color:white;">
-        <h2 style="font-weight:bold; margin-bottom:15px; text-align:center;">💳 TOP UP TIKET VIP</h2>
+    <!-- MODAL DEPOSIT - PASTIKAN INI ADALAH SATU-SATUNYA MODAL DEPOSIT -->
+<div id="modal-deposit" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999999; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#1e293b; padding:25px; border-radius:16px; width:100%; max-width:400px; border:1px solid #334155; color:white;">
+        <h2 style="font-weight:bold; margin-bottom:20px; text-align:center; font-size:18px;">💳 TOP UP TIKET VIP</h2>
         
         <label style="display:block; font-size:12px; color:#94a3b8; margin-bottom:5px;">USERNAME AKUN ANDA</label>
-        <input id="dep-username" type="text" placeholder="Masukkan Username..." style="width:100%; padding:12px; margin-bottom:15px; background:#0f172a; border:1px solid #334155; border-radius:8px; color:white;">
+        <input id="dep-username" type="text" placeholder="Masukkan Username..." style="width:100%; padding:15px; margin-bottom:15px; background:#0f172a; border:1px solid #475569; border-radius:8px; color:white; outline:none; font-size:16px;">
         
         <label style="display:block; font-size:12px; color:#94a3b8; margin-bottom:5px;">PILIH PAKET</label>
-        <select id="dep-paket" style="width:100%; padding:12px; margin-bottom:15px; background:#0f172a; border:1px solid #334155; border-radius:8px; color:white;">
+        <select id="dep-paket" style="width:100%; padding:15px; margin-bottom:15px; background:#0f172a; border:1px solid #475569; border-radius:8px; color:white; font-size:16px;">
             <option value="Rp 20.000 (Dapat 2 Tiket)">Rp 20.000 (Dapat 2 Tiket)</option>
             <option value="Rp 45.000 (Dapat 4 Tiket)">Rp 45.000 (Dapat 4 Tiket)</option>
         </select>
 
         <label style="display:block; font-size:12px; color:#94a3b8; margin-bottom:5px;">BUKTI TRANSFER</label>
-        <textarea id="dep-bukti" placeholder="Contoh: Transfer Mandiri An. Budi" style="width:100%; padding:12px; margin-bottom:15px; background:#0f172a; border:1px solid #334155; border-radius:8px; color:white;"></textarea>
+        <textarea id="dep-bukti" placeholder="Contoh: Transfer Mandiri An. Budi" style="width:100%; padding:15px; margin-bottom:20px; background:#0f172a; border:1px solid #475569; border-radius:8px; color:white; font-size:16px; height:80px;"></textarea>
         
         <div style="display:flex; gap:10px;">
-            <button onclick="toggleModal('modal-deposit', false)" style="flex:1; padding:12px; background:#475569; border:none; border-radius:8px; font-weight:bold; color:white;">Tutup</button>
-            <button onclick="submitDepositForm()" style="flex:1; padding:12px; background:#059669; border:none; border-radius:8px; font-weight:bold; color:white;">Kirim Bukti</button>
+            <button onclick="document.getElementById('modal-deposit').style.display='none'" style="flex:1; padding:15px; background:#475569; border:none; border-radius:8px; font-weight:bold; color:white;">Tutup</button>
+            <button onclick="submitDepositForm()" style="flex:1; padding:15px; background:#059669; border:none; border-radius:8px; font-weight:bold; color:white;">Kirim Bukti</button>
         </div>
     </div>
 </div>
