@@ -147,7 +147,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-    <!-- MAIN APP SYSTEM & ENGINE JAVASCRIPT -->
     <script>
         // === KONFIGURASI UTAMA FIREBASE ===
         const firebaseConfig = {
@@ -159,34 +158,17 @@
           appId: "1:1025882923334:web:9c8912e08f27e8a7f48547"
         };
 
-        // Inisialisasi Database
+        // Inisialisasi Firebase (Global)
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
         let isLoginMode = true;
         let currentUser = sessionStorage.getItem('currentUser') || null;
 
-        let userListener = null;
-        let configListener = null;
-        let matchesListener = null;
-
-        let matchesList = [];
-        let globalConfig = {
-            wa: '62812123847109',
-            bannerText: 'Selamat datang di parlaywins',
-            warningText: 'Peringatan: Prediksi bola memiliki risiko.',
-            qris: '',
-            bankList: 'Rekening belum diatur admin.',
-            vip: 'Aktif'
-        };
-
-        // Langsung cek session saat halaman dimuat
-        document.addEventListener("DOMContentLoaded", function() {
-            checkAuthSession();
-        });
-
+        // --- FUNGSI GLOBAL (Agar bisa diakses oleh onclick di HTML) ---
+        
         function checkAuthSession() {
-            if (currentUser && db) {
+            if (currentUser) {
                 document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
                 document.getElementById('user-display-name').innerText = currentUser;
@@ -209,61 +191,26 @@
             document.getElementById('btn-toggle-auth').innerText = isLoginMode ? 'Belum punya akun? Daftar di sini' : 'Sudah punya akun? Login di sini';
         }
 
-        // === PROSES AUTH (LOGIN & REGISTER ONLINE) ===
         function handleAuth() {
             const user = document.getElementById('auth-username').value.trim().toLowerCase();
             const pass = document.getElementById('auth-password').value.trim();
 
             if (!user || !pass) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Peringatan!',
-                    text: 'Username dan Password wajib diisi!',
-                    background: '#1e293b',
-                    color: '#ffffff',
-                    confirmButtonColor: '#f59e0b',
-                    customClass: { popup: 'rounded-3xl' }
-                });
+                Swal.fire({ icon: 'warning', title: 'Peringatan!', text: 'Username dan Password wajib diisi!', background: '#1e293b', color: '#ffffff', confirmButtonColor: '#f59e0b', customClass: { popup: 'rounded-3xl' } });
                 return;
             }
 
-            Swal.fire({
-                title: 'Memproses...',
-                text: 'Harap tunggu sebentar',
-                allowOutsideClick: false,
-                background: '#1e293b',
-                color: '#ffffff',
-                didOpen: () => { Swal.showLoading(); }
-            });
+            Swal.fire({ title: 'Memproses...', text: 'Harap tunggu sebentar', allowOutsideClick: false, background: '#1e293b', color: '#ffffff', didOpen: () => { Swal.showLoading(); } });
 
             const userRef = db.collection('users').doc(user);
 
             if (!isLoginMode) {
                 userRef.get().then((doc) => {
                     if (doc.exists) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Pendaftaran Gagal',
-                            text: 'Username sudah terdaftar! Gunakan nama lain.',
-                            background: '#1e293b',
-                            color: '#ffffff',
-                            confirmButtonColor: '#ef4444',
-                            customClass: { popup: 'rounded-3xl' }
-                        });
+                        Swal.fire({ icon: 'error', title: 'Pendaftaran Gagal', text: 'Username sudah terdaftar!', background: '#1e293b', color: '#ffffff', confirmButtonColor: '#ef4444', customClass: { popup: 'rounded-3xl' } });
                     } else {
-                        userRef.set({
-                            password: pass,
-                            tickets: 0
-                        }).then(() => {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Pendaftaran Berhasil!',
-                                text: 'Silakan masuk menggunakan akun baru Anda.',
-                                background: '#1e293b',
-                                color: '#ffffff',
-                                confirmButtonColor: '#059669',
-                                customClass: { popup: 'rounded-3xl' }
-                            });
+                        userRef.set({ password: pass, tickets: 0 }).then(() => {
+                            Swal.fire({ icon: 'success', title: 'Pendaftaran Berhasil!', text: 'Silakan masuk menggunakan akun baru.', background: '#1e293b', color: '#ffffff', confirmButtonColor: '#059669', customClass: { popup: 'rounded-3xl' } });
                             toggleAuthMode();
                         });
                     }
@@ -276,38 +223,26 @@
                         currentUser = user;
                         checkAuthSession();
                     } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Login Gagal',
-                            text: 'Username atau Password salah / belum terdaftar!',
-                            background: '#1e293b',
-                            color: '#ffffff',
-                            confirmButtonColor: '#ef4444',
-                            customClass: { popup: 'rounded-3xl' }
-                        });
+                        Swal.fire({ icon: 'error', title: 'Login Gagal', text: 'Username atau Password salah!', background: '#1e293b', color: '#ffffff', confirmButtonColor: '#ef4444', customClass: { popup: 'rounded-3xl' } });
                     }
                 });
             }
         }
 
         function listenToUserData() {
-            if (!currentUser || !db) return;
-            userListener = db.collection('users').doc(currentUser).onSnapshot((doc) => {
-                if (doc.exists) {
-                    document.getElementById('ticket-balance').innerText = doc.data().tickets || '0';
-                }
+            if (!currentUser) return;
+            db.collection('users').doc(currentUser).onSnapshot((doc) => {
+                if (doc.exists) document.getElementById('ticket-balance').innerText = doc.data().tickets || '0';
             });
         }
 
         function listenToConfiguration() {
-            if (!db) return;
-            configListener = db.collection('config').doc('global').onSnapshot((doc) => {
+            db.collection('config').doc('global').onSnapshot((doc) => {
                 if (doc.exists) {
                     const data = doc.data();
                     document.getElementById('wa-link').href = 'https://wa.me/' + (data.wa || '62812123847109');
                     document.getElementById('view-banner-title').innerText = data.bannerText || 'Selamat datang di parlaywins';
                     document.getElementById('view-warning-text').innerText = data.warningText || 'Peringatan: Prediksi bola memiliki risiko.';
-                    
                     if (data.qris) {
                         document.getElementById('deposit-qris-img').src = data.qris;
                         document.getElementById('deposit-qris-container').style.display = 'flex';
@@ -318,15 +253,11 @@
         }
 
         function listenToMatches() {
-            if (!db) return;
             const container = document.getElementById('match-container');
-            matchesListener = db.collection('matches').onSnapshot((snapshot) => {
-                matchesList = [];
+            db.collection('matches').onSnapshot((snapshot) => {
                 container.innerHTML = '';
                 snapshot.forEach(doc => {
-                    matchesList.push({ id: doc.id, ...doc.data() });
-                });
-                matchesList.forEach(m => {
+                    const m = doc.data();
                     container.innerHTML += `
                         <div class="bg-slate-800/80 border border-slate-700/60 rounded-3xl p-5 shadow-lg space-y-4">
                             <div class="flex justify-between items-center text-center">
@@ -340,7 +271,7 @@
                                     <span class="text-xs font-bold text-slate-200">${m.away}</span>
                                 </div>
                             </div>
-                            <button onclick="unlockVipPrediction('${m.id}')" class="w-full bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 text-slate-950 font-black text-xs py-3 rounded-xl tracking-wider uppercase transition text-black">
+                            <button onclick="unlockVipPrediction('${doc.id}')" class="w-full bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 text-slate-950 font-black text-xs py-3 rounded-xl tracking-wider uppercase transition text-black">
                                 🔒 BUKA PREDIKSI VIP (1 Tiket)
                             </button>
                         </div>
@@ -351,11 +282,33 @@
 
         function unlockVipPrediction(matchId) {
             db.collection('users').doc(currentUser).get().then((doc) => {
-                let tickets = doc.data().tickets || 0;
-                if (tickets < 1) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Tiket Habis',
-                        text: '❌ Tiket Anda Habis! Silakan lakukan DEPOSIT terlebih dahulu.',
-                        confirmButtonText: 'Deposit Sekarang',
-                        confirmButtonColo
+                if ((doc.data().tickets || 0) < 1) {
+                    Swal.fire({ icon: 'warning', title: 'Tiket Habis', text: 'Tiket Anda Habis!', confirmButtonText: 'Deposit', background: '#1e293b', color: '#ffffff' }).then((res) => { if (res.isConfirmed) toggleModal('modal-deposit', true); });
+                    return;
+                }
+                db.collection('users').doc(currentUser).update({ tickets: firebase.firestore.FieldValue.increment(-1) }).then(() => {
+                    db.collection('matches').doc(matchId).get().then(m => {
+                        const data = m.data();
+                        Swal.fire({ title: 'PREDIKSI VIP', html: `<b>${data.home} vs ${data.away}</b><br>Gol: ${data.gol}<br>Win: ${data.win}`, background: '#1e293b', color: '#ffffff' });
+                    });
+                });
+            });
+        }
+
+        function submitDepositForm() {
+            const bukti = document.getElementById('dep-bukti').value.trim();
+            if (!bukti) return;
+            db.collection('deposits').add({ username: currentUser, bukti: bukti, status: 'pending', timestamp: firebase.firestore.FieldValue.serverTimestamp() }).then(() => {
+                Swal.fire('Sukses', 'Bukti terkirim!', 'success');
+                toggleModal('modal-deposit', false);
+            });
+        }
+
+        function toggleModal(id, show) { document.getElementById(id).style.display = show ? 'flex' : 'none'; }
+        function handleLogout() { sessionStorage.removeItem('currentUser'); location.reload(); }
+
+        // Panggil checkAuthSession saat dokumen siap
+        document.addEventListener('DOMContentLoaded', checkAuthSession);
+    </script>
+</body>
+</html>
