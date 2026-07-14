@@ -289,9 +289,24 @@
                 db.collection('users').doc(currentUser).update({ tickets: firebase.firestore.FieldValue.increment(-1) }).then(() => {
                     db.collection('matches').doc(matchId).get().then(m => {
                         const data = m.data();
-                        Swal.fire({ title: 'PREDIKSI VIP', html: `<b>${data.home} vs ${data.away}</b><br>Gol: ${data.gol}<br>Win: ${data.win}`, background: '#1e293b', color: '#ffffff' });
+                        Swal.fire({
+                        title: 'PREDIKSI VIP',
+                        background: '#1e293b',
+                        color: '#fff',
+                        html: `
+                            <div class="text-left text-sm space-y-2 mt-4">
+                                <p class="text-center font-bold text-lg mb-2">${data.home} vs ${data.away}</p>
+                                <div class="space-y-1">
+                                    <p>⚽ Gol: <b class="text-emerald-400">${data.gol || '-'}</b></p>
+                                    <p>🚩 Corner: <b class="text-emerald-400">${data.corner || '-'}</b></p>
+                                    <p>🔄 BTTS: <b class="text-emerald-400">${data.btts || '-'}</b></p>
+                                    <p>🏆 Win: <b class="text-emerald-400">${data.win || '-'}</b></p>
+                                </div>
+                            </div>
+                        `,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#10b981'
                     });
-                });
             });
         }
 
