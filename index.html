@@ -32,11 +32,22 @@
             <div class="space-y-4">
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 block mb-1">USERNAME</label>
-                    <input id="auth-username" type="text" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-white" placeholder="Masukkan username">
+        <input id="auth-username" type="text" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-white" placeholder="Masukkan username">
+                    
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 block mb-1">PASSWORD</label>
                     <input id="auth-password" type="password" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-white" placeholder="Masukkan password">
+                </div>
+                <div id="form-tambahan-daftar" class="hidden">
+          <div>
+            <label class="text-[10px] font-bold text-slate-400 block mb-1 mt-3">KONFIRMASI PASSWORD</label>
+            <input id="confirm-password" type="password" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500 mb-3" placeholder="Ulangi password">
+          </div>
+          <div>
+            <label class="text-[10px] font-bold text-slate-400 block mb-1">NOMOR TELEPON / WA</label>
+            <input id="phone-number" type="number" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500 mb-3" placeholder="Contoh: 0812...">
+          </div>
                 </div>
             </div>
 
@@ -193,6 +204,7 @@ window.toggleAuthMode = function() {
     isLoginMode = !isLoginMode;
     document.getElementById('auth-title').innerText = isLoginMode ? 'MASUK AKUN' : 'DAFTAR AKUN';
     document.getElementById('btn-primary-auth').innerText = isLoginMode ? 'Masuk Sekarang' : 'Daftar Sekarang';
+    document.getElementById('form-tambahan-daftar').classList.toggle('hidden', isLoginMode);
 };
 
 // --- FUNGSI TAMPILAN & LOGIKA ---
