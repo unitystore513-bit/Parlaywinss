@@ -365,8 +365,26 @@
         });
 
         window.deleteBanner = function(index) {
-            Swal.fire({
-                title: 'Hapus Gambar Ini?',
-                text: "Gambar akan dihapus dari slider aplikasi utama.",
-                icon: 'warning',
+        Swal.fire({
+            title: 'Hapus Gambar Ini?',
+            text: "Gambar akan dihapus dari slider aplikasi utama.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Ya, Hapus!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                db.collection('config').doc('general').get().then(doc => {
+                    let currentImages = doc.data().bannerImages || [];
+                    currentImages.splice(index, 1);
+                    return db.collection('config').doc('general').update({ bannerImages: currentImages });
+                }).then(() => {
+                    Swal.fire('Terhapus!', 'Banner berhasil dihapus.', 'success');
+                });
+            }
+        });
+    };
+</script>
+</body>
+</html>
      
