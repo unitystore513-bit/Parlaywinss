@@ -15,8 +15,8 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.85); z-index: 50; align-items: center; justify-content: center; padding: 1rem; }
     </style>
     <!-- Pustaka Slider Swiper.js -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 </head>
 <body class="bg-slate-950 text-white font-sans">
 
@@ -32,22 +32,21 @@
             <div class="space-y-4">
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 block mb-1">USERNAME</label>
-        <input id="auth-username" type="text" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-white" placeholder="Masukkan username">
-                    
+                    <input id="auth-username" type="text" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-white" placeholder="Masukkan username">
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 block mb-1">PASSWORD</label>
                     <input id="auth-password" type="password" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-white" placeholder="Masukkan password">
                 </div>
                 <div id="form-tambahan-daftar" class="hidden">
-          <div>
-            <label class="text-[10px] font-bold text-slate-400 block mb-1 mt-3">KONFIRMASI PASSWORD</label>
-            <input id="confirm-password" type="password" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500 mb-3" placeholder="Ulangi password">
-          </div>
-          <div>
-            <label class="text-[10px] font-bold text-slate-400 block mb-1">NOMOR TELEPON / WA</label>
-            <input id="phone-number" type="number" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500 mb-3" placeholder="Contoh: 0812...">
-          </div>
+                  <div>
+                    <label class="text-[10px] font-bold text-slate-400 block mb-1 mt-3">KONFIRMASI PASSWORD</label>
+                    <input id="confirm-password" type="password" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500 mb-3" placeholder="Ulangi password">
+                  </div>
+                  <div>
+                    <label class="text-[10px] font-bold text-slate-400 block mb-1">NOMOR TELEPON / WA</label>
+                    <input id="phone-number" type="number" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500 mb-3" placeholder="Contoh: 0812...">
+                  </div>
                 </div>
             </div>
 
@@ -104,12 +103,12 @@
         <!-- DAFTAR PERTANDINGAN DINAMIS -->
         <div class="mt-6 px-4 space-y-4">
             <!-- Komponen Slider Iklan Bergeser -->
-<div class="swiper mySwiper w-full rounded-xl overflow-hidden my-4 max-w-md mx-auto aspect-[12/5] bg-slate-950">
-    <div class="swiper-wrapper" id="slider-wrapper">
-        <div class="swiper-slide flex items-center justify-center text-xs text-gray-500">Memuat iklan...</div>
-    </div>
-    <div class="swiper-pagination"></div>
-</div>
+            <div class="swiper mySwiper w-full rounded-xl overflow-hidden my-4 max-w-md mx-auto aspect-[12/5] bg-slate-950">
+                <div class="swiper-wrapper" id="slider-wrapper">
+                    <div class="swiper-slide flex items-center justify-center text-xs text-gray-500">Memuat iklan...</div>
+                </div>
+                <div class="swiper-pagination"></div>
+            </div>
             <h3 class="text-xs font-bold tracking-widest text-slate-400 uppercase">PERTANDINGAN HARI INI</h3>
             <div id="match-container" class="space-y-4"></div>
         </div>
@@ -121,127 +120,128 @@
         </div>
 
         <!-- FLOATING WA BUTTON -->
-<a id="wa-link" href="https://wa.me/6281213847109" target="_blank" class="fixed bottom-6 right-6 bg-emerald-500 p-4 rounded-full shadow-lg z-50">
-    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M..."></path> <!-- Biarkan isi SVG tetap sama -->
-    </svg>
-</a>
+        <a id="wa-link" href="https://wa.me/6281213847109" target="_blank" class="fixed bottom-6 right-6 bg-emerald-500 p-4 rounded-full shadow-lg z-50">
+            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+            </svg>
+        </a>
 
-    
-
+    </div> <!-- Penutup main-app -->
 
 
     <!-- ================= IMPORT FIREBASE SECARA INSTAN & STABIL ================= -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
     <script>
-// --- CONFIG & DB ---
-const firebaseConfig = {
-  apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8",
-  authDomain: "parlaywins-new.firebaseapp.com",
-  projectId: "parlaywins-new",
-  storageBucket: "parlaywins-new.firebasestorage.app",
-  messagingSenderId: "1025882923334",
-  appId: "1:1025882923334:web:9c8912e08f27e8a7f48547"
-};
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+    // --- CONFIG & DB ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8",
+      authDomain: "parlaywins-new.firebaseapp.com",
+      projectId: "parlaywins-new",
+      storageBucket: "parlaywins-new.firebasestorage.app",
+      messagingSenderId: "1025882923334",
+      appId: "1:1025882923334:web:9c8912e08f27e8a7f48547"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-let isLoginMode = true;
-let currentUser = sessionStorage.getItem('currentUser') || null;
+    let isLoginMode = true;
+    let currentUser = sessionStorage.getItem('currentUser') || null;
 
-// --- FUNGSI LOGIN ---
-window.handleAuth = function() {
-    const user = document.getElementById('auth-username').value.trim();
-const pass = document.getElementById('auth-password').value.trim();
-const passConfirm = document.getElementById('confirm-password').value.trim();
-const phone = document.getElementById('phone-number').value.trim();
+    // --- FUNGSI TOGGLE MODAL YANG DIPERBAIKI ---
+    window.toggleModal = function(id, show) {
+        document.getElementById(id).style.display = show ? 'flex' : 'none';
+        
+        // AUTO-FILL Username saat modal deposit dibuka agar user tidak usah ketik manual
+        if (show && id === 'modal-deposit' && currentUser) {
+            const usernameInput = document.getElementById('dep-username');
+            usernameInput.value = currentUser;
+            usernameInput.setAttribute('readonly', true); // Kunci agar tidak salah ketik
+        }
+    };
 
-    if (!user || !pass) {
-        Swal.fire({ icon: 'warning', text: 'Username dan Password wajib diisi!' });
-        return;
-    }
+    // --- FUNGSI LOGIN & DAFTAR ---
+    window.handleAuth = function() {
+        const user = document.getElementById('auth-username').value.trim();
+        const pass = document.getElementById('auth-password').value.trim();
+        const passConfirm = document.getElementById('confirm-password').value.trim();
+        const phone = document.getElementById('phone-number').value.trim();
 
-    if (isLoginMode) {
-        // --- LOGIKA LOGIN ---
-        firebase.auth().signInWithEmailAndPassword(user + "@parlay.com", pass)
-        .then((userCredential) => {
-            sessionStorage.setItem('currentUser', user);
-            Swal.fire({ icon: 'success', text: 'Login Berhasil!' });
-            location.reload();
-        })
-        .catch((error) => {
-            Swal.fire({ icon: 'error', text: 'Login Gagal: ' + error.message });
-        });
-    } else { if (pass !== passConfirm) {
-    Swal.fire({ icon: 'error', text: 'Konfirmasi password tidak cocok!' });
-    return;
-}
-if (phone === "") {
-    Swal.fire({ icon: 'warning', text: 'Nomor telepon wajib diisi!' });
-    return;
-}
-        // --- LOGIKA DAFTAR (REGISTER) ---
-        firebase.auth().createUserWithEmailAndPassword(user + "@parlay.com", pass)
-        .then((userCredential) => {
-            // Membuat data awal user di Firestore
-            db.collection('users').doc(user).set({
-    tickets: 0,
-    phone: phone // Menyimpan nomor telepon ke database
-});
-            Swal.fire({ icon: 'success', text: 'Pendaftaran Berhasil! Silakan Login.' });
-            window.toggleAuthMode(); // Otomatis kembali ke mode Login
-        })
-        .catch((error) => {
-            Swal.fire({ icon: 'error', text: 'Daftar Gagal: ' + error.message });
-        });
-    }
-};
+        if (!user || !pass) {
+            Swal.fire({ icon: 'warning', text: 'Username dan Password wajib diisi!' });
+            return;
+        }
 
-window.toggleAuthMode = function() {
-    isLoginMode = !isLoginMode;
-    document.getElementById('auth-title').innerText = isLoginMode ? 'MASUK AKUN' : 'DAFTAR AKUN';
-    document.getElementById('btn-primary-auth').innerText = isLoginMode ? 'Masuk Sekarang' : 'Daftar Sekarang';
-    document.getElementById('form-tambahan-daftar').classList.toggle('hidden', isLoginMode);
-};
-
-// --- FUNGSI TAMPILAN & LOGIKA ---
-function checkAuthSession() {
-    if (currentUser) {
-        document.getElementById('auth-screen').classList.add('hidden');
-        document.getElementById('main-app').classList.remove('hidden');
-        document.getElementById('user-display-name').innerText = currentUser;
-        listenToUserData();
-        listenToConfiguration();
-        listenToMatches();
-    }
-}
-
-function listenToUserData() {
-    db.collection('users').doc(currentUser).onSnapshot((doc) => {
-        if (doc.exists) document.getElementById('ticket-balance').innerText = doc.data().tickets || '0';
-    });
-}
-
-function listenToConfiguration() {
-    db.collection('config').doc('global').onSnapshot((doc) => {
-        if (doc.exists) {
-            const data = doc.data();
-            
-            // Menampilkan daftar bank
-            const bankDisplay = document.getElementById('display-bank-list');
-            if (bankDisplay) {
-                bankDisplay.innerText = data.bankList || "Rekening belum diatur admin.";
+        if (isLoginMode) {
+            firebase.auth().signInWithEmailAndPassword(user + "@parlay.com", pass)
+            .then((userCredential) => {
+                sessionStorage.setItem('currentUser', user);
+                Swal.fire({ icon: 'success', text: 'Login Berhasil!' });
+                location.reload();
+            })
+            .catch((error) => {
+                Swal.fire({ icon: 'error', text: 'Login Gagal: ' + error.message });
+            });
+        } else { 
+            if (pass !== passConfirm) {
+                Swal.fire({ icon: 'error', text: 'Konfirmasi password tidak cocok!' });
+                return;
             }
+            if (phone === "") {
+                Swal.fire({ icon: 'warning', text: 'Nomor telepon wajib diisi!' });
+                return;
+            }
+            firebase.auth().createUserWithEmailAndPassword(user + "@parlay.com", pass)
+            .then((userCredential) => {
+                db.collection('users').doc(user).set({ tickets: 0, phone: phone });
+                Swal.fire({ icon: 'success', text: 'Pendaftaran Berhasil! Silakan Login.' });
+                window.toggleAuthMode();
+            })
+            .catch((error) => {
+                Swal.fire({ icon: 'error', text: 'Daftar Gagal: ' + error.message });
+            });
+        }
+    };
 
-            // Menampilkan teks peringatan
+    window.toggleAuthMode = function() {
+        isLoginMode = !isLoginMode;
+        document.getElementById('auth-title').innerText = isLoginMode ? 'MASUK AKUN' : 'DAFTAR AKUN';
+        document.getElementById('btn-primary-auth').innerText = isLoginMode ? 'Masuk Sekarang' : 'Daftar Sekarang';
+        document.getElementById('form-tambahan-daftar').classList.toggle('hidden', isLoginMode);
+    };
+
+    // --- FUNGSI TAMPILAN & LOGIKA UTAMA ---
+    function checkAuthSession() {
+        if (currentUser) {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            document.getElementById('user-display-name').innerText = currentUser;
+            listenToUserData();
+            listenToConfiguration();
+            listenToMatches();
+        }
+    }
+
+    function listenToUserData() {
+        db.collection('users').doc(currentUser).onSnapshot((doc) => {
+            if (doc.exists) document.getElementById('ticket-balance').innerText = doc.data().tickets || '0';
+        });
+    }
+
+    function listenToConfiguration() {
+        db.collection('config').doc('global').onSnapshot((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+                
+                const bankDisplay = document.getElementById('display-bank-list');
+                if (bankDisplay) bankDisplay.innerText = data.bankList || "Rekening belum diatur admin.";
+
                 if(document.getElementById('view-warning-text')) {
                     document.getElementById('view-warning-text').innerText = data.warningText || 'Info admin...';
                 }
 
-                // Menampilkan QRIS
                 const qrisImg = document.getElementById('display-qris-img');
                 if (qrisImg) {
                     const qrisUrl = data.qris || data.urlQris || data.url_qris || data.qrisUrl;
@@ -254,150 +254,152 @@ function listenToConfiguration() {
                 }
             }
         });
-}
+    }
 
-function listenToMatches() {
-    const container = document.getElementById('match-container');
-    db.collection('matches').onSnapshot((snapshot) => {
-        container.innerHTML = '';
-        snapshot.forEach((doc) => {
-            const m = doc.data();
-            container.innerHTML += `
-            <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4 mb-4">
-                <div class="flex justify-between items-center text-center">
-                    <div class="w-1/3 flex flex-col items-center gap-2">
-                        <img src="${m.logoHome}" class="w-12 h-12 object-contain">
-                        <span class="text-xs font-bold text-slate-200">${m.home}</span>
+    function listenToMatches() {
+        const container = document.getElementById('match-container');
+        db.collection('matches').onSnapshot((snapshot) => {
+            container.innerHTML = '';
+            snapshot.forEach((doc) => {
+                const m = doc.data();
+                container.innerHTML += `
+                <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4 mb-4">
+                    <div class="flex justify-between items-center text-center">
+                        <div class="w-1/3 flex flex-col items-center gap-2">
+                            <img src="${m.logoHome}" class="w-12 h-12 object-contain">
+                            <span class="text-xs font-bold text-slate-200">${m.home}</span>
+                        </div>
+                        <div class="w-1/3 font-black text-emerald-400 text-sm tracking-widest">VS</div>
+                        <div class="w-1/3 flex flex-col items-center gap-2">
+                            <img src="${m.logoAway}" class="w-12 h-12 object-contain">
+                            <span class="text-xs font-bold text-slate-200">${m.away}</span>
+                        </div>
                     </div>
-                    <div class="w-1/3 font-black text-emerald-400 text-sm tracking-widest">VS</div>
-                    <div class="w-1/3 flex flex-col items-center gap-2">
-                        <img src="${m.logoAway}" class="w-12 h-12 object-contain">
-                        <span class="text-xs font-bold text-slate-200">${m.away}</span>
-                    </div>
-                </div>
-                <button onclick="unlockVipPrediction('${doc.id}')" class="w-full bg-gradient-to-r from-yellow-500 to-amber-600 p-3 rounded-xl font-bold text-black">
-                    💰 BUKA PREDIKSI VIP (1 Tiket)
-                </button>
-            </div>`;
-        });
-    });
-}
-
-window.unlockVipPrediction = function(matchId) {
-    db.collection('users').doc(currentUser).get().then((doc) => {
-        if ((doc.data().tickets || 0) < 1) {
-            Swal.fire({ icon: 'warning', text: 'Tiket Anda Habis!' });
-            return;
-        }
-        db.collection('matches').doc(matchId).get().then((m) => {
-            const data = m.data();
-            db.collection('users').doc(currentUser).update({ tickets: firebase.firestore.FieldValue.increment(-1) });
-            Swal.fire({
-                title: 'PREDIKSI VIP',
-                background: '#1e293b',
-                color: '#fff',
-                html: `<div class="text-left text-sm space-y-2 mt-4">
-                        <p class="text-center font-bold text-lg mb-2">${data.home} vs ${data.away}</p>
-                        <p>⚽ Gol: <b class="text-emerald-400">${data.gol}</b></p>
-                        <p>⛳Corner: <b class="text-emerald-400">${data.corner}</b></p>
-                        <p>🚀BTTS: <b class="text-emerald-400">${data.btts}</b></p>
-                        <p>🏆 Win: <b class="text-emerald-400">${data.win}</b></p>
-                       </div>`
+                    <button onclick="unlockVipPrediction('${doc.id}')" class="w-full bg-gradient-to-r from-yellow-500 to-amber-600 p-3 rounded-xl font-bold text-black hover:brightness-110">
+                        💰 BUKA PREDIKSI VIP (1 Tiket)
+                    </button>
+                </div>`;
             });
         });
-    });
-};
-
-window.handleLogout = function() { sessionStorage.removeItem('currentUser'); location.reload(); };
-document.addEventListener('DOMContentLoaded', checkAuthSession);
-        window.toggleModal = function(id, show) {
-    document.getElementById(id).style.display = show ? 'flex' : 'none';
-};
-
-// --- LOGIKA BARU: SUBMIT DEPOSIT DENGAN UPLOAD FILE GAMBAR BUKTI ---
-window.submitDepositForm = function() {
-    const user = document.getElementById('dep-username').value.trim();
-    const paketText = document.getElementById('dep-paket').value; // Contoh: "Rp 20.000 (Dapat 2 Tiket)"
-    const fileInput = document.getElementById('dep-bukti-file');
-    const file = fileInput.files[0];
-    
-    // Logika otomatis: Ambil angka tiket dari teks paket
-    let ticketCount = 0;
-    if (paketText.includes('2 Tiket')) ticketCount = 2;
-    else if (paketText.includes('4 Tiket')) ticketCount = 4;
-
-    if (!user) {
-        Swal.fire({ icon: 'warning', text: 'Harap isi username akun Anda!' });
-        return;
-    }
-    if (!file) {
-        Swal.fire({ icon: 'warning', text: 'Harap upload foto bukti transfer Anda!' });
-        return;
     }
 
-    Swal.fire({ title: 'Memproses Bukti...', allowOutsideClick: false });
-    Swal.showLoading();
-
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = event => {
-        const img = new Image();
-        img.src = event.target.result;
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const MAX_WIDTH = 500; // Kompresi optimal agar database tidak penuh
-            const scale = MAX_WIDTH / img.width;
-            canvas.width = MAX_WIDTH;
-            canvas.height = img.height * scale;
-            
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            
-            // Kompresi ke format JPEG dengan kualitas 0.6
-            const base64Img = canvas.toDataURL('image/jpeg', 0.6);
-
-            db.collection('deposits').add({
-                username: user,
-                paket: paketText,
-                tickets: ticketCount, 
-                bukti: base64Img, // Menyimpan gambar terkompresi Base64 ke Firebase
-                status: 'pending',
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                Swal.fire({ icon: 'success', text: 'Bukti deposit berhasil dikirim!' });
-                document.getElementById('modal-deposit').style.display = 'none';
-                fileInput.value = ""; // Reset form upload file
-            }).catch(err => Swal.fire({ icon: 'error', text: 'Gagal: ' + err.message }));
-        };
-    };
-};
-
-        window.saveConfig = function() {
-        const wa = document.getElementById('admin-wa').value;
-        const banner = document.getElementById('admin-banner').value;
-        const warning = document.getElementById('admin-warning').value;
-        
-        // Kode otomatis untuk mengambil input QRIS & Daftar Bank secara aman
-        const qris = (document.getElementById('admin-qris') || document.getElementById('admin-qris-url') || document.getElementById('admin-url-qris') || {value: ''}).value;
-        const bank = (document.getElementById('admin-bank') || document.getElementById('admin-bank-list') || document.getElementById('admin-banklist') || {value: ''}).value;
-
-        db.collection('config').doc('global').update({
-            wa: wa,
-            bannerText: banner,
-            warningText: warning,
-            qris: qris,
-            urlQris: qris,
-            url_qris: qris,
-            qrisUrl: qris,
-            bankList: bank
-        }).then(() => {
-            Swal.fire({ icon: 'success', text: 'Konfigurasi berhasil disimpan!', timer: 2000 });
-            setTimeout(() => { location.reload(); }, 2000);
-        }).catch((err) => {
-            Swal.fire({ icon: 'error', text: 'Gagal simpan: ' + err.message });
+    window.unlockVipPrediction = function(matchId) {
+        db.collection('users').doc(currentUser).get().then((doc) => {
+            if ((doc.data().tickets || 0) < 1) {
+                Swal.fire({ icon: 'warning', text: 'Tiket Anda Habis! Silakan deposit.' });
+                return;
+            }
+            db.collection('matches').doc(matchId).get().then((m) => {
+                const data = m.data();
+                db.collection('users').doc(currentUser).update({ tickets: firebase.firestore.FieldValue.increment(-1) });
+                Swal.fire({
+                    title: 'PREDIKSI VIP',
+                    background: '#1e293b',
+                    color: '#fff',
+                    html: `<div class="text-left text-sm space-y-2 mt-4">
+                            <p class="text-center font-bold text-lg mb-2">${data.home} vs ${data.away}</p>
+                            <p>⚽ Gol: <b class="text-emerald-400">${data.gol}</b></p>
+                            <p>⛳Corner: <b class="text-emerald-400">${data.corner}</b></p>
+                            <p>🚀BTTS: <b class="text-emerald-400">${data.btts}</b></p>
+                            <p>🏆 Win: <b class="text-emerald-400">${data.win}</b></p>
+                           </div>`
+                });
+            });
         });
     };
-     // --- LOGIKA AKTIVASI SLIDER IKLAN BERGESER ---
+
+    window.handleLogout = function() { sessionStorage.removeItem('currentUser'); location.reload(); };
+    document.addEventListener('DOMContentLoaded', checkAuthSession);
+
+    // --- LOGIKA BARU: SUBMIT DEPOSIT (ANTI-STUCK & ERROR HANDLING) ---
+    window.submitDepositForm = function() {
+        const user = document.getElementById('dep-username').value.trim();
+        const paketText = document.getElementById('dep-paket').value; 
+        const fileInput = document.getElementById('dep-bukti-file');
+        const file = fileInput.files[0];
+        
+        let ticketCount = 0;
+        if (paketText.includes('2 Tiket')) ticketCount = 2;
+        else if (paketText.includes('4 Tiket')) ticketCount = 4;
+
+        if (!user) {
+            Swal.fire({ icon: 'warning', text: 'Username wajib diisi!' });
+            return;
+        }
+        if (!file) {
+            Swal.fire({ icon: 'warning', text: 'Harap upload foto bukti transfer Anda!' });
+            return;
+        }
+
+        // Validasi ukuran file (Maks 5 MB) agar browser tidak crash/stuck
+        if (file.size > 5 * 1024 * 1024) {
+            Swal.fire({ icon: 'error', text: 'Ukuran file foto terlalu besar (Maksimal 5MB). Silakan di-crop atau gunakan file lain.' });
+            return;
+        }
+
+        Swal.fire({ 
+            title: 'Memproses Bukti...', 
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+        });
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = event => {
+            const img = new Image();
+            img.src = event.target.result;
+            
+            img.onload = () => {
+                try {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 500; 
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > MAX_WIDTH) {
+                        height = Math.round((height * MAX_WIDTH) / width);
+                        width = MAX_WIDTH;
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    const base64Img = canvas.toDataURL('image/jpeg', 0.6);
+
+                    db.collection('deposits').add({
+                        username: user,
+                        paket: paketText,
+                        tickets: ticketCount, 
+                        bukti: base64Img, 
+                        status: 'pending',
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    }).then(() => {
+                        Swal.fire({ icon: 'success', text: 'Bukti deposit berhasil dikirim! Harap tunggu admin memprosesnya.' });
+                        document.getElementById('modal-deposit').style.display = 'none';
+        fileInput.value = ""; 
+                }).catch(err => {
+                    Swal.fire({ icon: 'error', text: 'Gagal mengirim ke database: ' + err.message });
+                });
+
+            } catch (error) {
+                Swal.fire({ icon: 'error', text: 'Terjadi kesalahan saat memproses gambar. Coba gambar lain.' });
+            }
+        };
+        
+        img.onerror = () => {
+            Swal.fire({ icon: 'error', text: 'File tidak bisa diproses. Pastikan itu adalah gambar yang valid.' });
+        };
+    };
+    
+    reader.onerror = () => {
+        Swal.fire({ icon: 'error', text: 'Gagal membaca file foto dari galeri Anda.' });
+    };
+};
+
+// --- LOGIKA SLIDER IKLAN ---
 let kustomSwiper = null;
 
 db.collection('config').doc('general').onSnapshot(doc => {
@@ -415,21 +417,49 @@ db.collection('config').doc('general').onSnapshot(doc => {
         
         kustomSwiper = new Swiper(".mySwiper", {
             loop: true,
-            autoplay: {
-                delay: 3500,
-                disableOnInteraction: false,
-            },
-            pagination: {
-                el: ".swiper-pagination",
-                clickable: true,
-            },
+            autoplay: { delay: 3500, disableOnInteraction: false },
+            pagination: { el: ".swiper-pagination", clickable: true },
         });
     } else {
         wrapper.innerHTML = `
-            <div class="swiper-slide">
-                <img src="https://via.placeholder.com/600x250?text=ParlayWins+Banners" class="w-full h-full object-cover">
+            <div class="swiper-slide flex items-center justify-center bg-slate-800">
+                <span class="text-xs text-slate-500">Belum ada banner</span>
             </div>`;
     }
 });   
-    </script>
-    <!-- MODAL DEPOSIT - PASTIKAN KODE INI ADA DI
+</script>
+
+<!-- MODAL DEPOSIT (Pastikan ini ada di bawah tag </script> penutup) -->
+<div id="modal-deposit" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:999999; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#1e293b; padding:25px; border-radius:16px; width:100%; max-width:400px; border:1px solid #334155; color:white;">
+        <h2 style="font-weight:bold; margin-bottom:20px; text-align:center; font-size:18px;">💳 TOP UP TIKET VIP</h2>
+        
+        <div style="background:#0f172a; padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid #475569;">
+            <p style="font-size:12px; color:#94a3b8; margin-bottom:5px;">METODE PEMBAYARAN:</p>
+            <div id="display-bank-list" style="font-size:14px; white-space:pre-wrap;">Memuat rekening...</div>
+            <div style="margin-top: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <p style="font-size: 11px; font-weight: bold; color: #94a3b8; margin-bottom: 5px; text-align: center;">SCAN QRIS DI BAWAH INI:</p>
+                <img id="display-qris-img" src="" alt="QRIS" style="width: 170px; height: 170px; object-fit: contain; border-radius: 8px; border: 1px solid #475569; padding: 5px; background: white; display: none;">
+            </div>
+        </div>
+        
+        <label style="display:block; font-size:12px; color:#94a3b8; margin-bottom:5px;">USERNAME AKUN ANDA</label>
+        <input id="dep-username" type="text" placeholder="Memuat otomatis..." style="width:100%; padding:15px; margin-bottom:15px; background:#0f172a; border:1px solid #475569; border-radius:8px; color:#cbd5e1; outline:none; font-size:16px;">
+        
+        <label style="display:block; font-size:12px; color:#94a3b8; margin-bottom:5px;">PILIH PAKET</label>
+        <select id="dep-paket" style="width:100%; padding:15px; margin-bottom:15px; background:#0f172a; border:1px solid #475569; border-radius:8px; color:white; font-size:16px; outline:none;">
+            <option value="Rp 20.000 (Dapat 2 Tiket)">Rp 20.000 (Dapat 2 Tiket)</option>
+            <option value="Rp 45.000 (Dapat 4 Tiket)">Rp 45.000 (Dapat 4 Tiket)</option>
+        </select>
+
+        <label style="display:block; font-size:12px; color:#94a3b8; margin-bottom:5px;">FOTO BUKTI TRANSFER</label>
+        <input id="dep-bukti-file" type="file" accept="image/*" style="width:100%; padding:12px; margin-bottom:20px; background:#0f172a; border:1px solid #475569; border-radius:8px; color:white; font-size:14px; outline:none; cursor:pointer;">
+        
+        <div style="display:flex; gap:10px;">
+            <button onclick="document.getElementById('modal-deposit').style.display='none'" style="flex:1; padding:15px; background:#475569; border:none; border-radius:8px; font-weight:bold; color:white; cursor:pointer;">Tutup</button>
+            <button onclick="submitDepositForm()" style="flex:1; padding:15px; background:#059669; border:none; border-radius:8px; font-weight:bold; color:white; cursor:pointer;">Kirim Bukti</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>
