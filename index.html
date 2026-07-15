@@ -118,12 +118,12 @@
     <script>
 // --- CONFIG & DB ---
 const firebaseConfig = {
-    apiKey: "AizaSyADISf9vTDZRTWSpVuAUzX6GNtXcqdKM8",
-    authDomain: "parlaywins-new.firebaseapp.com",
-    projectId: "parlaywins-new",
-    storageBucket: "parlaywins-new.appspot.com",
-    messagingSenderId: "1025882923334",
-    appId: "1:1025882923334:web:9c8912e08f27e8a7f48547"
+  apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8",
+  authDomain: "parlaywins-new.firebaseapp.com",
+  projectId: "parlaywins-new",
+  storageBucket: "parlaywins-new.firebasestorage.app",
+  messagingSenderId: "1025882923334",
+  appId: "1:1025882923334:web:9c8912e08f27e8a7f48547"
 };
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
@@ -144,7 +144,7 @@ window.handleAuth = function() {
     // Menggunakan Firebase Auth
     // Kita anggap username adalah email (contoh: user@parlay.com)
     firebase.auth().signInWithEmailAndPassword(user + "@parlay.com", pass)
-    .then((userCredential) => {
+    .then((userCredential) => {sessionStorage.setItem('currentUser', user);
         Swal.fire({ icon: 'success', text: 'Login Berhasil!' });
         location.reload(); // Refresh halaman setelah login
     })
