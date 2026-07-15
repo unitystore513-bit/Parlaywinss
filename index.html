@@ -141,16 +141,32 @@ window.handleAuth = function() {
         return;
     }
 
-    // Menggunakan Firebase Auth
-    // Kita anggap username adalah email (contoh: user@parlay.com)
-    firebase.auth().signInWithEmailAndPassword(user + "@parlay.com", pass)
-    .then((userCredential) => {sessionStorage.setItem('currentUser', user);
-        Swal.fire({ icon: 'success', text: 'Login Berhasil!' });
-        location.reload(); // Refresh halaman setelah login
-    })
-    .catch((error) => {
-        Swal.fire({ icon: 'error', text: 'Login Gagal: ' + error.message });
-    });
+    if (isLoginMode) {
+        // --- LOGIKA LOGIN ---
+        firebase.auth().signInWithEmailAndPassword(user + "@parlay.com", pass)
+        .then((userCredential) => {
+            sessionStorage.setItem('currentUser', user);
+            Swal.fire({ icon: 'success', text: 'Login Berhasil!' });
+            location.reload();
+        })
+        .catch((error) => {
+            Swal.fire({ icon: 'error', text: 'Login Gagal: ' + error.message });
+        });
+    } else {
+        // --- LOGIKA DAFTAR (REGISTER) ---
+        firebase.auth().createUserWithEmailAndPassword(user + "@parlay.com", pass)
+        .then((userCredential) => {
+            // Membuat data awal user di Firestore
+            db.collection('users').doc(user).set({
+                tickets: 0
+            });
+            Swal.fire({ icon: 'success', text: 'Pendaftaran Berhasil! Silakan Login.' });
+            window.toggleAuthMode(); // Otomatis kembali ke mode Login
+        })
+        .catch((error) => {
+            Swal.fire({ icon: 'error', text: 'Daftar Gagal: ' + error.message });
+        });
+    }
 };
 
 window.toggleAuthMode = function() {
