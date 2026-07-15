@@ -174,5 +174,104 @@ firebase.auth().onAuthStateChanged((user) => {
     });
         }
     </script>
+
+<!-- ======================================================== -->
+<!-- HTML KELOLA BANNER -->
+<!-- ======================================================== -->
+<div class="p-4 mx-4 my-6 bg-slate-900 border border-slate-700 rounded-xl text-white">
+    <h3 class="text-md font-bold text-green-400 mb-3">⚙️ Kelola Banner Iklan (Slider)</h3>
+    <div class="mb-4">
+        <label class="block text-xs font-bold text-gray-400 mb-1">UPLOAD FILE GAMBAR IKLAN</label>
+        <input type="file" id="upload-slider-file" accept="image/*" class="w-full p-2 bg-slate-800 rounded text-sm text-gray-300">
+    </div>
+    <button id="btn-upload-slider" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-sm mb-4">
+        + Tambahkan Gambar ke Slider
+    </button>
+    <label class="block text-xs font-bold text-gray-400 mb-2">DAFTAR BANNER AKTIF (Klik Gambar untuk Hapus)</label>
+    <div id="admin-banner-list" class="flex flex-wrap gap-2 p-2 bg-slate-800 rounded-lg min-h-[60px]">
+        <!-- List gambar akan muncul otomatis disini -->
+    </div>
+</div>
+
+<script>
+// --- FITUR PROSES UPLOAD BANNER (BASE64 CANVAS) ---
+const sliderFileInp = document.getElementById('upload-slider-file');
+const sliderUploadBtn = document.getElementById('btn-upload-slider');
+const adminBannerList = document.getElementById('admin-banner-list');
+
+// 1. Ambil & Tampilkan Banner Aktif dari Firestore
+db.collection('config').doc('general').onSnapshot(doc => {
+    const data = doc.data();
+    if (data && data.bannerImages && data.bannerImages.length > 0) {
+        adminBannerList.innerHTML = data.bannerImages.map((img, index) => `
+            <div class="relative w-24 h-16 border border-slate-600 rounded overflow-hidden cursor-pointer" onclick="deleteBanner(${index})">
+                <img src="${img}" class="w-full h-full object-cover opacity-75 hover:opacity-100">
+                <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-[10px] text-red-400 font-bold">HAPUS</div>
+            </div>
+        `).join('');
+    } else {
+        adminBannerList.innerHTML = '<p class="text-xs text-gray-500 p-2">Belum ada banner iklan aktif.</p>';
+    }
+});
+
+// 2. Proses Kompresi File Gambar & Upload
+sliderUploadBtn.addEventListener('click', () => {
+    const file = sliderFileInp.files[0];
+    if (!file) return Swal.fire('Error', 'Silahkan pilih file gambar terlebih dahulu!', 'error');
+    
+    Swal.fire({ title: 'Memproses gambar...', allowOutsideClick: false });
+    Swal.showLoading();
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = event => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 600;
+            const scale = MAX_WIDTH / img.width;
+            canvas.width = MAX_WIDTH;
+            canvas.height = img.height * scale;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            
+            const base64Img = canvas.toDataURL('image/jpeg', 0.5);
+            
+            db.collection('config').doc('general').set({
+                bannerImages: firebase.firestore.FieldValue.arrayUnion(base64Img)
+            }, { merge: true }).then(() => {
+                Swal.fire('Sukses', 'Gambar iklan berhasil ditambahkan ke slider!', 'success');
+                sliderFileInp.value = "";
+            }).catch(err => {
+                Swal.fire('Gagal', err.message, 'error');
+            });
+        };
+    };
+});
+
+// 3. Fungsi Menghapus Salah Satu Banner
+window.deleteBanner = function(index) {
+    Swal.fire({
+        title: 'Hapus Gambar Ini?',
+        text: "Gambar akan dihapus dari slider aplikasi utama.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Ya, Hapus!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            db.collection('config').doc('general').get().then(doc => {
+                let currentImages = doc.data().bannerImages || [];
+                currentImages.splice(index, 1);
+                return db.collection('config').doc('general').update({ bannerImages: currentImages });
+            }).then(() => {
+                Swal.fire('Terhapus!', 'Banner berhasil dihapus.', 'success');
+            });
+        }
+    });
+};
+</script>
 </body>
 </html>
