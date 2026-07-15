@@ -144,7 +144,9 @@ let currentUser = sessionStorage.getItem('currentUser') || null;
 // --- FUNGSI LOGIN ---
 window.handleAuth = function() {
     const user = document.getElementById('auth-username').value.trim();
-    const pass = document.getElementById('auth-password').value.trim();
+const pass = document.getElementById('auth-password').value.trim();
+const passConfirm = document.getElementById('confirm-password').value.trim();
+const phone = document.getElementById('phone-number').value.trim();
 
     if (!user || !pass) {
         Swal.fire({ icon: 'warning', text: 'Username dan Password wajib diisi!' });
@@ -162,14 +164,22 @@ window.handleAuth = function() {
         .catch((error) => {
             Swal.fire({ icon: 'error', text: 'Login Gagal: ' + error.message });
         });
-    } else {
+    } else { if (pass !== passConfirm) {
+    Swal.fire({ icon: 'error', text: 'Konfirmasi password tidak cocok!' });
+    return;
+}
+if (phone === "") {
+    Swal.fire({ icon: 'warning', text: 'Nomor telepon wajib diisi!' });
+    return;
+}
         // --- LOGIKA DAFTAR (REGISTER) ---
         firebase.auth().createUserWithEmailAndPassword(user + "@parlay.com", pass)
         .then((userCredential) => {
             // Membuat data awal user di Firestore
             db.collection('users').doc(user).set({
-                tickets: 0
-            });
+    tickets: 0,
+    phone: phone // Menyimpan nomor telepon ke database
+});
             Swal.fire({ icon: 'success', text: 'Pendaftaran Berhasil! Silakan Login.' });
             window.toggleAuthMode(); // Otomatis kembali ke mode Login
         })
