@@ -284,30 +284,42 @@
     }
 
     window.unlockVipPrediction = function(matchId) {
-        db.collection('users').doc(currentUser).get().then((doc) => {
-            if ((doc.data().tickets || 0) < 1) {
-                Swal.fire({ icon: 'warning', text: 'Tiket Anda Habis! Silakan deposit.' });
-                return;
-            }
-            db.collection('matches').doc(matchId).get().then((m) => {
-                const data = m.data();
-                db.collection('users').doc(currentUser).update({ tickets: firebase.firestore.FieldValue.increment(-1) });
-                Swal.fire({
-                    title: 'PREDIKSI VIP',
-                    background: '#1e293b',
-                    color: '#fff',
-                    html: `<div class="text-left text-sm space-y-2 mt-4">
-                            <p class="text-center font-bold text-lg mb-2">${data.home} vs ${data.away}</p>
-                            <p>⚽ Gol: <b class="text-emerald-400">${data.gol}</b></p>
-                            <p>⛳Corner: <b class="text-emerald-400">${data.corner}</b></p>
-                            <p>🚀BTTS: <b class="text-emerald-400">${data.btts}</b></p>
-                            <p>🏆 Win: <b class="text-emerald-400">${data.win}</b></p>
-                           </div>`
-                });
-            });
-        });
-    };
+    const userRef = db.collection('users').doc(currentUser);
 
+    Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+
+    userRef.get().then((doc) => {
+        if (!doc.exists || (doc.data().tickets || 0) < 1) {
+            Swal.fire({ icon: 'warning', text: 'Tiket Anda Habis! Silakan deposit.' });
+            return;
+        }
+
+        // 1. Kurangi Tiket di Database terlebih dahulu
+        userRef.update({
+            tickets: firebase.firestore.FieldValue.increment(-1)
+        }).then(() => {
+            // 2. Jika berhasil, baru ambil data pertandingan
+            return db.collection('matches').doc(matchId).get();
+        }).then((m) => {
+            const data = m.data();
+            // 3. Tampilkan hasil prediksi
+            Swal.fire({
+                title: 'PREDIKSI VIP',
+                background: '#1e293b',
+                color: '#fff',
+                html: `<div class="text-left text-sm space-y-2 mt-4">
+                        <p class="text-center font-bold text-lg mb-2">${data.home} vs ${data.away}</p>
+                        <p>⚽ Gol: <b class="text-emerald-400">${data.gol}</b></p>
+                        <p>⛳Corner: <b class="text-emerald-400">${data.corner}</b></p>
+                        <p>🚀BTTS: <b class="text-emerald-400">${data.btts}</b></p>
+                        <p>🏆 Win: <b class="text-emerald-400">${data.win}</b></p>
+                       </div>`
+            });
+        }).catch((err) => {
+            Swal.fire({ icon: 'error', text: 'Terjadi kesalahan: ' + err.message });
+        });
+    });
+};
     window.handleLogout = function() { sessionStorage.removeItem('currentUser'); location.reload(); };
     document.addEventListener('DOMContentLoaded', checkAuthSession);
 
