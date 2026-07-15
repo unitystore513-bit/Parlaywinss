@@ -344,21 +344,30 @@ window.submitDepositForm = function() {
     }).catch(err => Swal.fire({ icon: 'error', text: 'Gagal: ' + err.message }));
 };
         window.saveConfig = function() {
-    const wa = document.getElementById('admin-wa').value;
-    const banner = document.getElementById('admin-banner').value;
-    const warning = document.getElementById('admin-warning').value;
+        const wa = document.getElementById('admin-wa').value;
+        const banner = document.getElementById('admin-banner').value;
+        const warning = document.getElementById('admin-warning').value;
+        
+        // Kode otomatis untuk mengambil input QRIS & Daftar Bank secara aman
+        const qris = (document.getElementById('admin-qris') || document.getElementById('admin-qris-url') || document.getElementById('admin-url-qris') || {value: ''}).value;
+        const bank = (document.getElementById('admin-bank') || document.getElementById('admin-bank-list') || document.getElementById('admin-banklist') || {value: ''}).value;
 
-    db.collection('config').doc('global').update({
-        wa: wa,
-        bannerText: banner,
-        warningText: warning
-    }).then(() => {
-        Swal.fire({ icon: 'success', text: 'Konfigurasi berhasil disimpan!', timer: 2000 });
-        setTimeout(() => { location.reload(); }, 2000); 
-    }).catch((err) => {
-        Swal.fire({ icon: 'error', text: 'Gagal simpan: ' + err.message });
-    });
-};
+        db.collection('config').doc('global').update({
+            wa: wa,
+            bannerText: banner,
+            warningText: warning,
+            qris: qris,
+            urlQris: qris,
+            url_qris: qris,
+            qrisUrl: qris,
+            bankList: bank
+        }).then(() => {
+            Swal.fire({ icon: 'success', text: 'Konfigurasi berhasil disimpan!', timer: 2000 });
+            setTimeout(() => { location.reload(); }, 2000);
+        }).catch((err) => {
+            Swal.fire({ icon: 'error', text: 'Gagal simpan: ' + err.message });
+        });
+    };
      // --- LOGIKA AKTIVASI SLIDER IKLAN BERGESER ---
 let kustomSwiper = null;
 
