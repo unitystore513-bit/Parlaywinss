@@ -165,9 +165,9 @@ firebase.auth().onAuthStateChanged((user) => {
             db.collection('deposits').doc(depositId).update({ status: 'approved' });
 
             // 2. Tambahkan tiket ke akun user
-            db.collection('users').doc(username).update({
-                tickets: firebase.firestore.FieldValue.increment(ticketAmount)
-            }).then(() => {
+            db.collection('users').doc(username).set({
+    tickets: firebase.firestore.FieldValue.increment(ticketAmount)
+}, { merge: true }).then(() => {
                 Swal.fire({ icon: 'success', text: 'Tiket berhasil ditambahkan!' });
             }).catch(err => Swal.fire({ icon: 'error', text: 'Gagal: ' + err.message }));
         }
