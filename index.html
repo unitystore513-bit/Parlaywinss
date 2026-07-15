@@ -113,6 +113,7 @@
     <!-- ================= IMPORT FIREBASE SECARA INSTAN & STABIL ================= -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
     <script>
 // --- CONFIG & DB ---
@@ -132,7 +133,7 @@ let currentUser = sessionStorage.getItem('currentUser') || null;
 
 // --- FUNGSI LOGIN ---
 window.handleAuth = function() {
-    const user = document.getElementById('auth-username').value.trim().toLowerCase();
+    const user = document.getElementById('auth-username').value.trim();
     const pass = document.getElementById('auth-password').value.trim();
 
     if (!user || !pass) {
@@ -140,24 +141,15 @@ window.handleAuth = function() {
         return;
     }
 
-    db.collection('users').doc(user).get().then((doc) => {
-        if (!isLoginMode) {
-            if (doc.exists) {
-                Swal.fire({ icon: 'error', text: 'Username sudah terdaftar!' });
-            } else {
-                db.collection('users').doc(user).set({ password: pass, tickets: 0 }).then(() => {
-                    Swal.fire({ icon: 'success', text: 'Berhasil! Silakan masuk' });
-                    toggleAuthMode();
-                });
-            }
-        } else {
-            if (doc.exists && doc.data().password === pass) {
-                sessionStorage.setItem('currentUser', user);
-                location.reload();
-            } else {
-                Swal.fire({ icon: 'error', text: 'Username atau Password salah!' });
-            }
-        }
+    // Menggunakan Firebase Auth
+    // Kita anggap username adalah email (contoh: user@parlay.com)
+    firebase.auth().signInWithEmailAndPassword(user + "@parlay.com", pass)
+    .then((userCredential) => {
+        Swal.fire({ icon: 'success', text: 'Login Berhasil!' });
+        location.reload(); // Refresh halaman setelah login
+    })
+    .catch((error) => {
+        Swal.fire({ icon: 'error', text: 'Login Gagal: ' + error.message });
     });
 };
 
