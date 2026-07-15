@@ -237,12 +237,25 @@ function listenToConfiguration() {
             }
 
             // Menampilkan teks peringatan
-            if(document.getElementById('view-warning-text')) {
-                document.getElementById('view-warning-text').innerText = data.warningText || 'Info admin...';
+                if(document.getElementById('view-warning-text')) {
+                    document.getElementById('view-warning-text').innerText = data.warningText || 'Info admin...';
+                }
+
+                // Menampilkan QRIS
+                const qrisImg = document.getElementById('display-qris-img');
+                if (qrisImg) {
+                    const qrisUrl = data.qris || data.urlQris || data.url_qris || data.qrisUrl;
+                    if (qrisUrl && qrisUrl.trim() !== "") {
+                        qrisImg.src = qrisUrl;
+                        qrisImg.style.display = 'block';
+                    } else {
+                        qrisImg.style.display = 'none';
+                    }
+                }
             }
-        }
-    });
+        });
 }
+
 function listenToMatches() {
     const container = document.getElementById('match-container');
     db.collection('matches').onSnapshot((snapshot) => {
@@ -390,6 +403,10 @@ db.collection('config').doc('general').onSnapshot(doc => {
         <div style="background:#0f172a; padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid #475569;">
             <p style="font-size:12px; color:#94a3b8; margin-bottom:5px;">METODE PEMBAYARAN:</p>
             <div id="display-bank-list" style="font-size:14px; white-space:pre-wrap;">Memuat rekening...</div>
+            <div style="margin-top: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <p style="font-size: 11px; font-weight: bold; color: #94a3b8; margin-bottom: 5px; text-align: center;">SCAN QRIS DI BAWAH INI:</p>
+            <img id="display-qris-img" src="" alt="QRIS" style="width: 170px; height: 170px; object-fit: contain; border-radius: 8px; border: 1px solid #475569; padding: 5px; background: white; display: none;">
+            </div>
         </div>
         
         <label style="display:block; font-size:12px; color:#94a3b8; margin-bottom:5px;">USERNAME AKUN ANDA</label>
