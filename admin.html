@@ -64,13 +64,12 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+// --- TEST STATUS LOGIN ---
 firebase.auth().onAuthStateChanged((user) => {
   if (user) {
-    console.log("User sudah login, akses diizinkan.");
+    console.log("Logged in as:", user.email);
   } else {
-    // Jika user belum login, arahkan ke halaman login (opsional)
-    console.log("User belum login!");
-    // window.location.href = 'index.html'; // Buka komentar ini jika ingin paksa pindah halaman
+    Swal.fire('Peringatan', 'Anda belum login! Silakan login di index.html', 'warning');
   }
 });
         // Load Config
