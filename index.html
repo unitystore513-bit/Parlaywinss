@@ -314,35 +314,64 @@ document.addEventListener('DOMContentLoaded', checkAuthSession);
     document.getElementById(id).style.display = show ? 'flex' : 'none';
 };
 
+// --- LOGIKA BARU: SUBMIT DEPOSIT DENGAN UPLOAD FILE GAMBAR BUKTI ---
 window.submitDepositForm = function() {
     const user = document.getElementById('dep-username').value.trim();
     const paketText = document.getElementById('dep-paket').value; // Contoh: "Rp 20.000 (Dapat 2 Tiket)"
-    const bukti = document.getElementById('dep-bukti').value.trim();
+    const fileInput = document.getElementById('dep-bukti-file');
+    const file = fileInput.files[0];
     
     // Logika otomatis: Ambil angka tiket dari teks paket
     let ticketCount = 0;
     if (paketText.includes('2 Tiket')) ticketCount = 2;
     else if (paketText.includes('4 Tiket')) ticketCount = 4;
-    // Tambahkan else if di sini jika ada paket lain
 
-    if (!user || !bukti) {
-        Swal.fire({ icon: 'warning', text: 'Harap isi username dan bukti!' });
+    if (!user) {
+        Swal.fire({ icon: 'warning', text: 'Harap isi username akun Anda!' });
+        return;
+    }
+    if (!file) {
+        Swal.fire({ icon: 'warning', text: 'Harap upload foto bukti transfer Anda!' });
         return;
     }
 
-    Swal.fire({ title: 'Mengirim...', allowOutsideClick: false });
-    db.collection('deposits').add({
-        username: user,
-        paket: paketText,
-        tickets: ticketCount, // <--- INI KUNCI: Kita simpan angka tiketnya
-        bukti: bukti,
-        status: 'pending',
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-        Swal.fire({ icon: 'success', text: 'Deposit berhasil dikirim!' });
-        document.getElementById('modal-deposit').style.display = 'none';
-    }).catch(err => Swal.fire({ icon: 'error', text: 'Gagal: ' + err.message }));
+    Swal.fire({ title: 'Memproses Bukti...', allowOutsideClick: false });
+    Swal.showLoading();
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = event => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 500; // Kompresi optimal agar database tidak penuh
+            const scale = MAX_WIDTH / img.width;
+            canvas.width = MAX_WIDTH;
+            canvas.height = img.height * scale;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            
+            // Kompresi ke format JPEG dengan kualitas 0.6
+            const base64Img = canvas.toDataURL('image/jpeg', 0.6);
+
+            db.collection('deposits').add({
+                username: user,
+                paket: paketText,
+                tickets: ticketCount, 
+                bukti: base64Img, // Menyimpan gambar terkompresi Base64 ke Firebase
+                status: 'pending',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                Swal.fire({ icon: 'success', text: 'Bukti deposit berhasil dikirim!' });
+                document.getElementById('modal-deposit').style.display = 'none';
+                fileInput.value = ""; // Reset form upload file
+            }).catch(err => Swal.fire({ icon: 'error', text: 'Gagal: ' + err.message }));
+        };
+    };
 };
+
         window.saveConfig = function() {
         const wa = document.getElementById('admin-wa').value;
         const banner = document.getElementById('admin-banner').value;
@@ -403,38 +432,4 @@ db.collection('config').doc('general').onSnapshot(doc => {
     }
 });   
     </script>
-    <!-- MODAL DEPOSIT - PASTIKAN KODE INI ADA DI PALING BAWAH FILE -->
-<div id="modal-deposit" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:999999; align-items:center; justify-content:center; padding:20px;">
-    <div style="background:#1e293b; padding:25px; border-radius:16px; width:100%; max-width:400px; border:1px solid #334155; color:white;">
-        <h2 style="font-weight:bold; margin-bottom:20px; text-align:center; font-size:18px;">💳 TOP UP TIKET VIP</h2>
-        
-        <!-- BAGIAN REKENING -->
-        <div style="background:#0f172a; padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid #475569;">
-            <p style="font-size:12px; color:#94a3b8; margin-bottom:5px;">METODE PEMBAYARAN:</p>
-            <div id="display-bank-list" style="font-size:14px; white-space:pre-wrap;">Memuat rekening...</div>
-            <div style="margin-top: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-            <p style="font-size: 11px; font-weight: bold; color: #94a3b8; margin-bottom: 5px; text-align: center;">SCAN QRIS DI BAWAH INI:</p>
-            <img id="display-qris-img" src="" alt="QRIS" style="width: 170px; height: 170px; object-fit: contain; border-radius: 8px; border: 1px solid #475569; padding: 5px; background: white; display: none;">
-            </div>
-        </div>
-        
-        <label style="display:block; font-size:12px; color:#94a3b8; margin-bottom:5px;">USERNAME AKUN ANDA</label>
-        <input id="dep-username" type="text" placeholder="Masukkan Username..." style="width:100%; padding:15px; margin-bottom:15px; background:#0f172a; border:1px solid #475569; border-radius:8px; color:white; outline:none; font-size:16px;">
-        
-        <label style="display:block; font-size:12px; color:#94a3b8; margin-bottom:5px;">PILIH PAKET</label>
-        <select id="dep-paket" style="width:100%; padding:15px; margin-bottom:15px; background:#0f172a; border:1px solid #475569; border-radius:8px; color:white; font-size:16px;">
-            <option value="Rp 20.000 (Dapat 2 Tiket)">Rp 20.000 (Dapat 2 Tiket)</option>
-            <option value="Rp 45.000 (Dapat 4 Tiket)">Rp 45.000 (Dapat 4 Tiket)</option>
-        </select>
-
-        <label style="display:block; font-size:12px; color:#94a3b8; margin-bottom:5px;">BUKTI TRANSFER</label>
-        <textarea id="dep-bukti" placeholder="Contoh: Transfer Mandiri An. Budi" style="width:100%; padding:15px; margin-bottom:20px; background:#0f172a; border:1px solid #475569; border-radius:8px; color:white; font-size:16px; height:80px;"></textarea>
-        
-        <div style="display:flex; gap:10px;">
-            <button onclick="document.getElementById('modal-deposit').style.display='none'" style="flex:1; padding:15px; background:#475569; border:none; border-radius:8px; font-weight:bold; color:white;">Tutup</button>
-            <button onclick="submitDepositForm()" style="flex:1; padding:15px; background:#059669; border:none; border-radius:8px; font-weight:bold; color:white;">Kirim Bukti</button>
-        </div>
-    </div>
-</div>
-</body>
-</html>
+    <!-- MODAL DEPOSIT - PASTIKAN KODE INI ADA DI
