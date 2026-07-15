@@ -14,6 +14,9 @@
     <style>
         .modal { display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.85); z-index: 50; align-items: center; justify-content: center; padding: 1rem; }
     </style>
+    <!-- Pustaka Slider Swiper.js -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 </head>
 <body class="bg-slate-950 text-white font-sans">
 
@@ -89,6 +92,13 @@
 
         <!-- DAFTAR PERTANDINGAN DINAMIS -->
         <div class="mt-6 px-4 space-y-4">
+            <!-- Komponen Slider Iklan Bergeser -->
+<div class="swiper mySwiper w-full rounded-xl overflow-hidden my-4 max-w-md mx-auto aspect-[12/5] bg-slate-950">
+    <div class="swiper-wrapper" id="slider-wrapper">
+        <div class="swiper-slide flex items-center justify-center text-xs text-gray-500">Memuat iklan...</div>
+    </div>
+    <div class="swiper-pagination"></div>
+</div>
             <h3 class="text-xs font-bold tracking-widest text-slate-400 uppercase">PERTANDINGAN HARI INI</h3>
             <div id="match-container" class="space-y-4"></div>
         </div>
@@ -314,7 +324,40 @@ window.submitDepositForm = function() {
         Swal.fire({ icon: 'error', text: 'Gagal simpan: ' + err.message });
     });
 };
+     // --- LOGIKA AKTIVASI SLIDER IKLAN BERGESER ---
+let kustomSwiper = null;
+
+db.collection('config').doc('general').onSnapshot(doc => {
+    const data = doc.data();
+    const wrapper = document.getElementById('slider-wrapper');
+    
+    if (data && data.bannerImages && data.bannerImages.length > 0) {
+        wrapper.innerHTML = data.bannerImages.map(img => `
+            <div class="swiper-slide">
+                <img src="${img}" class="w-full h-full object-cover" alt="Iklan Banner">
+            </div>
+        `).join('');
         
+        if(kustomSwiper) kustomSwiper.destroy(true, true);
+        
+        kustomSwiper = new Swiper(".mySwiper", {
+            loop: true,
+            autoplay: {
+                delay: 3500,
+                disableOnInteraction: false,
+            },
+            pagination: {
+                el: ".swiper-pagination",
+                clickable: true,
+            },
+        });
+    } else {
+        wrapper.innerHTML = `
+            <div class="swiper-slide">
+                <img src="https://via.placeholder.com/600x250?text=ParlayWins+Banners" class="w-full h-full object-cover">
+            </div>`;
+    }
+});   
     </script>
     <!-- MODAL DEPOSIT - PASTIKAN KODE INI ADA DI PALING BAWAH FILE -->
 <div id="modal-deposit" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:999999; align-items:center; justify-content:center; padding:20px;">
