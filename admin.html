@@ -19,7 +19,17 @@
             <div class="space-y-4">
                 <div><label class="text-xs text-slate-400">TEXT SELAMAT DATANG</label><input id="adm-welcome" type="text" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm"></div>
                 <div><label class="text-xs text-slate-400">NOMOR WA ADMIN</label><input id="adm-wa" type="text" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm"></div>
-                <div><label class="text-xs text-slate-400">URL QRIS</label><input id="adm-qris" type="text" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm"></div>
+                
+                <!-- FITUR BARU: Menggunakan File Input untuk Upload Gambar QRIS Langsung -->
+                <div>
+                    <label class="text-xs text-slate-400">UPLOAD FOTO QRIS</label>
+                    <input id="upload-qris-file" type="file" accept="image/*" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm text-gray-300">
+                    <div id="qris-preview-container" class="mt-2 hidden">
+                        <p class="text-[10px] text-slate-500 mb-1">QRIS Aktif Saat Ini:</p>
+                        <img id="qris-preview" class="h-20 object-contain border border-slate-700 rounded bg-white p-1">
+                    </div>
+                </div>
+                
                 <div><label class="text-xs text-slate-400">BANK LIST</label><textarea id="adm-bank" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm h-16"></textarea></div>
                 <div><label class="text-xs text-slate-400">TEKS PERINGATAN</label><textarea id="adm-warning" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm h-16"></textarea></div>
                 <button onclick="saveConfig()" class="w-full bg-emerald-600 py-3 rounded-xl font-bold text-sm">Simpan Konfigurasi</button>
@@ -30,14 +40,14 @@
         <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800">
             <h2 class="text-xl font-bold text-blue-400 mb-4">⚽ Tambah Pertandingan</h2>
             <div class="grid grid-cols-2 gap-3">
-    <input id="match-home" placeholder="Tim Home" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
-    <input id="match-away" placeholder="Tim Away" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
-    <input id="match-logo-home" placeholder="Logo Home URL" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700 col-span-2">
-    <input id="match-logo-away" placeholder="Logo Away URL" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700 col-span-2">
-    <input id="match-gol" placeholder="Gol (O/U)" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
-    <input id="match-corner" placeholder="Corner (O/U)" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
-    <input id="match-win" placeholder="Pemenang" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700 col-span-2">
-    <input id="match-btts" placeholder="BTTS (Yes/No)" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700 col-span-2">
+                <input id="match-home" placeholder="Tim Home" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
+                <input id="match-away" placeholder="Tim Away" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
+                <input id="match-logo-home" placeholder="Logo Home URL" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700 col-span-2">
+                <input id="match-logo-away" placeholder="Logo Away URL" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700 col-span-2">
+                <input id="match-gol" placeholder="Gol (O/U)" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
+                <input id="match-corner" placeholder="Corner (O/U)" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700">
+                <input id="match-win" placeholder="Pemenang" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700 col-span-2">
+                <input id="match-btts" placeholder="BTTS (Yes/No)" class="bg-slate-800 p-3 rounded-xl text-xs border border-slate-700 col-span-2">
             </div>
             <button onclick="addMatch()" class="w-full mt-4 bg-blue-600 py-3 rounded-xl font-bold text-sm">+ Posting Pertandingan</button>
 
@@ -65,57 +75,101 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-// --- CEK EMAIL ---
-firebase.auth().onAuthStateChanged((user) => {
-  if (user) {
-    // Ini akan memunculkan pop-up berisi email Anda
-    Swal.fire('Info Login', 'Anda login sebagai: ' + user.email, 'info');
-  } else {
-    Swal.fire('Error', 'Anda belum login! Silakan login di index.html', 'error');
-  }
-});
-        db.collection('config').doc('global').get().then(doc => {
+
+        // --- CEK EMAIL ---
+        firebase.auth().onAuthStateChanged((user) => {
+          if (user) {
+            Swal.fire('Info Login', 'Anda login sebagai: ' + user.email, 'info');
+          } else {
+            Swal.fire('Error', 'Anda belum login! Silakan login di index.html', 'error');
+          }
+        });
+
+        // --- LOAD DATA DARI DATABASE ---
+        db.collection('config').doc('global').onSnapshot(doc => {
             if(doc.exists) {
                 const d = doc.data();
                 document.getElementById('adm-welcome').value = d.bannerText || '';
                 document.getElementById('adm-wa').value = d.wa || '';
-                document.getElementById('adm-qris').value = d.qris || '';
                 document.getElementById('adm-bank').value = d.bankList || '';
                 document.getElementById('adm-warning').value = d.warningText || '';
+                
+                // Menampilkan preview jika QRIS sudah pernah di-upload sebelumnya
+                if (d.qris) {
+                    document.getElementById('qris-preview').src = d.qris;
+                    document.getElementById('qris-preview-container').classList.remove('hidden');
+                }
             }
         });
 
+        // --- SIMPAN KONFIGURASI DENGAN OTOMATIS PROSES UPLOAD FILE QRIS ---
         function saveConfig() {
-    db.collection('config').doc('global').set({
-        bannerText: document.getElementById('adm-welcome').value,
-        wa: document.getElementById('adm-wa').value,
-        qris: document.getElementById('adm-qris').value,
-        bankList: document.getElementById('adm-bank').value,
-        warningText: document.getElementById('adm-warning').value
-    }, { merge: true }).then(() => {
-        Swal.fire('Sukses', 'Konfigurasi disimpan', 'success');
-    }).catch((error) => {
-        Swal.fire('Error', 'Gagal menyimpan: ' + error.message, 'error');
-    });
+            const file = document.getElementById('upload-qris-file').files[0];
+            const updateData = {
+                bannerText: document.getElementById('adm-welcome').value,
+                wa: document.getElementById('adm-wa').value,
+                bankList: document.getElementById('adm-bank').value,
+                warningText: document.getElementById('adm-warning').value
+            };
+
+            // Jika ada file gambar QRIS baru yang dipilih, proses kompresi & konversi ke Base64
+            if (file) {
+                Swal.fire({ title: 'Memproses gambar QRIS...', allowOutsideClick: false });
+                Swal.showLoading();
+
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = event => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 450; // Lebar optimal agar QRIS jernih tapi tidak berat
+                        const scale = MAX_WIDTH / img.width;
+                        canvas.width = MAX_WIDTH;
+                        canvas.height = img.height * scale;
+                        
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        
+                        // Kompresi gambar menjadi JPEG kualitas 0.6
+                        const base64Img = canvas.toDataURL('image/jpeg', 0.6);
+                        updateData.qris = base64Img;
+                        
+                        sendUpdate(updateData);
+                    };
+                };
+            } else {
+                // Jika tidak memilih file baru, update teks saja tanpa merusak foto QRIS lama
+                sendUpdate(updateData);
+            }
+        }
+
+        function sendUpdate(data) {
+            db.collection('config').doc('global').set(data, { merge: true }).then(() => {
+                Swal.fire({ icon: 'success', title: 'Sukses', text: 'Konfigurasi berhasil disimpan!', timer: 1500 });
+                setTimeout(() => { location.reload(); }, 1500);
+            }).catch((error) => {
+                Swal.fire('Error', 'Gagal menyimpan: ' + error.message, 'error');
+            });
         }
 
         function addMatch() {
-    db.collection('matches').add({
-        home: document.getElementById('match-home').value,
-        away: document.getElementById('match-away').value,
-        logoHome: document.getElementById('match-logo-home').value,
-        logoAway: document.getElementById('match-logo-away').value,
-        gol: document.getElementById('match-gol').value,
-        corner: document.getElementById('match-corner').value,
-        win: document.getElementById('match-win').value,
-        btts: document.getElementById('match-btts').value,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-        Swal.fire('Sukses', 'Pertandingan berhasil ditambahkan', 'success');
-        // Kosongkan input setelah sukses
-        document.getElementById('match-home').value = '';
-        document.getElementById('match-away').value = '';
-    });
+            db.collection('matches').add({
+                home: document.getElementById('match-home').value,
+                away: document.getElementById('match-away').value,
+                logoHome: document.getElementById('match-logo-home').value,
+                logoAway: document.getElementById('match-logo-away').value,
+                gol: document.getElementById('match-gol').value,
+                corner: document.getElementById('match-corner').value,
+                win: document.getElementById('match-win').value,
+                btts: document.getElementById('match-btts').value,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                Swal.fire('Sukses', 'Pertandingan berhasil ditambahkan', 'success');
+                document.getElementById('match-home').value = '';
+                document.getElementById('match-away').value = '';
+            });
         }
 
         db.collection('matches').onSnapshot(snap => {
@@ -150,128 +204,117 @@ firebase.auth().onAuthStateChanged((user) => {
         });
 
         function approveDeposit(depositId, username, ticketAmount) {
-    Swal.fire({
-        title: 'Konfirmasi Deposit',
-        text: 'Setujui ' + ticketAmount + ' tiket untuk ' + username + '?',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Setujui',
-        cancelButtonText: 'Batal'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            Swal.fire({ title: 'Memproses...', allowOutsideClick: false });
-            
-            // 1. Update status deposit menjadi 'approved'
-            db.collection('deposits').doc(depositId).update({ status: 'approved' });
-
-            // 2. Tambahkan tiket ke akun user
-            db.collection('users').doc(username).set({
-    tickets: firebase.firestore.FieldValue.increment(ticketAmount)
-}, { merge: true }).then(() => {
-                Swal.fire({ icon: 'success', text: 'Tiket berhasil ditambahkan!' });
-            }).catch(err => Swal.fire({ icon: 'error', text: 'Gagal: ' + err.message }));
-        }
-    });
+            Swal.fire({
+                title: 'Konfirmasi Deposit',
+                text: 'Setujui ' + ticketAmount + ' tiket untuk ' + username + '?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Setujui',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'Memproses...', allowOutsideClick: false });
+                    db.collection('deposits').doc(depositId).update({ status: 'approved' });
+                    db.collection('users').doc(username).set({
+                        tickets: firebase.firestore.FieldValue.increment(ticketAmount)
+                    }, { merge: true }).then(() => {
+                        Swal.fire({ icon: 'success', text: 'Tiket berhasil ditambahkan!' });
+                    }).catch(err => Swal.fire({ icon: 'error', text: 'Gagal: ' + err.message }));
+                }
+            });
         }
     </script>
 
-<!-- ======================================================== -->
-<!-- HTML KELOLA BANNER -->
-<!-- ======================================================== -->
-<div class="p-4 mx-4 my-6 bg-slate-900 border border-slate-700 rounded-xl text-white">
-    <h3 class="text-md font-bold text-green-400 mb-3">⚙️ Kelola Banner Iklan (Slider)</h3>
-    <div class="mb-4">
-        <label class="block text-xs font-bold text-gray-400 mb-1">UPLOAD FILE GAMBAR IKLAN</label>
-        <input type="file" id="upload-slider-file" accept="image/*" class="w-full p-2 bg-slate-800 rounded text-sm text-gray-300">
+    <!-- HTML KELOLA BANNER -->
+    <div class="p-4 mx-4 my-6 bg-slate-900 border border-slate-700 rounded-xl text-white">
+        <h3 class="text-md font-bold text-green-400 mb-3">⚙️ Kelola Banner Iklan (Slider)</h3>
+        <div class="mb-4">
+            <label class="block text-xs font-bold text-gray-400 mb-1">UPLOAD FILE GAMBAR IKLAN</label>
+            <input type="file" id="upload-slider-file" accept="image/*" class="w-full p-2 bg-slate-800 rounded text-sm text-gray-300">
+        </div>
+        <button id="btn-upload-slider" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-sm mb-4">
+            + Tambahkan Gambar ke Slider
+        </button>
+        <label class="block text-xs font-bold text-gray-400 mb-2">DAFTAR BANNER AKTIF (Klik Gambar untuk Hapus)</label>
+        <div id="admin-banner-list" class="flex flex-wrap gap-2 p-2 bg-slate-800 rounded-lg min-h-[60px]">
+        </div>
     </div>
-    <button id="btn-upload-slider" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-sm mb-4">
-        + Tambahkan Gambar ke Slider
-    </button>
-    <label class="block text-xs font-bold text-gray-400 mb-2">DAFTAR BANNER AKTIF (Klik Gambar untuk Hapus)</label>
-    <div id="admin-banner-list" class="flex flex-wrap gap-2 p-2 bg-slate-800 rounded-lg min-h-[60px]">
-        <!-- List gambar akan muncul otomatis disini -->
-    </div>
-</div>
 
-<script>
-// --- FITUR PROSES UPLOAD BANNER (BASE64 CANVAS) ---
-const sliderFileInp = document.getElementById('upload-slider-file');
-const sliderUploadBtn = document.getElementById('btn-upload-slider');
-const adminBannerList = document.getElementById('admin-banner-list');
+    <script>
+        const sliderFileInp = document.getElementById('upload-slider-file');
+        const sliderUploadBtn = document.getElementById('btn-upload-slider');
+        const adminBannerList = document.getElementById('admin-banner-list');
 
-// 1. Ambil & Tampilkan Banner Aktif dari Firestore
-db.collection('config').doc('general').onSnapshot(doc => {
-    const data = doc.data();
-    if (data && data.bannerImages && data.bannerImages.length > 0) {
-        adminBannerList.innerHTML = data.bannerImages.map((img, index) => `
-            <div class="relative w-24 h-16 border border-slate-600 rounded overflow-hidden cursor-pointer" onclick="deleteBanner(${index})">
-                <img src="${img}" class="w-full h-full object-cover opacity-75 hover:opacity-100">
-                <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-[10px] text-red-400 font-bold">HAPUS</div>
-            </div>
-        `).join('');
-    } else {
-        adminBannerList.innerHTML = '<p class="text-xs text-gray-500 p-2">Belum ada banner iklan aktif.</p>';
-    }
-});
+        db.collection('config').doc('general').onSnapshot(doc => {
+            const data = doc.data();
+            if (data && data.bannerImages && data.bannerImages.length > 0) {
+                adminBannerList.innerHTML = data.bannerImages.map((img, index) => `
+                    <div class="relative w-24 h-16 border border-slate-600 rounded overflow-hidden cursor-pointer" onclick="deleteBanner(${index})">
+                        <img src="${img}" class="w-full h-full object-cover opacity-75 hover:opacity-100">
+                        <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-[10px] text-red-400 font-bold">HAPUS</div>
+                    </div>
+                `).join('');
+            } else {
+                adminBannerList.innerHTML = '<p class="text-xs text-gray-500 p-2">Belum ada banner iklan aktif.</p>';
+            }
+        });
 
-// 2. Proses Kompresi File Gambar & Upload
-sliderUploadBtn.addEventListener('click', () => {
-    const file = sliderFileInp.files[0];
-    if (!file) return Swal.fire('Error', 'Silahkan pilih file gambar terlebih dahulu!', 'error');
-    
-    Swal.fire({ title: 'Memproses gambar...', allowOutsideClick: false });
-    Swal.showLoading();
-
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = event => {
-        const img = new Image();
-        img.src = event.target.result;
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const MAX_WIDTH = 600;
-            const scale = MAX_WIDTH / img.width;
-            canvas.width = MAX_WIDTH;
-            canvas.height = img.height * scale;
+        sliderUploadBtn.addEventListener('click', () => {
+            const file = sliderFileInp.files[0];
+            if (!file) return Swal.fire('Error', 'Silahkan pilih file gambar terlebih dahulu!', 'error');
             
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            
-            const base64Img = canvas.toDataURL('image/jpeg', 0.5);
-            
-            db.collection('config').doc('general').set({
-                bannerImages: firebase.firestore.FieldValue.arrayUnion(base64Img)
-            }, { merge: true }).then(() => {
-                Swal.fire('Sukses', 'Gambar iklan berhasil ditambahkan ke slider!', 'success');
-                sliderFileInp.value = "";
-            }).catch(err => {
-                Swal.fire('Gagal', err.message, 'error');
+            Swal.fire({ title: 'Memproses gambar...', allowOutsideClick: false });
+            Swal.showLoading();
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = event => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 600;
+                    const scale = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scale;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    const base64Img = canvas.toDataURL('image/jpeg', 0.5);
+                    
+                    db.collection('config').doc('general').set({
+                        bannerImages: firebase.firestore.FieldValue.arrayUnion(base64Img)
+                    }, { merge: true }).then(() => {
+                        Swal.fire('Sukses', 'Gambar iklan berhasil ditambahkan ke slider!', 'success');
+                        sliderFileInp.value = "";
+                    }).catch(err => {
+                        Swal.fire('Gagal', err.message, 'error');
+                    });
+                };
+            };
+        });
+
+        window.deleteBanner = function(index) {
+            Swal.fire({
+                title: 'Hapus Gambar Ini?',
+                text: "Gambar akan dihapus dari slider aplikasi utama.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Ya, Hapus!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    db.collection('config').doc('general').get().then(doc => {
+                        let currentImages = doc.data().bannerImages || [];
+                        currentImages.splice(index, 1);
+                        return db.collection('config').doc('general').update({ bannerImages: currentImages });
+                    }).then(() => {
+                        Swal.fire('Terhapus!', 'Banner berhasil dihapus.', 'success');
+                    });
+                }
             });
         };
-    };
-});
-
-// 3. Fungsi Menghapus Salah Satu Banner
-window.deleteBanner = function(index) {
-    Swal.fire({
-        title: 'Hapus Gambar Ini?',
-        text: "Gambar akan dihapus dari slider aplikasi utama.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        confirmButtonText: 'Ya, Hapus!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            db.collection('config').doc('general').get().then(doc => {
-                let currentImages = doc.data().bannerImages || [];
-                currentImages.splice(index, 1);
-                return db.collection('config').doc('general').update({ bannerImages: currentImages });
-            }).then(() => {
-                Swal.fire('Terhapus!', 'Banner berhasil dihapus.', 'success');
-            });
-        }
-    });
-};
-</script>
+    </script>
 </body>
 </html>
