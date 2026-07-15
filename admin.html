@@ -78,13 +78,17 @@
         });
 
         function saveConfig() {
-            db.collection('config').doc('global').set({
-                bannerText: document.getElementById('adm-welcome').value,
-                wa: document.getElementById('adm-wa').value,
-                qris: document.getElementById('adm-qris').value,
-                bankList: document.getElementById('adm-bank').value,
-                warningText: document.getElementById('adm-warning').value
-            }, {merge: true}).then(() => Swal.fire('Sukses', 'Konfigurasi disimpan', 'success'));
+    db.collection('config').doc('global').set({
+        bannerText: document.getElementById('adm-welcome').value,
+        wa: document.getElementById('adm-wa').value,
+        qris: document.getElementById('adm-qris').value,
+        bankList: document.getElementById('adm-bank').value,
+        warningText: document.getElementById('adm-warning').value
+    }, { merge: true }).then(() => {
+        Swal.fire('Sukses', 'Konfigurasi disimpan', 'success');
+    }).catch((error) => {
+        Swal.fire('Error', 'Gagal menyimpan: ' + error.message, 'error');
+    });
         }
 
         function addMatch() {
