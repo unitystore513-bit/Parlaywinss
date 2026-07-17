@@ -70,10 +70,20 @@
         };
 
         window.register = async () => {
+            const emailInput = document.getElementById('email').value;
+            const passInput = document.getElementById('password').value;
+            
+            if (!passInput) {
+                alert("Password tidak boleh kosong!");
+                return;
+            }
+
             try {
-                await createUserWithEmailAndPassword(auth, formatEmail(document.getElementById('email').value), document.getElementById('password').value);
-                alert('Pendaftaran berhasil!');
-            } catch (e) { alert('Gagal daftar: ' + e.message); }
+                await createUserWithEmailAndPassword(auth, formatEmail(emailInput), passInput);
+                alert('Pendaftaran berhasil! Silakan login.');
+            } catch (e) { 
+                alert('Gagal daftar: ' + e.message); 
+            }
         };
 
         window.deposit = async () => {
