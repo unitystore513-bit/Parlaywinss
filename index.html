@@ -142,11 +142,24 @@
 
         // --- FITUR LOBBY USER ---
         window.createLobby = async () => {
+            // Memunculkan pop-up untuk mengisi jumlah taruhan
+            const amount = prompt("Masukkan jumlah taruhan untuk lobby ini (Rp):");
+            
+            // Validasi jika user batal mengisi atau mengisi huruf
+            if (!amount || isNaN(amount) || amount <= 0) {
+                return alert("Nominal taruhan tidak valid. Batal membuat lobby.");
+            }
+
             const code = Math.random().toString(36).substring(7).toUpperCase();
-            await setDoc(doc(db, "lobbies", code), { creator: auth.currentUser.uid, status: "active", needsAdmin: false, timestamp: new Date() });
+            await setDoc(doc(db, "lobbies", code), { 
+                creator: auth.currentUser.uid, 
+                betAmount: parseInt(amount), // Nominal disimpan ke database
+                status: "active", 
+                needsAdmin: false, 
+                timestamp: new Date() 
+            });
             window.location.href = `lobby.html?id=${code}`; // Otomatis pindah ke halaman lobby
         };
-
         window.joinLobby = async () => {
             const code = document.getElementById('joinCode').value.trim().toUpperCase();
             if (!code) return alert("Masukkan kode lobby!");
