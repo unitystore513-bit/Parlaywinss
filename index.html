@@ -56,17 +56,24 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // Ekspos fungsi ke window agar bisa dipanggil oleh onclick di HTML
-        window.register = async function() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            try {
-                await createUserWithEmailAndPassword(auth, email, password);
-                alert('Pendaftaran berhasil! Silakan login.');
-            } catch (error) {
-                alert('Gagal daftar: ' + error.message);
-            }
-        };
+        // Ganti bagian awal fungsi window.register menjadi ini:
+window.register = async function() {
+    let emailInput = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    // Logika otomatis menambahkan domain jika bukan email
+    let email = emailInput;
+    if (!email.includes('@')) {
+        email = email + "@cvtaruhan.com"; 
+    }
+    
+    try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert('Pendaftaran berhasil! Silakan login.');
+    } catch (error) {
+        alert('Gagal daftar: ' + error.message);
+    }
+};
 
         window.login = async function() {
             const email = document.getElementById('email').value;
