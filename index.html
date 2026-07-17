@@ -17,11 +17,13 @@
     </nav>
     <main class="max-w-md mx-auto p-4">
         <div id="authView" class="mt-10">
-            <h2 class="text-2xl font-bold mb-6">Selamat Datang</h2>
-            <input type="text" id="email" placeholder="Username/Email" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-4">
-            <input type="password" id="password" placeholder="Password" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-4">
-            <button onclick="login()" class="w-full bg-blue-600 py-3 rounded-lg font-bold mb-4">Masuk</button>
-            <p class="text-center text-xs text-slate-500">Belum punya akun? <button onclick="register()" class="text-blue-400">Daftar</button></p>
+            <h2 class="text-2xl font-bold mb-6">Login / Daftar</h2>
+            <input type="text" id="email" placeholder="Username/Email" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-2">
+            <input type="text" id="regPhone" placeholder="Nomor Telepon" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-2">
+            <input type="password" id="password" placeholder="Password" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-2">
+            <input type="password" id="confirmPassword" placeholder="Konfirmasi Password" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-4">
+            <button onclick="login()" class="w-full bg-blue-600 py-3 rounded-lg font-bold mb-2">Masuk</button>
+            <button onclick="register()" class="w-full bg-green-600 py-3 rounded-lg font-bold">Daftar Akun</button>
         </div>
         <div id="dashboardView" class="hidden space-y-4">
             <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
@@ -70,34 +72,33 @@
         };
 
         window.register = async () => {
-            const emailInput = document.getElementById('email').value;
-            const passInput = document.getElementById('password').value;
-            
-            if (!passInput) {
-                alert("Password tidak boleh kosong!");
-                return;
-            }
+            const email = formatEmail(document.getElementById('email').value);
+            const pass = document.getElementById('password').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            const phone = document.getElementById('regPhone').value;
+
+            if (pass !== confirm) return alert("Password tidak cocok!");
+            if (!email || !pass || !phone) return alert("Semua kolom wajib diisi!");
 
             try {
-                await createUserWithEmailAndPassword(auth, formatEmail(emailInput), passInput);
+                const cred = await createUserWithEmailAndPassword(auth, email, pass);
+                await setDoc(doc(db, "users", cred.user.uid), { email, phone, createdAt: new Date() });
                 alert('Pendaftaran berhasil! Silakan login.');
-            } catch (e) { 
-                alert('Gagal daftar: ' + e.message); 
-            }
+            } catch (e) { alert('Gagal daftar: ' + e.message); }
         };
 
         window.deposit = async () => {
-            const amount = prompt("Masukkan nominal deposit:");
-            if (amount) {
-                await setDoc(doc(db, "deposits", auth.currentUser.uid + "_" + Date.now()), { uid: auth.currentUser.uid, amount: parseInt(amount), status: "pending", timestamp: new Date() });
+            const amt = prompt("Masukkan nominal deposit:");
+            if (amt) {
+                await setDoc(doc(db, "deposits", auth.currentUser.uid + "_" + Date.now()), { uid: auth.currentUser.uid, amount: parseInt(amt), status: "pending", timestamp: new Date() });
                 alert("Deposit dikirim!");
             }
         };
 
         window.withdraw = async () => {
-            const amount = prompt("Masukkan nominal withdraw:");
-            if (amount) {
-                await setDoc(doc(db, "withdraws", auth.currentUser.uid + "_" + Date.now()), { uid: auth.currentUser.uid, amount: parseInt(amount), status: "pending", timestamp: new Date() });
+            const amt = prompt("Masukkan nominal withdraw:");
+            if (amt) {
+                await setDoc(doc(db, "withdraws", auth.currentUser.uid + "_" + Date.now()), { uid: auth.currentUser.uid, amount: parseInt(amt), status: "pending", timestamp: new Date() });
                 alert("Withdraw dikirim!");
             }
         };
