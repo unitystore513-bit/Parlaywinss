@@ -6,16 +6,6 @@
     <title>CvTaruhan | Platform Taruhan Aman</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8",
-            authDomain: "parlaywins-new.firebaseapp.com",
-            projectId: "parlaywins-new",
-            storageBucket: "parlaywins-new.firebasestorage.app",
-            messagingSenderId: "1025882923334",
-            appId: "1:1025882923334:web:715307a770239023f48547"
-        };
-    </script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen">
     <nav class="bg-slate-900 border-b border-slate-800 p-4 flex justify-between items-center">
@@ -43,42 +33,42 @@
                 <button onclick="deposit()" class="bg-blue-600 py-3 rounded-xl font-bold">Deposit</button>
                 <button onclick="withdraw()" class="bg-red-600 py-3 rounded-xl font-bold">Withdraw</button>
             </div>
+            <div id="adminDashboard" class="hidden mt-6 p-4 bg-yellow-900/50 rounded-xl border border-yellow-600">
+                <h2 class="font-bold text-lg text-yellow-400">Panel Admin</h2>
+                <button onclick="alert('Fitur Admin Transaksi segera hadir di admin.html')" class="w-full bg-yellow-600 py-2 mt-2 rounded-lg font-bold">Buka Daftar Transaksi</button>
+            </div>
+        </div>
     </main>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-    
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8",
+            authDomain: "parlaywins-new.firebaseapp.com",
+            projectId: "parlaywins-new",
+            storageBucket: "parlaywins-new.firebasestorage.app",
+            messagingSenderId: "1025882923334",
+            appId: "1:1025882923334:web:715307a770239023f48547"
+        };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-
         const formatEmail = (input) => input.includes('@') ? input : input + "@cvtaruhan.com";
-// Fungsi Fitur Lengkap
-window.deposit = async () => {
-    const amount = prompt("Masukkan nominal deposit:");
-    if (!amount) return;
-    await setDoc(doc(db, "deposits", auth.currentUser.uid + "_" + Date.now()), {
-        uid: auth.currentUser.uid, amount: parseInt(amount), status: "pending", timestamp: new Date()
-    });
-    alert("Deposit dikirim!");
-};
 
-window.withdraw = async () => {
-    const amount = prompt("Masukkan nominal withdraw:");
-    if (!amount) return;
-    await setDoc(doc(db, "withdraws", auth.currentUser.uid + "_" + Date.now()), {
-        uid: auth.currentUser.uid, amount: parseInt(amount), status: "pending", timestamp: new Date()
-    });
-    alert("Withdraw dikirim!");
-};
+        window.login = async () => {
+            try {
+                const email = formatEmail(document.getElementById('email').value);
+                await signInWithEmailAndPassword(auth, email, document.getElementById('password').value);
+                document.getElementById('authView').classList.add('hidden');
+                document.getElementById('dashboardView').classList.remove('hidden');
+                document.getElementById('userMenu').classList.remove('hidden');
+                if (email === "admin@cvtaruhan.com") document.getElementById('adminDashboard').classList.remove('hidden');
+            } catch (e) { alert('Login gagal: ' + e.message); }
+        };
 
-window.createLobby = async () => {
-    const code = Math.random().toString(36).substring(7).toUpperCase();
-    await setDoc(doc(db, "lobbies", code), { creator: auth.currentUser.uid, status: "waiting" });
-    alert("Lobby dibuat! Kode: " + code);
-};
         window.register = async () => {
             try {
                 await createUserWithEmailAndPassword(auth, formatEmail(document.getElementById('email').value), document.getElementById('password').value);
@@ -86,13 +76,26 @@ window.createLobby = async () => {
             } catch (e) { alert('Gagal daftar: ' + e.message); }
         };
 
-        window.login = async () => {
-            try {
-                await signInWithEmailAndPassword(auth, formatEmail(document.getElementById('email').value), document.getElementById('password').value);
-                document.getElementById('authView').classList.add('hidden');
-                document.getElementById('dashboardView').classList.remove('hidden');
-                document.getElementById('userMenu').classList.remove('hidden');
-            } catch (e) { alert('Login gagal: ' + e.message); }
+        window.deposit = async () => {
+            const amount = prompt("Masukkan nominal deposit:");
+            if (amount) {
+                await setDoc(doc(db, "deposits", auth.currentUser.uid + "_" + Date.now()), { uid: auth.currentUser.uid, amount: parseInt(amount), status: "pending", timestamp: new Date() });
+                alert("Deposit dikirim!");
+            }
+        };
+
+        window.withdraw = async () => {
+            const amount = prompt("Masukkan nominal withdraw:");
+            if (amount) {
+                await setDoc(doc(db, "withdraws", auth.currentUser.uid + "_" + Date.now()), { uid: auth.currentUser.uid, amount: parseInt(amount), status: "pending", timestamp: new Date() });
+                alert("Withdraw dikirim!");
+            }
+        };
+
+        window.createLobby = async () => {
+            const code = Math.random().toString(36).substring(7).toUpperCase();
+            await setDoc(doc(db, "lobbies", code), { creator: auth.currentUser.uid, status: "waiting" });
+            alert("Lobby dibuat! Kode: " + code);
         };
 
         window.logout = () => { signOut(auth).then(() => location.reload()); };
