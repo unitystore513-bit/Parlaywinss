@@ -16,15 +16,29 @@
         </div>
     </nav>
     <main class="max-w-md mx-auto p-4">
+        <!-- Area Auth -->
         <div id="authView" class="mt-10">
-            <h2 class="text-2xl font-bold mb-6">Login / Daftar</h2>
-            <input type="text" id="email" placeholder="Username/Email" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-2">
-            <input type="text" id="regPhone" placeholder="Nomor Telepon" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-2">
-            <input type="password" id="password" placeholder="Password" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-2">
-            <input type="password" id="confirmPassword" placeholder="Konfirmasi Password" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-4">
-            <button onclick="login()" class="w-full bg-blue-600 py-3 rounded-lg font-bold mb-2">Masuk</button>
-            <button onclick="register()" class="w-full bg-green-600 py-3 rounded-lg font-bold">Daftar Akun</button>
+            <!-- Form Masuk -->
+            <div id="loginForm">
+                <h2 class="text-2xl font-bold mb-6">Masuk</h2>
+                <input type="text" id="email" placeholder="Username/Email" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-4">
+                <input type="password" id="password" placeholder="Password" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-4">
+                <button onclick="login()" class="w-full bg-blue-600 py-3 rounded-lg font-bold">Masuk</button>
+                <p class="text-center mt-4 text-sm">Belum punya akun? <button onclick="toggleForm('register')" class="text-blue-400 font-bold">Daftar</button></p>
+            </div>
+            
+            <!-- Form Daftar -->
+            <div id="registerForm" class="hidden">
+                <h2 class="text-2xl font-bold mb-6">Daftar Akun</h2>
+                <input type="text" id="regEmail" placeholder="Username/Email" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-2">
+                <input type="text" id="regPhone" placeholder="Nomor Telepon" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-2">
+                <input type="password" id="regPassword" placeholder="Password" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-2">
+                <input type="password" id="regConfirm" placeholder="Konfirmasi Password" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-4">
+                <button onclick="register()" class="w-full bg-green-600 py-3 rounded-lg font-bold">Daftar Akun</button>
+                <p class="text-center mt-4 text-sm">Sudah punya akun? <button onclick="toggleForm('login')" class="text-blue-400 font-bold">Masuk</button></p>
+            </div>
         </div>
+
         <div id="dashboardView" class="hidden space-y-4">
             <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
                 <p class="text-slate-400 text-xs">Saldo Anda</p>
@@ -47,23 +61,23 @@
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8",
-            authDomain: "parlaywins-new.firebaseapp.com",
-            projectId: "parlaywins-new",
-            storageBucket: "parlaywins-new.firebasestorage.app",
-            messagingSenderId: "1025882923334",
-            appId: "1:1025882923334:web:715307a770239023f48547"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8", authDomain: "parlaywins-new.firebaseapp.com", projectId: "parlaywins-new", storageBucket: "parlaywins-new.firebasestorage.app", messagingSenderId: "1025882923334", appId: "1:1025882923334:web:715307a770239023f48547" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        
+        window.toggleForm = (type) => {
+            document.getElementById('loginForm').classList.toggle('hidden');
+            document.getElementById('registerForm').classList.toggle('hidden');
+        };
+
         const formatEmail = (input) => input.includes('@') ? input : input + "@cvtaruhan.com";
 
         window.login = async () => {
             try {
                 const email = formatEmail(document.getElementById('email').value);
-                await signInWithEmailAndPassword(auth, email, document.getElementById('password').value);
+                const pass = document.getElementById('password').value;
+                await signInWithEmailAndPassword(auth, email, pass);
                 document.getElementById('authView').classList.add('hidden');
                 document.getElementById('dashboardView').classList.remove('hidden');
                 document.getElementById('userMenu').classList.remove('hidden');
@@ -72,9 +86,9 @@
         };
 
         window.register = async () => {
-            const email = formatEmail(document.getElementById('email').value);
-            const pass = document.getElementById('password').value;
-            const confirm = document.getElementById('confirmPassword').value;
+            const email = formatEmail(document.getElementById('regEmail').value);
+            const pass = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regConfirm').value;
             const phone = document.getElementById('regPhone').value;
 
             if (pass !== confirm) return alert("Password tidak cocok!");
@@ -83,30 +97,25 @@
             try {
                 const cred = await createUserWithEmailAndPassword(auth, email, pass);
                 await setDoc(doc(db, "users", cred.user.uid), { email, phone, createdAt: new Date() });
-                alert('Pendaftaran berhasil! Silakan login.');
-            } catch (e) { alert('Gagal daftar: ' + e.message); }
+                alert('Daftar berhasil! Silakan masuk.');
+                toggleForm('login');
+            } catch (e) { alert('Gagal: ' + e.message); }
         };
 
         window.deposit = async () => {
-            const amt = prompt("Masukkan nominal deposit:");
-            if (amt) {
-                await setDoc(doc(db, "deposits", auth.currentUser.uid + "_" + Date.now()), { uid: auth.currentUser.uid, amount: parseInt(amt), status: "pending", timestamp: new Date() });
-                alert("Deposit dikirim!");
-            }
+            const amt = prompt("Nominal deposit:");
+            if (amt) { await setDoc(doc(db, "deposits", auth.currentUser.uid + "_" + Date.now()), { uid: auth.currentUser.uid, amount: parseInt(amt), status: "pending", timestamp: new Date() }); alert("Deposit terkirim!"); }
         };
 
         window.withdraw = async () => {
-            const amt = prompt("Masukkan nominal withdraw:");
-            if (amt) {
-                await setDoc(doc(db, "withdraws", auth.currentUser.uid + "_" + Date.now()), { uid: auth.currentUser.uid, amount: parseInt(amt), status: "pending", timestamp: new Date() });
-                alert("Withdraw dikirim!");
-            }
+            const amt = prompt("Nominal withdraw:");
+            if (amt) { await setDoc(doc(db, "withdraws", auth.currentUser.uid + "_" + Date.now()), { uid: auth.currentUser.uid, amount: parseInt(amt), status: "pending", timestamp: new Date() }); alert("Withdraw terkirim!"); }
         };
 
         window.createLobby = async () => {
             const code = Math.random().toString(36).substring(7).toUpperCase();
             await setDoc(doc(db, "lobbies", code), { creator: auth.currentUser.uid, status: "waiting" });
-            alert("Lobby dibuat! Kode: " + code);
+            alert("Lobby dibuat: " + code);
         };
 
         window.logout = () => { signOut(auth).then(() => location.reload()); };
