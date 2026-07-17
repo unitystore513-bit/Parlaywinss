@@ -50,50 +50,47 @@
     </main>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 
-        // Ganti bagian awal fungsi window.register menjadi ini:
-window.register = async function() {
-    let emailInput = document.getElementById('email').value;
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // Fungsi otomatis menambahkan domain agar tidak error invalid-email
+  const formatEmail = (input) => {
+    return input.includes('@') ? input : input + "@cvtaruhan.com";
+  };
+
+  window.register = async function() {
+    const emailRaw = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    
-    // Logika otomatis menambahkan domain jika bukan email
-    let email = emailInput;
-    if (!email.includes('@')) {
-        email = email + "@cvtaruhan.com"; 
-    }
-    
     try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        alert('Pendaftaran berhasil! Silakan login.');
+      await createUserWithEmailAndPassword(auth, formatEmail(emailRaw), password);
+      alert('Pendaftaran berhasil! Silakan login.');
     } catch (error) {
-        alert('Gagal daftar: ' + error.message);
+      alert('Gagal daftar: ' + error.message);
     }
-};
+  };
 
-        window.login = async function() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                document.getElementById('authView').classList.add('hidden');
-                document.getElementById('dashboardView').classList.remove('hidden');
-                document.getElementById('userMenu').classList.remove('hidden');
-            } catch (error) {
-                alert('Login gagal: ' + error.message);
-            }
-        };
+  window.login = async function() {
+    const emailRaw = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    try {
+      await signInWithEmailAndPassword(auth, formatEmail(emailRaw), password);
+      document.getElementById('authView').classList.add('hidden');
+      document.getElementById('dashboardView').classList.remove('hidden');
+      document.getElementById('userMenu').classList.remove('hidden');
+    } catch (error) {
+      alert('Login gagal: ' + error.message);
+    }
+  };
 
-        window.logout = async function() {
-            await signOut(auth);
-            location.reload();
-        };
+  window.logout = async function() {
+    await signOut(auth);
+    location.reload();
+  };
 
-        window.showModal = (id) => document.getElementById(id).classList.remove('hidden');
-    </script>
+  window.showModal = (id) => document.getElementById(id).classList.remove('hidden');
+          </script>
 </body>
 </html>
