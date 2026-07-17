@@ -38,9 +38,11 @@
                 <p class="text-slate-400 text-xs">Saldo Anda</p>
                 <h3 id="displayBalance" class="text-3xl font-black">Rp 0</h3>
             </div>
-            <button class="w-full bg-green-600 py-4 rounded-xl font-bold">Buat Lobby Taruhan</button>
-            <button onclick="deposit()" class="w-full bg-blue-600 py-4 rounded-xl font-bold mt-2">Deposit Saldo</button>
-        </div>
+            <button onclick="createLobby()" class="w-full bg-green-600 py-3 rounded-xl font-bold mb-2">Buat Lobby Taruhan</button>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="deposit()" class="bg-blue-600 py-3 rounded-xl font-bold">Deposit</button>
+                <button onclick="withdraw()" class="bg-red-600 py-3 rounded-xl font-bold">Withdraw</button>
+            </div>
     </main>
 
     <script type="module">
@@ -53,23 +55,29 @@ import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstat
         const db = getFirestore(app);
 
         const formatEmail = (input) => input.includes('@') ? input : input + "@cvtaruhan.com";
-// Fungsi untuk Deposit (Simpan ke database)
+// Fungsi Fitur Lengkap
 window.deposit = async () => {
     const amount = prompt("Masukkan nominal deposit:");
     if (!amount) return;
-    
-    try {
-        // Menyimpan permintaan deposit ke Firestore
-        await setDoc(doc(db, "deposits", auth.currentUser.uid + "_" + Date.now()), {
-            uid: auth.currentUser.uid,
-            amount: parseInt(amount),
-            status: "pending",
-            timestamp: new Date()
-        });
-        alert("Permintaan deposit dikirim! Silakan tunggu konfirmasi Admin.");
-    } catch (e) {
-        alert("Gagal deposit: " + e.message);
-    }
+    await setDoc(doc(db, "deposits", auth.currentUser.uid + "_" + Date.now()), {
+        uid: auth.currentUser.uid, amount: parseInt(amount), status: "pending", timestamp: new Date()
+    });
+    alert("Deposit dikirim!");
+};
+
+window.withdraw = async () => {
+    const amount = prompt("Masukkan nominal withdraw:");
+    if (!amount) return;
+    await setDoc(doc(db, "withdraws", auth.currentUser.uid + "_" + Date.now()), {
+        uid: auth.currentUser.uid, amount: parseInt(amount), status: "pending", timestamp: new Date()
+    });
+    alert("Withdraw dikirim!");
+};
+
+window.createLobby = async () => {
+    const code = Math.random().toString(36).substring(7).toUpperCase();
+    await setDoc(doc(db, "lobbies", code), { creator: auth.currentUser.uid, status: "waiting" });
+    alert("Lobby dibuat! Kode: " + code);
 };
         window.register = async () => {
             try {
