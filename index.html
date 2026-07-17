@@ -59,7 +59,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc,getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8", authDomain: "parlaywins-new.firebaseapp.com", projectId: "parlaywins-new", storageBucket: "parlaywins-new.firebasestorage.app", messagingSenderId: "1025882923334", appId: "1:1025882923334:web:715307a770239023f48547" };
         const app = initializeApp(firebaseConfig);
@@ -103,10 +103,20 @@
         };
 
         window.deposit = async () => {
-            const amt = prompt("Nominal deposit:");
-            if (amt) { await setDoc(doc(db, "deposits", auth.currentUser.uid + "_" + Date.now()), { uid: auth.currentUser.uid, amount: parseInt(amt), status: "pending", timestamp: new Date() }); alert("Deposit terkirim!"); }
+            const paySnap = await getDoc(doc(db, "settings", "payment"));
+            const info = paySnap.exists() ? paySnap.data().info : "Hubungi admin untuk info rekening.";
+            
+            const amt = prompt("Transfer ke:\n" + info + "\n\nMasukkan nominal deposit:");
+            if (amt) {
+                await setDoc(doc(db, "deposits", auth.currentUser.uid + "_" + Date.now()), { 
+                    uid: auth.currentUser.uid, 
+                    amount: parseInt(amt), 
+                    status: "pending", 
+                    timestamp: new Date() 
+                });
+                alert("Deposit dikirim! Mohon tunggu konfirmasi admin.");
+            }
         };
-
         window.withdraw = async () => {
             const amt = prompt("Nominal withdraw:");
             if (amt) { await setDoc(doc(db, "withdraws", auth.currentUser.uid + "_" + Date.now()), { uid: auth.currentUser.uid, amount: parseInt(amt), status: "pending", timestamp: new Date() }); alert("Withdraw terkirim!"); }
