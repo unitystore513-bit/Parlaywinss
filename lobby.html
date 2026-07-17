@@ -8,125 +8,91 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-slate-950 text-white p-4 h-screen flex flex-col max-w-md mx-auto">
-    <!-- Header Lobby (Sudah ditambah jumlah taruhan) -->
-    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 mb-4 flex justify-between items-center shadow-lg">
-        <div>
-            <p class="text-xs text-slate-400">Kode Lobby: <span id="lobbyTitle" class="text-blue-400 font-bold uppercase">...</span></p>
-            <h1 id="lobbyAmount" class="text-2xl font-black text-green-400 mt-1">Rp 0</h1>
+    <!-- Header Lobby -->
+    <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-xl mb-4">
+        <div class="flex justify-between items-center">
+            <div>
+                <p class="text-[10px] text-slate-500 uppercase tracking-widest">Kode Lobby</p>
+                <h1 id="lobbyTitle" class="text-xl font-black text-blue-400 uppercase">...</h1>
+            </div>
+            <button onclick="callAdmin()" id="callAdminBtn" class="bg-red-600/10 border border-red-600/50 text-red-500 px-4 py-2 rounded-xl text-xs font-bold">Panggil Admin</button>
         </div>
-        <div class="flex gap-2">
-            <button onclick="callAdmin()" id="callAdminBtn" class="bg-red-600/20 text-red-500 border border-red-600 px-3 py-2 rounded-lg text-xs font-bold transition">Panggil Admin</button>
-            <button onclick="window.location.href='index.html'" class="bg-slate-800 text-slate-300 hover:text-white px-3 py-2 rounded-lg text-xs transition"><i class="fa-solid fa-xmark"></i></button>
+        <div class="mt-4 pt-4 border-t border-slate-800">
+            <p class="text-[10px] text-slate-500 uppercase">Jumlah Taruhan</p>
+            <h2 id="lobbyAmount" class="text-2xl font-black text-green-400">Rp 0</h2>
         </div>
     </div>
 
     <!-- Area Chat -->
-    <div id="chatBox" class="flex-1 overflow-y-auto bg-slate-900 p-4 rounded-xl mb-4 border border-slate-800 space-y-3">
-        <p class="text-center text-xs text-slate-500 my-4">Selamat datang di lobby taruhan.</p>
-        <!-- Pesan muncul di sini -->
+    <div id="chatBox" class="flex-1 overflow-y-auto bg-slate-900 p-4 rounded-2xl mb-4 border border-slate-800 space-y-3">
+        <!-- Pesan akan muncul di sini otomatis -->
     </div>
 
     <!-- Input Chat -->
-    <div class="flex gap-2 mb-4">
-        <input type="text" id="messageInput" placeholder="Ketik pesan..." class="flex-1 bg-slate-900 border border-slate-700 p-3 rounded-xl focus:outline-none focus:border-blue-500">
-        <button onclick="sendMessage()" class="bg-blue-600 px-5 rounded-xl font-bold hover:bg-blue-500 transition"><i class="fa-solid fa-paper-plane"></i></button>
+    <div class="flex gap-2">
+        <input type="text" id="messageInput" placeholder="Ketik pesan..." class="flex-1 bg-slate-900 border border-slate-700 p-4 rounded-2xl focus:outline-none focus:border-blue-500">
+        <button onclick="sendMessage()" class="bg-blue-600 px-6 rounded-2xl font-bold"><i class="fa-solid fa-paper-plane"></i></button>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
         
         const firebaseConfig = { apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8", authDomain: "parlaywins-new.firebaseapp.com", projectId: "parlaywins-new", storageBucket: "parlaywins-new.firebasestorage.app", messagingSenderId: "1025882923334", appId: "1:1025882923334:web:715307a770239023f48547" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const lobbyId = urlParams.get('id');
+        const lobbyId = new URLSearchParams(window.location.search).get('id');
+        document.getElementById('lobbyTitle').innerText = lobbyId;
 
-        if (!lobbyId) {
-            alert("Akses ditolak. Kode lobby tidak valid.");
-            window.location.href = "index.html";
-        }
-
-        auth.onAuthStateChanged(user => {
-            if (!user) window.location.href = "index.html";
+        // Ambil nominal taruhan
+        getDoc(doc(db, "lobbies", lobbyId)).then(snap => {
+            if(snap.exists()) document.getElementById('lobbyAmount').innerText = "Rp " + snap.data().betAmount.toLocaleString();
         });
 
-        // 1. Pantau Info Lobby secara Real-time (Untuk menampilkan nominal dan status panggilan)
-        onSnapshot(doc(db, "lobbies", lobbyId), (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                document.getElementById('lobbyTitle').innerText = lobbyId;
+        // Real-time Chat
+        const q = query(collection(db, `lobbies/${lobbyId}/chats`), orderBy("timestamp", "asc"));
+        onSnapshot(q, (snapshot) => {
+            let html = "";
+            snapshot.forEach(d => {
+                const data = d.data();
+                const isMine = data.senderEmail === (auth.currentUser ? auth.currentUser.email : "");
+                const isAdmin = data.senderEmail === "admin@cvtaruhan.com";
                 
-                // Tampilkan nominal taruhan
-                if (data.betAmount) {
-                    document.getElementById('lobbyAmount').innerText = "Rp " + data.betAmount.toLocaleString('id-ID');
-                }
-
-                // Update otomatis tombol admin
-                const btn = document.getElementById('callAdminBtn');
-                if (data.needsAdmin) {
-                    btn.innerText = "Admin Dipanggil!";
-                    btn.classList.replace("text-red-500", "text-white");
-                    btn.classList.replace("bg-red-600/20", "bg-red-600");
-                } else {
-                    btn.innerText = "Panggil Admin";
-                    btn.classList.replace("text-white", "text-red-500");
-                    btn.classList.replace("bg-red-600", "bg-red-600/20");
-                }
-            }
+                html += `
+                <div class="flex ${isAdmin ? 'justify-start' : (isMine ? 'justify-end' : 'justify-start')}">
+                    <div class="px-4 py-2 rounded-2xl text-sm ${isAdmin ? 'bg-yellow-600/20 text-yellow-100 border border-yellow-600' : (isMine ? 'bg-blue-600' : 'bg-slate-800')}">
+                        <p class="text-[9px] opacity-70 mb-1">${data.senderEmail.split('@')[0]}</p>
+                        ${data.text}
+                    </div>
+                </div>`;
+            });
+            const box = document.getElementById('chatBox');
+            box.innerHTML = html;
+            box.scrollTop = box.scrollHeight;
         });
-
-        window.callAdmin = async () => {
-            try {
-                await updateDoc(doc(db, "lobbies", lobbyId), { needsAdmin: true });
-                await addDoc(collection(db, `lobbies/${lobbyId}/chats`), {
-                    text: "⚠️ Panggilan kepada Admin telah dikirim.", senderEmail: "Sistem", timestamp: new Date()
-                });
-            } catch (e) { alert("Gagal memanggil admin."); }
-        };
 
         window.sendMessage = async () => {
             const input = document.getElementById('messageInput');
-            if (!input.value.trim()) return;
-            
-            let sender = auth.currentUser.email === "admin@cvtaruhan.com" ? "ADMIN" : auth.currentUser.email.split('@')[0];
-
+            if(!input.value) return;
             await addDoc(collection(db, `lobbies/${lobbyId}/chats`), {
-                text: input.value, senderEmail: sender, timestamp: new Date()
+                text: input.value,
+                senderEmail: auth.currentUser.email,
+                timestamp: new Date()
             });
             input.value = "";
-            
-            // Matikan alarm panggilan jika admin sudah muncul dan chat
-            if (auth.currentUser.email === "admin@cvtaruhan.com") {
-                await updateDoc(doc(db, "lobbies", lobbyId), { needsAdmin: false });
-            }
         };
 
-        // Pantau Chat Real-time
-        const q = query(collection(db, `lobbies/${lobbyId}/chats`), orderBy("timestamp"));
-        onSnapshot(q, (snapshot) => {
-            let html = "";
-            snapshot.forEach(docData => { 
-                const data = docData.data();
-                const isAdmin = data.senderEmail === "ADMIN";
-                const isSystem = data.senderEmail === "Sistem";
-                
-                let bubbleClass = isAdmin ? "bg-yellow-600/20 border border-yellow-600 text-yellow-100" : 
-                                 isSystem ? "bg-slate-800 text-slate-400 text-center italic text-[10px] w-full border-none p-1" :
-                                 "bg-blue-600 text-white";
-
-                html += `<div class="mb-2 p-2 rounded-xl text-sm w-fit max-w-[85%] ${bubbleClass}">
-                    ${isSystem ? '' : `<p class="text-[10px] font-bold mb-1 ${isAdmin ? 'text-yellow-500' : 'text-slate-300'}">${data.senderEmail}</p>`}
-                    ${data.text}
-                </div>`; 
+        window.callAdmin = async () => {
+            await addDoc(collection(db, `lobbies/${lobbyId}/chats`), {
+                text: "⚠️ Panggilan kepada Admin telah dikirim.",
+                senderEmail: "Sistem",
+                timestamp: new Date()
             });
-            const chatBox = document.getElementById('chatBox');
-            chatBox.innerHTML = html;
-            chatBox.scrollTop = chatBox.scrollHeight;
-        });
+            alert("Admin telah dipanggil!");
+        };
     </script>
 </body>
 </html>
