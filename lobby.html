@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Lobby Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-white p-4">
+    <div id="chatBox" class="h-96 overflow-y-auto bg-slate-900 p-4 rounded-xl mb-4">
+        <!-- Pesan akan muncul di sini -->
+    </div>
+    <div class="flex gap-2">
+        <input type="text" id="messageInput" placeholder="Ketik pesan..." class="flex-1 bg-slate-800 p-2 rounded">
+        <button onclick="sendMessage()" class="bg-blue-600 px-4 py-2 rounded">Kirim</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        
+        const db = getFirestore(initializeApp({ /* MASUKKAN CONFIG FIREBASE ANDA DI SINI */ }));
+
+        // Mengirim pesan
+        window.sendMessage = async () => {
+            const input = document.getElementById('messageInput');
+            await addDoc(collection(db, "chats"), {
+                text: input.value,
+                timestamp: new Date()
+            });
+            input.value = "";
+        };
+
+        // Menampilkan pesan real-time
+        onSnapshot(query(collection(db, "chats"), orderBy("timestamp")), (snapshot) => {
+            let html = "";
+            snapshot.forEach(doc => { html += `<div class="mb-2">${doc.data().text}</div>`; });
+            document.getElementById('chatBox').innerHTML = html;
+        });
+    </script>
+</body>
+</html>
