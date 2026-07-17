@@ -39,18 +39,38 @@
                 <h3 id="displayBalance" class="text-3xl font-black">Rp 0</h3>
             </div>
             <button class="w-full bg-green-600 py-4 rounded-xl font-bold">Buat Lobby Taruhan</button>
+            <button onclick="deposit()" class="w-full bg-blue-600 py-4 rounded-xl font-bold mt-2">Deposit Saldo</button>
         </div>
     </main>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-
+import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
 
         const formatEmail = (input) => input.includes('@') ? input : input + "@cvtaruhan.com";
-
+// Fungsi untuk Deposit (Simpan ke database)
+window.deposit = async () => {
+    const amount = prompt("Masukkan nominal deposit:");
+    if (!amount) return;
+    
+    try {
+        // Menyimpan permintaan deposit ke Firestore
+        await setDoc(doc(db, "deposits", auth.currentUser.uid + "_" + Date.now()), {
+            uid: auth.currentUser.uid,
+            amount: parseInt(amount),
+            status: "pending",
+            timestamp: new Date()
+        });
+        alert("Permintaan deposit dikirim! Silakan tunggu konfirmasi Admin.");
+    } catch (e) {
+        alert("Gagal deposit: " + e.message);
+    }
+};
         window.register = async () => {
             try {
                 await createUserWithEmailAndPassword(auth, formatEmail(document.getElementById('email').value), document.getElementById('password').value);
