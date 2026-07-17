@@ -14,12 +14,23 @@
         <div id="adminList" class="space-y-2 text-sm"></div>
     </div>
 
-    <!-- Metode Pembayaran -->
-    <div class="bg-slate-900 p-4 rounded-xl">
-        <h2 class="font-bold mb-2">Edit Metode Pembayaran</h2>
-        <input type="text" id="paymentMethod" placeholder="Contoh: BCA - 12345" class="w-full bg-slate-800 p-2 rounded mb-2">
-        <button onclick="savePayment()" class="w-full bg-green-600 py-2 rounded">Simpan Metode</button>
-    </div>
+    <!-- Admin Panel: Update Metode -->
+<div class="bg-slate-900 p-4 rounded-xl mt-4">
+    <h2 class="font-bold text-yellow-500 mb-2">Kelola Metode Pembayaran</h2>
+    <textarea id="paymentData" class="w-full bg-slate-800 p-2 rounded mb-2 text-sm" placeholder="Contoh: BCA: 1234567890 (a.n Admin)"></textarea>
+    <button onclick="savePayment()" class="w-full bg-green-600 py-2 rounded font-bold">Simpan ke Deposit User</button>
+</div>
+
+<script type="module">
+    // ... (kode firebase sebelumnya)
+    import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    
+    window.savePayment = async () => {
+        const text = document.getElementById('paymentData').value;
+        await setDoc(doc(db, "settings", "payment"), { info: text });
+        alert("Metode pembayaran berhasil disimpan!");
+    };
+</script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
