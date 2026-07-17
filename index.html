@@ -3,84 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CvTaruhan | Platform Taruhan Aman</title>
+    <title>CVTARUHAN | Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen">
-    <!-- Navbar -->
-    <nav class="bg-slate-900 border-b border-slate-800 p-4 flex justify-between items-center">
+    <nav class="p-4 flex justify-between items-center border-b border-slate-800">
         <h1 class="text-xl font-black italic uppercase text-white">CV<span class="text-blue-500">TARUHAN</span></h1>
-        <div id="userMenu" class="hidden flex gap-4">
-            <button onclick="logout()" class="text-slate-400 hover:text-white transition"><i class="fa-solid fa-right-from-bracket"></i></button>
-        </div>
+        <button onclick="logout()" class="text-slate-400"><i class="fa-solid fa-right-from-bracket"></i></button>
     </nav>
 
     <main class="max-w-md mx-auto p-4">
-        <!-- Area Login / Daftar -->
+        <!-- Auth View -->
         <div id="authView" class="mt-10">
-            <div id="loginForm">
-                <h2 class="text-2xl font-bold mb-6">Masuk</h2>
-                <input type="text" id="email" placeholder="Username/Email" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-4 focus:outline-none focus:border-blue-500">
-                <input type="password" id="password" placeholder="Password" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-4 focus:outline-none focus:border-blue-500">
-                <button onclick="login()" class="w-full bg-blue-600 py-3 rounded-lg font-bold">Masuk</button>
-                <p class="text-center mt-4 text-sm">Belum punya akun? <button onclick="toggleForm('register')" class="text-blue-400 font-bold">Daftar</button></p>
-            </div>
-            
-            <div id="registerForm" class="hidden">
-                <h2 class="text-2xl font-bold mb-6">Daftar Akun</h2>
-                <input type="text" id="regEmail" placeholder="Username/Email" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-2 focus:outline-none focus:border-blue-500">
-                <input type="text" id="regPhone" placeholder="Nomor Telepon" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-2 focus:outline-none focus:border-blue-500">
-                <input type="password" id="regPassword" placeholder="Password" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-2 focus:outline-none focus:border-blue-500">
-                <input type="password" id="regConfirm" placeholder="Konfirmasi Password" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-4 focus:outline-none focus:border-blue-500">
-                <button onclick="register()" class="w-full bg-green-600 py-3 rounded-lg font-bold">Daftar Akun</button>
-                <p class="text-center mt-4 text-sm">Sudah punya akun? <button onclick="toggleForm('login')" class="text-blue-400 font-bold">Masuk</button></p>
-            </div>
+            <h2 class="text-2xl font-bold mb-6">Masuk</h2>
+            <input type="text" id="email" placeholder="Email" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-4">
+            <input type="password" id="password" placeholder="Password" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-4">
+            <button onclick="login()" class="w-full bg-blue-600 py-3 rounded-lg font-bold">Masuk</button>
         </div>
 
-        <!-- Dashboard Area -->
+        <!-- Dashboard View -->
         <div id="dashboardView" class="hidden space-y-4">
-            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
-                <p id="balanceTitle" class="text-slate-400 text-xs">Saldo Anda</p>
-                <h3 id="displayBalance" class="text-3xl font-black mt-1">Rp 0</h3>
-            </div>
-
-            <!-- Menu Khusus User -->
-            <div id="userActions" class="space-y-4">
-                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
-                    <button onclick="createLobby()" class="w-full bg-green-600 py-3 rounded-xl font-bold mb-3">Buat Lobby Taruhan Baru</button>
-                    <div class="flex gap-2">
-                        <input type="text" id="joinCode" placeholder="Masukkan Kode Lobby" class="w-2/3 bg-slate-950 border border-slate-700 p-3 rounded-xl focus:outline-none focus:border-blue-500 uppercase text-center font-bold">
-                        <button onclick="joinLobby()" class="w-1/3 bg-blue-600 py-3 rounded-xl font-bold">Masuk</button>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <button onclick="deposit()" class="bg-slate-800 border border-blue-600 text-blue-400 py-3 rounded-xl font-bold">Deposit</button>
-                    <button onclick="withdraw()" class="bg-slate-800 border border-red-600 text-red-400 py-3 rounded-xl font-bold">Withdraw</button>
+            <!-- Saldo & Tombol Modern -->
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
+                <p class="text-slate-400 text-xs">Saldo Anda</p>
+                <h3 id="displayBalance" class="text-3xl font-black mt-1 text-white">Rp 0</h3>
+                <div class="grid grid-cols-2 gap-3 mt-6">
+                    <button onclick="deposit()" class="bg-blue-600 py-2 rounded-xl text-sm font-bold">Deposit</button>
+                    <button onclick="withdraw()" class="bg-slate-800 border border-slate-700 py-2 rounded-xl text-sm font-bold">Withdraw</button>
                 </div>
             </div>
 
-            <!-- Menu Khusus Admin -->
+            <!-- Area Lobby -->
+            <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+                <button onclick="createLobby()" class="w-full bg-green-600 py-3 rounded-xl font-bold mb-4">Buat Lobby Taruhan Baru</button>
+                <div class="flex gap-2">
+                    <input type="text" id="joinCode" placeholder="Kode Lobby" class="w-full bg-slate-950 border border-slate-700 p-3 rounded-xl uppercase text-center font-bold">
+                    <button onclick="joinLobby()" class="bg-blue-600 px-6 rounded-xl font-bold">Masuk</button>
+                </div>
+            </div>
+
+            <!-- Admin Panel -->
             <div id="adminPanel" class="hidden space-y-4">
-                <!-- Daftar Lobby Aktif & Panggilan Admin -->
                 <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
-                    <h2 class="font-bold text-yellow-500 text-sm mb-3">Lobby Aktif & Panggilan</h2>
-                    <div id="adminLobbyList" class="space-y-2">
-                        <p class="text-xs text-slate-500">Memuat data lobby...</p>
-                    </div>
-                </div>
-
-                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
-                    <h2 class="font-bold text-yellow-500 text-sm mb-3">Permintaan Transaksi Pending</h2>
-                    <div id="adminList" class="space-y-2">
-                        <p class="text-xs text-slate-500">Memuat data...</p>
-                    </div>
-                </div>
-
-                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
-                    <h2 class="font-bold text-yellow-500 text-sm mb-3">Kelola Metode Pembayaran</h2>
-                    <textarea id="paymentData" rows="2" class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mb-3 text-sm focus:outline-none focus:border-blue-500" placeholder="Contoh: BCA: 1234567890 (a.n Admin)"></textarea>
-                    <button onclick="savePayment()" class="w-full bg-green-600 py-3 rounded-xl font-bold text-sm">Simpan Metode Pembayaran</button>
+                    <h2 class="font-bold text-yellow-500 text-sm mb-3">Pending Deposit</h2>
+                    <div id="adminList" class="space-y-2"></div>
                 </div>
             </div>
         </div>
@@ -88,143 +55,76 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8", authDomain: "parlaywins-new.firebaseapp.com", projectId: "parlaywins-new", storageBucket: "parlaywins-new.firebasestorage.app", messagingSenderId: "1025882923334", appId: "1:1025882923334:web:715307a770239023f48547" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        
-        window.toggleForm = (type) => {
-            document.getElementById('loginForm').classList.toggle('hidden');
-            document.getElementById('registerForm').classList.toggle('hidden');
-        };
-        const formatEmail = (input) => input.includes('@') ? input : input + "@cvtaruhan.com";
 
         window.login = async () => {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
             try {
-                const email = formatEmail(document.getElementById('email').value);
-                const pass = document.getElementById('password').value;
                 await signInWithEmailAndPassword(auth, email, pass);
-                
                 document.getElementById('authView').classList.add('hidden');
                 document.getElementById('dashboardView').classList.remove('hidden');
-                document.getElementById('userMenu').classList.remove('hidden');
-                
-                if (email === "admin@cvtaruhan.com") {
-                    document.getElementById('balanceTitle').innerText = "Pendapatan Bulan Ini";
-                    document.getElementById('userActions').classList.add('hidden');
-                    document.getElementById('adminPanel').classList.remove('hidden');
-                    loadAdminData();
-                } else {
-                    document.getElementById('balanceTitle').innerText = "Saldo Anda";
-                    document.getElementById('userActions').classList.remove('hidden');
-                    document.getElementById('adminPanel').classList.add('hidden');
-                }
-            } catch (e) { alert('Login gagal: Periksa kembali data Anda.'); }
+                initDashboard();
+            } catch (e) { alert("Login Gagal"); }
         };
 
-        window.register = async () => {
-            const email = formatEmail(document.getElementById('regEmail').value);
-            const pass = document.getElementById('regPassword').value;
-            const confirm = document.getElementById('regConfirm').value;
-            const phone = document.getElementById('regPhone').value;
-            if (pass !== confirm) return alert("Password tidak cocok!");
-            if (!email || !pass || !phone) return alert("Semua kolom wajib diisi!");
-            try {
-                const cred = await createUserWithEmailAndPassword(auth, email, pass);
-                await setDoc(doc(db, "users", cred.user.uid), { email, phone, createdAt: new Date() });
-                alert('Daftar berhasil! Silakan masuk.');
-                toggleForm('login');
-            } catch (e) { alert('Gagal: ' + e.message); }
-        };
-
-        // --- FITUR LOBBY USER ---
-        window.createLobby = async () => {
-            // Memunculkan pop-up untuk mengisi jumlah taruhan
-            const amount = prompt("Masukkan jumlah taruhan untuk lobby ini (Rp):");
+        function initDashboard() {
+            const user = auth.currentUser;
+            if(user.email === "admin@cvtaruhan.com") document.getElementById('adminPanel').classList.remove('hidden');
             
-            // Validasi jika user batal mengisi atau mengisi huruf
-            if (!amount || isNaN(amount) || amount <= 0) {
-                return alert("Nominal taruhan tidak valid. Batal membuat lobby.");
-            }
-
-            const code = Math.random().toString(36).substring(7).toUpperCase();
-            await setDoc(doc(db, "lobbies", code), { 
-                creator: auth.currentUser.uid, 
-                betAmount: parseInt(amount), // Nominal disimpan ke database
-                status: "active", 
-                needsAdmin: false, 
-                timestamp: new Date() 
+            // Real-time Saldo
+            onSnapshot(doc(db, "users", user.uid), (doc) => {
+                if(doc.exists()) document.getElementById('displayBalance').innerText = "Rp " + (doc.data().balance || 0).toLocaleString();
             });
-            window.location.href = `lobby.html?id=${code}`; // Otomatis pindah ke halaman lobby
-        };
-        window.joinLobby = async () => {
-            const code = document.getElementById('joinCode').value.trim().toUpperCase();
-            if (!code) return alert("Masukkan kode lobby!");
-            const lobbySnap = await getDoc(doc(db, "lobbies", code));
-            if (lobbySnap.exists()) {
-                window.location.href = `lobby.html?id=${code}`; // Masuk pakai URL
-            } else {
-                alert("Kode Lobby tidak ditemukan!");
-            }
-        };
 
-        window.deposit = async () => {
-            const paySnap = await getDoc(doc(db, "settings", "payment"));
-            const info = paySnap.exists() ? paySnap.data().info : "Hubungi admin.";
-            const amt = prompt("Transfer ke:\n" + info + "\n\nMasukkan nominal deposit:");
-            if (amt) { await setDoc(doc(db, "deposits", auth.currentUser.uid + "_" + Date.now()), { uid: auth.currentUser.uid, amount: parseInt(amt), status: "pending", timestamp: new Date() }); alert("Deposit diproses!"); }
-        };
-
-        window.withdraw = async () => {
-            const amt = prompt("Masukkan nominal withdraw:");
-            if (amt) { await setDoc(doc(db, "withdraws", auth.currentUser.uid + "_" + Date.now()), { uid: auth.currentUser.uid, amount: parseInt(amt), status: "pending", timestamp: new Date() }); alert("Withdraw diproses!"); }
-        };
-
-        // --- FITUR KHUSUS ADMIN ---
-        window.loadAdminData = () => {
-            getDoc(doc(db, "settings", "payment")).then(paySnap => { if (paySnap.exists()) document.getElementById('paymentData').value = paySnap.data().info; });
-
-            // Pantau Deposit
-            onSnapshot(collection(db, "deposits"), (snapshot) => {
-                let html = ""; let income = 0; const now = new Date();
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    if(data.status === "approved" && data.timestamp && data.timestamp.toDate().getMonth() === now.getMonth()) income += data.amount;
-                    if(data.status === "pending") {
-                        html += `<div class="flex justify-between items-center bg-slate-800 p-3 rounded-lg">
-                            <div><p class="text-xs text-blue-400 font-bold">DEPOSIT</p><p class="font-black text-sm">Rp ${data.amount.toLocaleString('id-ID')}</p></div>
-                            <button onclick="approveTransaction('${doc.id}', 'deposits')" class="bg-blue-600 px-4 py-2 rounded-lg text-xs font-bold">Setujui</button>
+            // Real-time Deposit Admin
+            onSnapshot(collection(db, "deposits"), (snap) => {
+                let html = "";
+                snap.forEach(d => {
+                    if(d.data().status === "pending") {
+                        html += `<div class="flex justify-between bg-slate-800 p-3 rounded-lg text-sm">
+                            <span>Rp ${d.data().amount.toLocaleString()}</span>
+                            <button onclick="approve('${d.id}', '${d.data().uid}', ${d.data().amount})" class="bg-blue-600 px-3 py-1 rounded">Setujui</button>
                         </div>`;
                     }
                 });
-                document.getElementById('displayBalance').innerText = "Rp " + income.toLocaleString('id-ID');
-                document.getElementById('adminList').innerHTML = html || '<p class="text-xs text-slate-500">Tidak ada pending.</p>';
+                document.getElementById('adminList').innerHTML = html;
             });
+        }
 
-            // Pantau Lobby (Notifikasi Admin)
-            onSnapshot(collection(db, "lobbies"), (snapshot) => {
-                let lobbyHtml = "";
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const isCalling = data.needsAdmin;
-                    const borderClass = isCalling ? 'border-red-500' : 'border-slate-700';
-                    const badge = isCalling ? '<span class="bg-red-500 text-white text-[10px] px-2 py-1 rounded animate-pulse">Memanggil Admin!</span>' : '<span class="text-xs text-slate-400">Aktif</span>';
-                    const btnClass = isCalling ? 'bg-red-600' : 'bg-slate-700 text-slate-300';
-                    
-                    lobbyHtml += `<div class="flex justify-between items-center bg-slate-800 p-3 rounded-lg border ${borderClass}">
-                        <div><p class="text-xs text-yellow-400 font-bold mb-1">KODE: ${doc.id}</p>${badge}</div>
-                        <button onclick="window.location.href='lobby.html?id=${doc.id}'" class="${btnClass} px-4 py-2 rounded-lg text-xs font-bold">Masuk</button>
-                    </div>`;
-                });
-                document.getElementById('adminLobbyList').innerHTML = lobbyHtml || '<p class="text-xs text-slate-500">Tidak ada lobby aktif.</p>';
-            });
+        window.approve = async (id, uid, amount) => {
+            await updateDoc(doc(db, "deposits", id), { status: "approved" });
+            const userRef = doc(db, "users", uid);
+            const userSnap = await getDoc(userRef);
+            const currentBal = userSnap.exists() ? (userSnap.data().balance || 0) : 0;
+            await updateDoc(userRef, { balance: currentBal + amount });
+            alert("Berhasil!");
         };
 
-        window.approveTransaction = async (id, col) => { await updateDoc(doc(db, col, id), { status: "approved" }); alert("Disetujui!"); };
-        window.savePayment = async () => { await setDoc(doc(db, "settings", "payment"), { info: document.getElementById('paymentData').value }); alert("Tersimpan!"); };
+        window.createLobby = async () => {
+            const amount = prompt("Masukkan nominal taruhan:");
+            if(!amount) return;
+            const code = Math.random().toString(36).substring(7).toUpperCase();
+            await setDoc(doc(db, "lobbies", code), { creator: auth.currentUser.uid, betAmount: parseInt(amount), status: "active" });
+            window.location.href = `lobby.html?id=${code}`;
+        };
+
+        window.joinLobby = () => {
+            const code = document.getElementById('joinCode').value.toUpperCase();
+            if(code) window.location.href = `lobby.html?id=${code}`;
+        };
+
+        window.deposit = async () => {
+            const amt = prompt("Nominal Deposit:");
+            if(amt) await setDoc(doc(db, "deposits", auth.currentUser.uid + "_" + Date.now()), { uid: auth.currentUser.uid, amount: parseInt(amt), status: "pending" });
+        };
+
         window.logout = () => { signOut(auth).then(() => location.reload()); };
     </script>
 </body>
