@@ -6,94 +6,68 @@
     <title>CvTaruhan | Platform Taruhan Aman</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script>
-        // GANTI DENGAN CONFIG ASLI DARI FIREBASE CONSOLE ANDA
         const firebaseConfig = {
-      apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8",
-      authDomain: "parlaywins-new.firebaseapp.com",
-      projectId: "parlaywins-new",
-      storageBucket: "parlaywins-new.firebasestorage.app",
-      messagingSenderId: "1025882923334",
-      appId: "1:1025882923334:web:715307a770239023f48547"
-    };
+            apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8",
+            authDomain: "parlaywins-new.firebaseapp.com",
+            projectId: "parlaywins-new",
+            storageBucket: "parlaywins-new.firebasestorage.app",
+            messagingSenderId: "1025882923334",
+            appId: "1:1025882923334:web:715307a770239023f48547"
+        };
     </script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen">
-
     <nav class="bg-slate-900 border-b border-slate-800 p-4 flex justify-between items-center">
-        <h1 class="text-xl font-black italic uppercase text-blue-500">Cv<span class="text-white">Taruhan</span></h1>
-        <div id="userMenu" class="hidden flex gap-4 items-center">
+        <h1 class="text-xl font-black italic uppercase text-white">CV<span class="text-blue-500">TARUHAN</span></h1>
+        <div id="userMenu" class="hidden flex gap-4">
             <span id="userBalance" class="text-sm font-bold text-yellow-400">Rp 0</span>
-            <button onclick="showModal('depositModal')" class="bg-blue-600 px-3 py-1 rounded text-xs font-bold">Deposit</button>
             <button onclick="logout()" class="text-slate-400"><i class="fa-solid fa-right-from-bracket"></i></button>
         </div>
     </nav>
-
     <main class="max-w-md mx-auto p-4">
         <div id="authView" class="mt-10">
             <h2 class="text-2xl font-bold mb-6">Selamat Datang</h2>
-            <input type="email" id="email" placeholder="Email" class="w-full bg-slate-900 border border-slate-700 p-3 rounded mb-3">
-            <input type="password" id="password" placeholder="Password" class="w-full bg-slate-900 border border-slate-700 p-3 rounded mb-3">
-            <button onclick="login()" class="w-full bg-blue-600 py-3 rounded font-bold">Login</button>
-            <p class="text-center text-xs text-slate-500 mt-4">Belum punya akun? <button onclick="register()" class="text-blue-400 underline">Daftar sekarang</button></p>
+            <input type="text" id="email" placeholder="Username/Email" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-4">
+            <input type="password" id="password" placeholder="Password" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-4">
+            <button onclick="login()" class="w-full bg-blue-600 py-3 rounded-lg font-bold mb-4">Masuk</button>
+            <p class="text-center text-xs text-slate-500">Belum punya akun? <button onclick="register()" class="text-blue-400">Daftar</button></p>
         </div>
-
         <div id="dashboardView" class="hidden space-y-4">
             <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
                 <p class="text-slate-400 text-xs">Saldo Anda</p>
-                <h3 id="displayBalance" class="text-3xl font-black text-white">Rp 0</h3>
+                <h3 id="displayBalance" class="text-3xl font-black">Rp 0</h3>
             </div>
-            <button onclick="createLobby()" class="w-full bg-green-600 py-4 rounded-xl font-bold">Buat Lobby Taruhan</button>
-            <div id="lobbyContainer" class="space-y-3"></div>
+            <button class="w-full bg-green-600 py-4 rounded-xl font-bold">Buat Lobby Taruhan</button>
         </div>
     </main>
 
     <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+        const formatEmail = (input) => input.includes('@') ? input : input + "@cvtaruhan.com";
 
-  // Fungsi otomatis menambahkan domain agar tidak error invalid-email
-  const formatEmail = (input) => {
-    return input.includes('@') ? input : input + "@cvtaruhan.com";
-  };
+        window.register = async () => {
+            try {
+                await createUserWithEmailAndPassword(auth, formatEmail(document.getElementById('email').value), document.getElementById('password').value);
+                alert('Pendaftaran berhasil!');
+            } catch (e) { alert('Gagal daftar: ' + e.message); }
+        };
 
-  window.register = async function() {
-    const emailRaw = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    try {
-      await createUserWithEmailAndPassword(auth, formatEmail(emailRaw), password);
-      alert('Pendaftaran berhasil! Silakan login.');
-    } catch (error) {
-      alert('Gagal daftar: ' + error.message);
-    }
-  };
+        window.login = async () => {
+            try {
+                await signInWithEmailAndPassword(auth, formatEmail(document.getElementById('email').value), document.getElementById('password').value);
+                document.getElementById('authView').classList.add('hidden');
+                document.getElementById('dashboardView').classList.remove('hidden');
+                document.getElementById('userMenu').classList.remove('hidden');
+            } catch (e) { alert('Login gagal: ' + e.message); }
+        };
 
-  window.login = async function() {
-    const emailRaw = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    try {
-      await signInWithEmailAndPassword(auth, formatEmail(emailRaw), password);
-      document.getElementById('authView').classList.add('hidden');
-      document.getElementById('dashboardView').classList.remove('hidden');
-      document.getElementById('userMenu').classList.remove('hidden');
-    } catch (error) {
-      alert('Login gagal: ' + error.message);
-    }
-  };
-
-  window.logout = async function() {
-    await signOut(auth);
-    location.reload();
-  };
-
-  window.showModal = (id) => document.getElementById(id).classList.remove('hidden');
-          </script>
+        window.logout = () => { signOut(auth).then(() => location.reload()); };
+    </script>
 </body>
 </html>
