@@ -122,27 +122,32 @@
     </div>
     </div>
 <script type="module">
-  // 1. IMPORT FIREBASE (WAJIB ADA DI PALING ATAS SCRIPT)
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
   import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, query, collection, where, getDocs, deleteDoc, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-  // 2. FUNGSI LOGIN
+  const firebaseConfig = {
+    apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8",
+    authDomain: "parlaywins-new.firebaseapp.com",
+    projectId: "parlaywins-new",
+    storageBucket: "parlaywins-new.firebasestorage.app",
+    messagingSenderId: "1025882923334",
+    appId: "1:1025882923334:web:9c8912e08f27e8a7f48547"
+  };
+  
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
   window.login = async function() {
       const emailInput = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
-      
       if(!emailInput || !password) return alert("Mohon isi semua data!");
-      
       const email = emailInput.includes('@') ? emailInput : emailInput + "@cvtaruhan.com";
-      const loginBtn = document.querySelector('#loginForm button');
-      loginBtn.innerText = "Memproses...";
-      
       try {
           await signInWithEmailAndPassword(auth, email, password);
       } catch (error) {
           alert("Gagal masuk: " + error.message);
-          loginBtn.innerText = "Masuk";
       }
   };
   
@@ -155,58 +160,27 @@
           document.getElementById('registerForm').classList.add('hidden');
       }
   };
-  
-
 
   window.register = async function() {
       const emailInput = document.getElementById('regEmail').value.trim();
       const pass = document.getElementById('regPassword').value;
       const passConfirm = document.getElementById('regConfirm').value;
-      
-      if(!emailInput || !pass) {
-          alert("Data pendaftaran tidak boleh kosong!");
-          return;
-      }
-      if(pass !== passConfirm) {
-          alert("Password dan Konfirmasi Password tidak sama!");
-          return;
-      }
-      if(pass.length < 6) {
-          alert("Mohon maaf, Password wajib minimal 6 karakter!");
-          return;
-      }
-
+      if(!emailInput || !pass) return alert("Data pendaftaran tidak boleh kosong!");
+      if(pass !== passConfirm) return alert("Password tidak sama!");
       const email = emailInput.includes('@') ? emailInput : emailInput + "@cvtaruhan.com";
-      const regBtn = document.querySelector('#registerForm button');
-      regBtn.innerText = "Memproses..."; 
-
       try { 
           const c = await createUserWithEmailAndPassword(auth, email, pass);
           await setDoc(doc(db, "users", c.user.uid), { balance: 0, lobbyHistory: [] });
-          alert("Daftar sukses! Silakan login.");
+          alert("Daftar sukses!");
           window.toggleForm('login');
       } catch(e) { 
-          // KODE INI AKAN MEMUNCULKAN ALASAN ASLI DARI FIREBASE
-          alert("Pesan Error Firebase: " + e.message); 
-      } finally {
-          regBtn.innerText = "Daftar Akun";
+          alert("Error: " + e.message); 
       }
   };
+
   window.logout = function() { signOut(auth).then(() => location.reload()); };
 
-  // 3. INISIALISASI FIREBASE
-  const firebaseConfig = {
-  apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8",
-  authDomain: "parlaywins-new.firebaseapp.com",
-  projectId: "parlaywins-new",
-  storageBucket: "parlaywins-new.firebasestorage.app",
-  messagingSenderId: "1025882923334",
-  appId: "1:1025882923334:web:9c8912e08f27e8a7f48547"
-};
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
+  
   // --- SISTEM SESI LOGIN ---
   onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -422,6 +396,10 @@ window.bukaWithdraw = () => {
     alert("Data berhasil dikirim! Nominal: " + nominal);
     tutupActionModal();
 };
+      window.login = login;
+window.register = register;
+window.toggleForm = toggleForm;
+console.log("Fungsi berhasil dimuat ke browser.");
 </script>
 </body>
 </html>
