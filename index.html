@@ -162,11 +162,15 @@
                     if (docSnap.exists()) {
                         const data = docSnap.data();
                         document.getElementById('displayBalance').innerText = "Rp " + (data.balance || 0).toLocaleString('id-ID');
-                        const history = data.lobbyHistory || [];
-                        document.getElementById('historyList').innerHTML = history.map(code => 
-                            `<div class="flex justify-between bg-slate-800 p-3 rounded"><span>${code}</span><button onclick="window.location.href='lobby.html?id=${code}'" class="text-blue-400 font-bold">Masuk</button></div>`
-                        ).join('') || '<p class="text-xs text-slate-500">Belum ada riwayat.</p>';
-                    }
+                        const history = data.lobbyHistory || [];                       
+document.getElementById('lobbyHistory').innerHTML = history.map(code => {
+    // Menambahkan tampilan tanggal sederhana (asumsi data tersimpan di database)
+    return `<div class="bg-slate-800 p-3 rounded-lg mb-2 flex justify-between items-center">
+                <span class="text-white">${code}</span>
+                <span class="text-[10px] text-slate-400">Created: ${new Date().toLocaleDateString()}</span>
+                <button onclick="window.location.href='lobby.html?id=${code}'" class="bg-blue-600 text-white px-2 py-1 rounded text-xs">Masuk</button>
+            </div>`;
+}).join('') || '<p class="text-xs text-slate-500">Belum ada riwayat.</p>';
                 });
             }
         }
