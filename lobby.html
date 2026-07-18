@@ -65,13 +65,17 @@
     const userRef = doc(db, "users", auth.currentUser.uid);
     const userSnap = await getDoc(userRef);
     
-    if (userSnap.data().balance < nominal) return alert("Saldo tidak cukup!");
+    // Mengambil saldo saat ini
+    const currentBalance = userSnap.data().balance || 0;
+    
+    if (currentBalance < nominal) return alert("Saldo tidak cukup!");
 
     try {
-        // 1. Potong saldo user
-        await updateDoc(userRef, { balance: increment(-nominal) });
+        // 1. Potong saldo user secara manual tanpa increment
+        const sisaSaldo = currentBalance - nominal;
+        await updateDoc(userRef, { balance: sisaSaldo });
         
-        // 2. Simpan nama dan taruhan ke dalam lobby
+        // 2. Simpan nama (username) dan nominal taruhan ke dalam lobby
         const username = auth.currentUser.email.split('@')[0];
         await updateDoc(doc(db, "lobbies", lobbyId), {
             [`players.${auth.currentUser.uid}`]: {
@@ -79,6 +83,7 @@
                 bet: nominal
             }
         });
+        
         alert("Taruhan berhasil dimasukkan!");
     } catch (e) {
         console.error(e);
