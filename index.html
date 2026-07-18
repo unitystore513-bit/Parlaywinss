@@ -116,20 +116,27 @@
             }
         });
 
-        // --- FUNGSI TOGGLE ---
-        window.toggleForm = (type) => {
-            document.getElementById('loginForm').classList.toggle('hidden');
-            document.getElementById('registerForm').classList.toggle('hidden');
-        };
+        // --- FUNGSI TOGGLE FORM ---
+window.toggleForm = () => {
+    document.getElementById('loginForm').classList.toggle('hidden');
+    document.getElementById('registerForm').classList.toggle('hidden');
+};
 
-        // --- FUNGSI LOGIN ---
-        window.login = async () => {
-            const input = document.getElementById('email').value;
-            const email = input.includes('@') ? input : input + "@cvtaruhan.com";
-            try {
-                await signInWithEmailAndPassword(auth, email, document.getElementById('password').value);
-            } catch (e) { alert('Login gagal.'); }
-        };
+// --- FUNGSI LOGIN ---
+window.login = async () => {
+    const emailInput = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    // Pastikan email berakhiran @cvtaruhan.com
+    const email = emailInput.includes('@') ? emailInput : emailInput + "@cvtaruhan.com";
+    
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+    } catch (e) {
+        console.error(e);
+        alert("Login gagal: " + e.message);
+    }
+};
 
         // --- FUNGSI DAFTAR ---
         window.register = async () => {
