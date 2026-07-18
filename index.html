@@ -95,12 +95,13 @@
             </div>
         </div>
     </main>
-<!-- MODAL DEPOSIT (TERPISAH) -->
+
+      <!-- MODAL DEPOSIT (Posisi Baris 99) -->
 <div id="depositModal" class="hidden fixed inset-0 bg-slate-900/90 flex justify-center items-center z-50 p-4">
-    <div class="bg-slate-200 w-full max-w-md max-h-full rounded-xl flex flex-col overflow-hidden shadow-2xl">
-        <div class="bg-slate-800 p-4 flex justify-between items-center">
-            <h2 class="text-white font-bold text-lg">Deposit Akun</h2>
-            <button onclick="tutupModalDeposit()" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-xmark"></i></button>
+    <div class="bg-slate-200 w-full max-w-md rounded-xl shadow-2xl overflow-hidden">
+        <div class="bg-slate-800 p-4 flex justify-between items-center text-white">
+            <h2 class="font-bold">Deposit Akun</h2>
+            <button onclick="tutupModalDeposit()"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="p-4 grid grid-cols-2 gap-3">
             <button onclick="pilihBank('BCA', 'BCA', '0382882922')" class="bg-white p-4 rounded-lg shadow">BCA</button>
@@ -109,7 +110,7 @@
     </div>
 </div>
 
-<!-- MODAL INPUT (TERPISAH) -->
+<!-- MODAL INPUT (Posisi setelah Modal Deposit) -->
 <div id="actionModal" class="hidden fixed inset-0 bg-slate-950/90 flex justify-center items-center z-50 p-4">
     <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl text-slate-800">
         <h3 id="modalTitle" class="text-xl font-bold mb-4">Input Data</h3>
@@ -120,33 +121,8 @@
         </div>
     </div>
 </div>
-    
-<script type="module">
-  // 1. IMPORT FIREBASE
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc, onSnapshot, query, where, orderBy, doc, updateDoc, getDocs, deleteDoc, setDoc, getDoc, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+<script>.
 
-  // 2. DAFTARKAN FUNGSI KLIK KE WINDOW (Sangat penting agar tombol HTML merespon)
-  window.toggleForm = function(formName) {
-      if(formName === 'register') {
-          document.getElementById('loginForm').classList.add('hidden');
-          document.getElementById('registerForm').classList.remove('hidden');
-      } else {
-          document.getElementById('loginForm').classList.remove('hidden');
-          document.getElementById('registerForm').classList.add('hidden');
-      }
-  };
-
-  window.login = async function() {
-      const emailInput = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      
-      if (!emailInput || !password) {
-          alert("Username/Email dan Password tidak boleh kosong!");
-          return;
-      }
-      
       const email = emailInput.includes('@') ? emailInput : emailInput + "@cvtaruhan.com";
       const loginBtn = document.querySelector('#loginForm button');
       loginBtn.innerText = "Memproses..."; // Efek tombol ditekan
@@ -251,27 +227,50 @@
       }
   }
 
-  // --- FUNGSI LAINNYA ---
-  window.deposit = async function() {
-      const paySnap = await getDoc(doc(db, "settings", "payment"));
-      const info = paySnap.exists() ? paySnap.data().info : "Hubungi Admin.";
-      const amt = prompt("Transfer ke: " + info + "\nMasukkan nominal:");
-      if (amt) {
-          await setDoc(doc(db, "deposits", auth.currentUser.uid + "_" + Date.now()), { 
-              uid: auth.currentUser.uid, amount: parseInt(amt), status: "pending", timestamp: new Date() 
-          });
-          alert("Deposit berhasil diproses.");
-      }
-  };
+// --- FUNGSI DEPOSIT & WITHDRAW MODERN ---
+window.bukaModalDeposit = () => document.getElementById('depositModal').classList.remove('hidden');
+window.tutupModalDeposit = () => document.getElementById('depositModal').classList.add('hidden');
+window.tutupActionModal = () => document.getElementById('actionModal').classList.add('hidden');
 
-  window.withdraw = async function() { 
-      const amt = prompt("Withdraw:"); 
-      if(amt) {
-          await setDoc(doc(db, "withdraws", auth.currentUser.uid + "_" + Date.now()), { uid: auth.currentUser.uid, amount: parseInt(amt), status: "pending" });
-          alert("Withdraw diproses");
-      }
-  };
+window.pilihBank = (tipe, nama, info) => {
+    tutupModalDeposit();
+    document.getElementById('actionModal').classList.remove('hidden');
+    document.getElementById('modalTitle').innerText = tipe;
+    document.getElementById('inputContent').innerHTML = `
+        <p class="text-xs text-slate-500">Tujuan: <strong>${info}</strong></p>
+        <input type="number" id="inputNominal" placeholder="Jumlah Nominal" class="w-full p-3 border rounded-lg">
+        <input type="text" id="inputRek" placeholder="Nomor Rekening Anda" class="w-full p-3 border rounded-lg">
+    `;
+};
 
+window.bukaWithdraw = () => {
+    document.getElementById('actionModal').classList.remove('hidden');
+    document.getElementById('modalTitle').innerText = "Withdraw Akun";
+    document.getElementById('inputContent').innerHTML = `
+        <input type="text" id="inputBank" placeholder="Nama Bank" class="w-full p-3 border rounded-lg">
+        <input type="text" id="inputRek" placeholder="Nomor Rekening Anda" class="w-full p-3 border rounded-lg">
+        <input type="number" id="inputNominal" placeholder="Jumlah Withdraw" class="w-full p-3 border rounded-lg">
+    `;
+};
+
+window.submitAction = async () => {
+    const title = document.getElementById('modalTitle').innerText;
+    const nominal = document.getElementById('inputNominal').value;
+    const rek = document.getElementById('inputRek').value;
+    
+    if(!nominal || !rek) return alert("Mohon isi semua data!");
+
+    const col = title === "Withdraw Akun" ? "withdraws" : "deposits";
+    await setDoc(doc(db, col, auth.currentUser.uid + "_" + Date.now()), {
+        uid: auth.currentUser.uid,
+        amount: parseInt(nominal),
+        rek: rek,
+        status: "pending",
+        timestamp: new Date()
+    });
+    alert("Berhasil dikirim!");
+    tutupActionModal();
+};
   window.createLobby = async function() {
       const id = Math.random().toString(36).substring(2, 8).toUpperCase();
       try {
@@ -341,16 +340,22 @@
           alert("Disetujui!");
       };
 
-      onSnapshot(collection(db, "deposits"), (snap) => {
-          let html = "";
-          snap.forEach(d => {
-              if (d.data().status === "pending") {
-                  html += `<div class="bg-slate-800 p-3 rounded flex justify-between"><span>User: ${d.data().uid.substring(0,5)} | Rp ${d.data().amount.toLocaleString()}</span><button onclick="approve('${d.id}')" class="bg-blue-600 px-3 py-1 rounded text-xs">Setujui</button></div>`;
-              }
-          });
-          document.getElementById('adminList').innerHTML = html || 'Tidak ada pending.';
-      });
-  }
+      // Ganti blok onSnapshot(collection(db, "deposits")...) dengan ini:
+onSnapshot(collection(db, "deposits"), (snap) => {
+    let html = "";
+    snap.forEach(d => {
+        const data = d.data();
+        if (data.status === "pending") {
+            html += `<div class="bg-slate-800 p-4 rounded-xl border border-yellow-500 mb-3 text-sm">
+                        <p class="font-bold">User: ${data.uid.substring(0,5)}</p>
+                        <p class="text-blue-400 font-black">Rp ${data.amount.toLocaleString()}</p>
+                        <p class="text-xs text-slate-300">Rekening: ${data.rek}</p>
+                        <button onclick="approve('${d.id}')" class="w-full mt-2 bg-blue-600 py-2 rounded-lg font-bold">Setujui</button>
+                     </div>`;
+        }
+    });
+    document.getElementById('adminList').innerHTML = html || 'Tidak ada pending.';
+});
     // --- FUNGSI MODAL DEPOSIT ---
 window.bukaModalDeposit = function() {
     document.getElementById('depositModal').classList.remove('hidden');
