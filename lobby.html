@@ -148,6 +148,13 @@ window.callAdmin = async () => {
         alert("Gagal memanggil admin, coba lagi.");
     }
 };
+        // --- FUNGSI TUTUP LOBBY ---
+window.tutupLobby = async () => {
+    if(confirm("Yakin ingin menutup dan menghapus lobby ini?")) {
+        await deleteDoc(doc(db, "lobbies", lobbyId));
+        window.location.href = "index.html";
+    }
+};
 
         // Kirim Pesan
         window.sendMessage = async () => {
