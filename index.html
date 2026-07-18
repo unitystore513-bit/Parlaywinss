@@ -212,16 +212,21 @@
             alert("Disetujui!");
         };
 
-        // --- FUNGSI LOBBY ---
-        window.createLobby = async () => { 
-            const amt = prompt("Nominal:"); 
-            if(amt) {
-                const code = Math.random().toString(36).substring(7).toUpperCase();
-                await setDoc(doc(db, "lobbies", code), { creator: auth.currentUser.uid, bet: amt });
-                await setDoc(doc(db, "users", auth.currentUser.uid), { lobbyHistory: arrayUnion(code) }, { merge: true });
-                window.location.href = `lobby.html?id=${code}`;
-            }
-        };
+        // --- FUNGSI BUAT LOBBY BARU ---
+window.createLobby = async () => {
+    const id = Math.random().toString(36).substring(2, 8).toUpperCase();
+    try {
+        // Langsung buat lobby tanpa minta nominal
+        await setDoc(doc(db, "lobbies", id), {
+            createdAt: new Date(),
+            status: "waiting",
+            players: {} // Sangat penting: Menyiapkan wadah kosong untuk player
+        });
+        window.location.href = `lobby.html?id=${id}`;
+    } catch (e) {
+        alert("Gagal membuat lobby.");
+    }
+};
 
         window.joinLobby = async () => { 
             const code = document.getElementById('joinCode').value.toUpperCase();
