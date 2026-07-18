@@ -290,10 +290,9 @@ window.createLobby = async () => {
         });
         window.location.href = `lobby.html?id=${id}`;
     } catch (e) {
-        alert("Gagal membuat lobby.");
+    console.error(e); // Ini akan mencetak detail error di Console browser
+    alert("Gagal membuat lobby: " + e.message); // Ini akan memberi tahu pesan error spesifiknya
     }
-};
-
         window.joinLobby = async () => { 
             const code = document.getElementById('joinCode').value.toUpperCase();
             if(code) {
