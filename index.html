@@ -54,7 +54,7 @@
                 <h3 id="displayBalance" class="text-3xl font-black mt-1 mb-5">Rp 0</h3>
                 <div id="financeButtons" class="grid grid-cols-2 gap-3">
                     <button onclick="bukaModalDeposit()" class="bg-slate-800 border border-blue-600 text-blue-400 py-2.5 rounded">Deposit</button>
-                    <button onclick="withdraw()" class="bg-slate-800 border border-red-600 text-red-400 py-2.5 rounded-xl text-sm font-bold">Withdraw</button>
+                    <button onclick="bukaWithdraw()" class="bg-slate-800 border border-red-600 text-red-500 py-2.5 rounded">Withdraw</button>
                 </div>
             </div>
 
@@ -98,6 +98,21 @@
 <!-- MODAL DEPOSIT BARU -->
 <div id="depositModal" class="hidden fixed inset-0 bg-slate-900/90 flex justify-center items-center z-50 p-4">
     <div class="bg-slate-200 w-full max-w-md max-h-full rounded-xl flex flex-col overflow-hidden shadow-2xl">
+        <!-- MODAL FORM INPUT (DIPAKAI UNTUK DEPOSIT & WITHDRAW) -->
+<div id="actionModal" class="hidden fixed inset-0 bg-slate-950/90 flex justify-center items-center z-50 p-4">
+    <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl">
+        <h3 id="modalTitle" class="text-xl font-bold text-slate-800 mb-4">Input Data</h3>
+        
+        <div id="inputContent" class="space-y-4">
+            <!-- Isi input akan muncul otomatis di sini -->
+        </div>
+        
+        <div class="flex gap-2 mt-6">
+            <button onclick="tutupActionModal()" class="flex-1 py-2 rounded-lg bg-slate-200 font-bold">Batal</button>
+            <button onclick="submitAction()" class="flex-1 py-2 rounded-lg bg-blue-600 text-white font-bold">Kirim</button>
+        </div>
+    </div>
+
         <!-- Header Modal -->
         <div class="bg-slate-800 p-4 flex justify-between items-center">
             <h2 class="text-white font-bold text-lg"><i class="fa-solid fa-wallet mr-2"></i>Deposit Akun</h2>
@@ -372,13 +387,39 @@ window.tutupModalDeposit = function() {
     document.getElementById('depositModal').classList.add('hidden');
 };
 
-window.pilihBank = function(namaBank, noRekening) {
-    tutupModalDeposit();
-    const nominal = prompt(`Transfer ke: ${namaBank} : ${noRekening}\nMasukkan nominal:`);
+window.tutupActionModal = () => document.getElementById('actionModal').classList.add('hidden');
+
+window.pilihBank = (tipe, nama, info) => {
+    tutupActionModal();
+    document.getElementById('depositModal').classList.add('hidden');
     
-    if (nominal && !isNaN(nominal) && parseInt(nominal) > 0) {
-        alert("Permintaan deposit Rp " + nominal + " sedang diproses."); 
-    }
+    // Buka Modal Input Modern
+    document.getElementById('actionModal').classList.remove('hidden');
+    document.getElementById('modalTitle').innerText = tipe + " " + nama;
+    document.getElementById('inputContent').innerHTML = `
+        <p class="text-xs text-slate-500">Tujuan: <strong>${info}</strong></p>
+        <input type="number" id="inputNominal" placeholder="Jumlah Nominal" class="w-full p-3 border rounded-lg">
+        <input type="text" id="inputRek" placeholder="Nomor Rekening Anda" class="w-full p-3 border rounded-lg">
+        <label class="block text-sm font-bold text-slate-700">Upload Bukti:</label>
+        <input type="file" id="inputBukti" class="w-full p-2 border rounded-lg text-xs">
+    `;
+};
+
+// Fungsi untuk tombol Withdraw
+window.bukaWithdraw = () => {
+    document.getElementById('actionModal').classList.remove('hidden');
+    document.getElementById('modalTitle').innerText = "Withdraw Akun";
+    document.getElementById('inputContent').innerHTML = `
+        <input type="text" id="inputBank" placeholder="Nama Bank (BCA/Mandiri/OVO)" class="w-full p-3 border rounded-lg">
+        <input type="text" id="inputRek" placeholder="Nomor Rekening Anda" class="w-full p-3 border rounded-lg">
+        <input type="number" id="inputNominal" placeholder="Jumlah Withdraw" class="w-full p-3 border rounded-lg">
+    `;
+};
+    window.submitAction = () => {
+    // Tambahkan logika untuk mengambil nilai input di sini
+    const nominal = document.getElementById('inputNominal')?.value;
+    alert("Data berhasil dikirim! Nominal: " + nominal);
+    tutupActionModal();
 };
 </script>
 </body>
