@@ -100,8 +100,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, onSnapshot, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, getDoc, where, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
         // Konfigurasi Firebase
         const firebaseConfig = { apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8", authDomain: "parlaywins-new.firebaseapp.com", projectId: "parlaywins-new", storageBucket: "parlaywins-new.firebasestorage.app", messagingSenderId: "1025882923334", appId: "1:1025882923334:web:715307a770239023f48547" };
         const app = initializeApp(firebaseConfig);
@@ -146,35 +145,37 @@
 
         // --- FUNGSI RENDER DASHBOARD ---
         function renderDashboard(user) {
-            document.getElementById('authView').classList.add('hidden');
-            document.getElementById('dashboardView').classList.remove('hidden');
-            document.getElementById('userMenu').classList.remove('hidden');
-            document.getElementById('userDisplay').innerText = "ID: " + user.email.split('@')[0];
+    document.getElementById('authView').classList.add('hidden');
+    document.getElementById('dashboardView').classList.remove('hidden');
+    document.getElementById('userMenu').classList.remove('hidden');
+    document.getElementById('userDisplay').innerText = "ID: " + user.email.split('@')[0];
 
-            if (user.email === "admin@cvtaruhan.com") {
-                document.getElementById('financeButtons').classList.add('hidden');
-                document.getElementById('userActions').classList.add('hidden');
-                document.getElementById('adminPanel').classList.remove('hidden');
-                loadAdminData();
-            } else {
-                document.getElementById('lobbyHistorySection').classList.remove('hidden');
-                onSnapshot(doc(db, "users", user.uid), (docSnap) => {
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        document.getElementById('displayBalance').innerText = "Rp " + (data.balance || 0).toLocaleString('id-ID');
-                        const history = data.lobbyHistory || [];                       
-document.getElementById('lobbyHistory').innerHTML = history.map(code => {
-    // Menambahkan tampilan tanggal sederhana (asumsi data tersimpan di database)
-    return `<div class="bg-slate-800 p-3 rounded-lg mb-2 flex justify-between items-center">
-                <span class="text-white">${code}</span>
-                <span class="text-[10px] text-slate-400">Created: ${new Date().toLocaleDateString()}</span>
-                <button onclick="window.location.href='lobby.html?id=${code}'" class="bg-blue-600 text-white px-2 py-1 rounded text-xs">Masuk</button>
-            </div>`;
-}).join('') || '<p class="text-xs text-slate-500">Belum ada riwayat.</p>';
-                });
+    if (user.email === "admin@cvtaruhan.com") {
+        document.getElementById('financeButtons').classList.add('hidden');
+        document.getElementById('userActions').classList.add('hidden');
+        document.getElementById('adminPanel').classList.remove('hidden');
+        loadAdminData();
+        window.cleanupOldLobbies(); // Fungsi cleanup dipanggil di sini
+    } else {
+        document.getElementById('lobbyHistorySection').classList.remove('hidden');
+        onSnapshot(doc(db, "users", user.uid), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                document.getElementById('displayBalance').innerText = "Rp " + (data.balance || 0).toLocaleString();
+                const history = data.lobbyHistory || [];
+                
+                // Menggunakan ID 'historyList' yang sesuai dengan HTML baris 75
+                document.getElementById('historyList').innerHTML = history.map(code => {
+                    return `<div class="bg-slate-800 p-3 rounded-lg mb-2 flex justify-between items-center">
+                                <span class="text-white">${code}</span>
+                                <span class="text-[10px] text-slate-400">Created: ${new Date().toLocaleDateString()}</span>
+                                <button onclick="window.location.href='lobby.html?id=${code}'" class="bg-blue-600 text-white px-2 py-1 rounded text-xs">Masuk</button>
+                            </div>`;
+                }).join('') || '<p class="text-xs text-slate-500">Belum ada riwayat.</p>';
             }
+        });
+    }
         }
-
         // --- FUNGSI DEPOSIT ---
         window.deposit = async () => {
             const paySnap = await getDoc(doc(db, "settings", "payment"));
@@ -206,7 +207,8 @@ window.setWinner = async (lobbyId, winnerUid, winnerName) => {
 };
 
 // --- LOGIKA PANTAU LOBBY UNTUK ADMIN (LENGKAP) ---
-onSnapshot(collection(db, "lobbies"), (snap) => {
+const qLobby = query(collection(db, "lobbies"), where("status", "!=", "finished"));
+onSnapshot(qLobby, (snap) => {
     const wadahLobby = document.getElementById('adminLobbyList');
     if (!wadahLobby) return;
 
@@ -313,6 +315,15 @@ window.createLobby = async () => {
             await setDoc(doc(db, "settings", "payment"), { info: document.getElementById('paymentData').value }); 
             alert("Tersimpan!"); 
         };
+        // --- FUNGSI AUTO-CLEANUP LOBBY LAMA (24 JAM) ---
+window.cleanupOldLobbies = async () => {
+    const twentyFourHoursAgo = new Date(Date.now() - 86400000);
+    const q = query(collection(db, "lobbies"), where("createdAt", "<", twentyFourHoursAgo));
+    const snap = await getDocs(q);
+    snap.forEach(doc => deleteDoc(doc.ref));
+};
+
+// Panggil fungsi ini saat admin login agar otomatis membersihkan data
 
         window.logout = () => signOut(auth).then(() => location.reload());
 
