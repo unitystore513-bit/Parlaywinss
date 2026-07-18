@@ -9,34 +9,35 @@
 </head>
 <body class="bg-slate-950 text-white p-4 h-screen flex flex-col max-w-md mx-auto">
     <!-- Header Lobby -->
-    <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-xl mb-4">
-        <div class="flex justify-between items-center">
-            <div>
-                <p class="text-[10px] text-slate-500 uppercase tracking-widest">Kode Lobby</p>
-                <h1 id="lobbyTitle" class="text-xl font-black text-blue-400 uppercase">...</h1>
-            </div>
-            <button onclick="callAdmin()" id="callAdminBtn" class="bg-red-600/10 border border-red-600/50 text-red-500 px-4 py-2 rounded-xl text-xs font-bold">Panggil Admin</button>
+    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 mb-4 flex justify-between items-center">
+        <div>
+            <p class="text-xs text-slate-400">Kode Lobby:</p>
+            <h1 id="lobbyTitle" class="text-xl font-black text-blue-400 uppercase">Memuat...</h1>
+            <!-- Element Baru untuk Menampilkan Nominal Taruhan -->
+            <p id="betDisplay" class="text-xs text-yellow-400 font-bold mt-1">Taruhan: Rp 0</p>
         </div>
-        <div class="mt-4 pt-4 border-t border-slate-800">
-            <p class="text-[10px] text-slate-500 uppercase">Jumlah Taruhan</p>
-            <h2 id="lobbyAmount" class="text-2xl font-black text-green-400">Rp 0</h2>
+        <div class="flex gap-2">
+            <button onclick="callAdmin()" id="callAdminBtn" class="bg-red-600/20 text-red-500 border border-red-600 px-3 py-2 rounded-lg text-xs font-bold transition">Panggil Admin</button>
+            <button onclick="window.location.href='index.html'" class="bg-slate-800 px-3 py-2 rounded-lg text-xs"><i class="fa-solid fa-xmark"></i></button>
         </div>
     </div>
 
     <!-- Area Chat -->
-    <div id="chatBox" class="flex-1 overflow-y-auto bg-slate-900 p-4 rounded-2xl mb-4 border border-slate-800 space-y-3">
-        <!-- Pesan akan muncul di sini otomatis -->
+    <div id="chatBox" class="flex-1 overflow-y-auto bg-slate-900 p-4 rounded-xl mb-4 border border-slate-800 space-y-3">
+        <p class="text-center text-xs text-slate-500 my-4">Selamat datang di lobby taruhan.</p>
+        <!-- Pesan muncul di sini -->
     </div>
 
     <!-- Input Chat -->
-    <div class="flex gap-2">
-        <input type="text" id="messageInput" placeholder="Ketik pesan..." class="flex-1 bg-slate-900 border border-slate-700 p-4 rounded-2xl focus:outline-none focus:border-blue-500">
-        <button onclick="sendMessage()" class="bg-blue-600 px-6 rounded-2xl font-bold"><i class="fa-solid fa-paper-plane"></i></button>
+    <div class="flex gap-2 mb-4">
+        <input type="text" id="messageInput" placeholder="Ketik pesan..." class="flex-1 bg-slate-900 border border-slate-700 p-3 rounded-xl focus:outline-none focus:border-blue-500">
+        <button onclick="sendMessage()" class="bg-blue-600 px-5 rounded-xl font-bold"><i class="fa-solid fa-paper-plane"></i></button>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        // Menambahkan getDoc ke dalam import
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
         
         const firebaseConfig = { apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8", authDomain: "parlaywins-new.firebaseapp.com", projectId: "parlaywins-new", storageBucket: "parlaywins-new.firebasestorage.app", messagingSenderId: "1025882923334", appId: "1:1025882923334:web:715307a770239023f48547" };
@@ -44,55 +45,83 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        const lobbyId = new URLSearchParams(window.location.search).get('id');
-        document.getElementById('lobbyTitle').innerText = lobbyId;
+        // Ambil ID Lobby dari URL (contoh: lobby.html?id=XYZ123)
+        const urlParams = new URLSearchParams(window.location.search);
+        const lobbyId = urlParams.get('id');
 
-        // Ambil nominal taruhan
-        getDoc(doc(db, "lobbies", lobbyId)).then(snap => {
-            if(snap.exists()) document.getElementById('lobbyAmount').innerText = "Rp " + snap.data().betAmount.toLocaleString();
-        });
-
-        // Real-time Chat
-        const q = query(collection(db, `lobbies/${lobbyId}/chats`), orderBy("timestamp", "asc"));
-        onSnapshot(q, (snapshot) => {
-            let html = "";
-            snapshot.forEach(d => {
-                const data = d.data();
-                const isMine = data.senderEmail === (auth.currentUser ? auth.currentUser.email : "");
-                const isAdmin = data.senderEmail === "admin@cvtaruhan.com";
-                
-                html += `
-                <div class="flex ${isAdmin ? 'justify-start' : (isMine ? 'justify-end' : 'justify-start')}">
-                    <div class="px-4 py-2 rounded-2xl text-sm ${isAdmin ? 'bg-yellow-600/20 text-yellow-100 border border-yellow-600' : (isMine ? 'bg-blue-600' : 'bg-slate-800')}">
-                        <p class="text-[9px] opacity-70 mb-1">${data.senderEmail.split('@')[0]}</p>
-                        ${data.text}
-                    </div>
-                </div>`;
+        if (!lobbyId) {
+            alert("Akses ditolak. Kode lobby tidak valid.");
+            window.location.href = "index.html";
+        } else {
+            document.getElementById('lobbyTitle').innerText = lobbyId;
+            
+            // LOGIKA BARU: Mengambil data nominal taruhan (betAmount) dari database
+            getDoc(doc(db, "lobbies", lobbyId)).then(snap => {
+                if(snap.exists() && snap.data().betAmount) {
+                    document.getElementById('betDisplay').innerText = "Taruhan: Rp " + snap.data().betAmount.toLocaleString('id-ID');
+                }
             });
-            const box = document.getElementById('chatBox');
-            box.innerHTML = html;
-            box.scrollTop = box.scrollHeight;
+        }
+
+        auth.onAuthStateChanged(user => {
+            if (!user) window.location.href = "index.html"; // Harus login
         });
 
+        // Fitur Panggil Admin
+        window.callAdmin = async () => {
+            try {
+                await updateDoc(doc(db, "lobbies", lobbyId), { needsAdmin: true });
+                document.getElementById('callAdminBtn').innerText = "Admin Dipanggil!";
+                document.getElementById('callAdminBtn').classList.replace("text-red-500", "text-white");
+                document.getElementById('callAdminBtn').classList.replace("bg-red-600/20", "bg-red-600");
+                
+                // Kirim notif sistem ke chat
+                await addDoc(collection(db, `lobbies/${lobbyId}/chats`), {
+                    text: "⚠️ Panggilan kepada Admin telah dikirim.", senderEmail: "Sistem", timestamp: new Date()
+                });
+            } catch (e) { alert("Gagal memanggil admin."); }
+        };
+
+        // Kirim Pesan
         window.sendMessage = async () => {
             const input = document.getElementById('messageInput');
-            if(!input.value) return;
+            if (!input.value.trim()) return;
+            
+            let sender = auth.currentUser.email === "admin@cvtaruhan.com" ? "ADMIN" : auth.currentUser.email.split('@')[0];
+
             await addDoc(collection(db, `lobbies/${lobbyId}/chats`), {
-                text: input.value,
-                senderEmail: auth.currentUser.email,
-                timestamp: new Date()
+                text: input.value, senderEmail: sender, timestamp: new Date()
             });
             input.value = "";
+            
+            // Jika admin yang balas, matikan status 'needsAdmin'
+            if (auth.currentUser.email === "admin@cvtaruhan.com") {
+                await updateDoc(doc(db, "lobbies", lobbyId), { needsAdmin: false });
+            }
         };
 
-        window.callAdmin = async () => {
-            await addDoc(collection(db, `lobbies/${lobbyId}/chats`), {
-                text: "⚠️ Panggilan kepada Admin telah dikirim.",
-                senderEmail: "Sistem",
-                timestamp: new Date()
+        // Tampilkan Chat Real-time
+        const q = query(collection(db, `lobbies/${lobbyId}/chats`), orderBy("timestamp"));
+        onSnapshot(q, (snapshot) => {
+            let html = "";
+            snapshot.forEach(docData => { 
+                const data = docData.data();
+                const isAdmin = data.senderEmail === "ADMIN";
+                const isSystem = data.senderEmail === "Sistem";
+                
+                let bubbleClass = isAdmin ? "bg-yellow-600/20 border border-yellow-600 text-yellow-100" : 
+                                 isSystem ? "bg-slate-800 text-slate-400 text-center italic text-[10px] w-full border-none p-1" :
+                                 "bg-blue-600 text-white";
+
+                html += `<div class="mb-2 p-2 rounded-lg text-sm w-fit max-w-[85%] ${bubbleClass}">
+                    ${isSystem ? '' : `<p class="text-[10px] font-bold mb-1 ${isAdmin ? 'text-yellow-500' : 'text-slate-300'}">${data.senderEmail}</p>`}
+                    ${data.text}
+                </div>`; 
             });
-            alert("Admin telah dipanggil!");
-        };
+            const chatBox = document.getElementById('chatBox');
+            chatBox.innerHTML = html;
+            chatBox.scrollTop = chatBox.scrollHeight; // Auto scroll ke bawah
+        });
     </script>
 </body>
 </html>
