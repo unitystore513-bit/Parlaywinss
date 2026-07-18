@@ -97,28 +97,13 @@
     </main>
 
 <script type="module">
-  // 1. IMPORT (Wajib paling atas)
+  // 1. IMPORT FIREBASE
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
   import { getFirestore, collection, addDoc, onSnapshot, query, where, orderBy, doc, updateDoc, getDocs, deleteDoc, setDoc, getDoc, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-  // 3. KONFIGURASI FIREBASE
-  const firebaseConfig = { apiKey: "AlzaSyADl5f9vTDZRTWSpuVuAUzX6G4tXcq4kNB", authDomain: "parlaywins-new.firebaseapp.com" };
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  // --- SISTEM SESI LOGIN (ANTI-BUG) ---
-  onAuthStateChanged(auth, (user) => {
-      if (user) {
-          renderDashboard(user);
-      } else {
-          document.getElementById('authView').classList.remove('hidden');
-      }
-  });
-
-  // --- FUNGSI TOGGLE FORM ---
-  window.toggleForm = (formName) => {
+  // 2. DAFTARKAN FUNGSI KLIK KE WINDOW (Sangat penting agar tombol HTML merespon)
+  window.toggleForm = function(formName) {
       if(formName === 'register') {
           document.getElementById('loginForm').classList.add('hidden');
           document.getElementById('registerForm').classList.remove('hidden');
@@ -128,9 +113,8 @@
       }
   };
 
-  // --- FUNGSI LOGIN ---
-  window.login = async () => {
-      const emailInput = document.getElementById('email').value;
+  window.login = async function() {
+      const emailInput = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       
       if (!emailInput || !password) {
@@ -138,30 +122,66 @@
           return;
       }
       
-      // Jika user hanya memasukkan username, tambahkan @cvtaruhan.com
       const email = emailInput.includes('@') ? emailInput : emailInput + "@cvtaruhan.com";
+      const loginBtn = document.querySelector('#loginForm button');
+      loginBtn.innerText = "Memproses..."; // Efek tombol ditekan
       
       try {
           await signInWithEmailAndPassword(auth, email, password);
-          // Berhasil login! (Sistem akan otomatis memanggil renderDashboard)
       } catch (error) {
           alert("Gagal masuk. Periksa kembali Username dan Password Anda.");
+          loginBtn.innerText = "Masuk";
       }
   };
 
-  // --- FUNGSI DAFTAR ---
-  window.register = async () => {
-      const email = document.getElementById('regEmail').value + "@cvtaruhan.com";
+  window.register = async function() {
+      const emailInput = document.getElementById('regEmail').value.trim();
       const pass = document.getElementById('regPassword').value;
+      const passConfirm = document.getElementById('regConfirm').value;
+      
+      if(!emailInput || !pass) {
+          alert("Data pendaftaran tidak boleh kosong!");
+          return;
+      }
+      if(pass !== passConfirm) {
+          alert("Password dan Konfirmasi Password tidak sama!");
+          return;
+      }
+
+      const email = emailInput.includes('@') ? emailInput : emailInput + "@cvtaruhan.com";
+      const regBtn = document.querySelector('#registerForm button');
+      regBtn.innerText = "Memproses..."; // Efek tombol ditekan
+
       try { 
           const c = await createUserWithEmailAndPassword(auth, email, pass);
           await setDoc(doc(db, "users", c.user.uid), { balance: 0, lobbyHistory: [] });
           alert("Daftar sukses! Silakan login.");
-          toggleForm('login');
+          window.toggleForm('login');
       } catch(e) { 
-          alert("Gagal daftar: Pastikan password minimal 6 karakter."); 
+          alert("Gagal daftar: Pastikan password minimal 6 karakter atau username sudah dipakai."); 
+      } finally {
+          regBtn.innerText = "Daftar Akun";
       }
   };
+
+  window.logout = function() { signOut(auth).then(() => location.reload()); };
+
+  // 3. INISIALISASI FIREBASE
+  const firebaseConfig = { apiKey: "AlzaSyADl5f9vTDZRTWSpuVuAUzX6G4tXcq4kNB", authDomain: "parlaywins-new.firebaseapp.com" };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // --- SISTEM SESI LOGIN ---
+  onAuthStateChanged(auth, (user) => {
+      if (user) {
+          renderDashboard(user);
+      } else {
+          document.getElementById('authView').classList.remove('hidden');
+          document.getElementById('dashboardView').classList.add('hidden');
+          document.getElementById('userMenu').classList.add('hidden');
+      }
+  });
 
   // --- FUNGSI RENDER DASHBOARD ---
   function renderDashboard(user) {
@@ -187,7 +207,6 @@
                   document.getElementById('historyList').innerHTML = history.map(code => {
                       return `<div class="bg-slate-800 p-3 rounded-lg mb-2 flex justify-between items-center">
                                   <span class="text-white">${code}</span>
-                                  <span class="text-[10px] text-slate-400">Created: ${new Date().toLocaleDateString()}</span>
                                   <button onclick="window.location.href='lobby.html?id=${code}'" class="bg-blue-600 text-white px-2 py-1 rounded text-xs">Masuk</button>
                               </div>`;
                   }).join('') || '<p class="text-xs text-slate-500">Belum ada riwayat.</p>';
@@ -196,30 +215,59 @@
       }
   }
 
-  // --- FUNGSI DEPOSIT ---
-  window.deposit = async () => {
+  // --- FUNGSI LAINNYA ---
+  window.deposit = async function() {
       const paySnap = await getDoc(doc(db, "settings", "payment"));
       const info = paySnap.exists() ? paySnap.data().info : "Hubungi Admin.";
       const amt = prompt("Transfer ke: " + info + "\nMasukkan nominal:");
       if (amt) {
           await setDoc(doc(db, "deposits", auth.currentUser.uid + "_" + Date.now()), { 
-              uid: auth.currentUser.uid, 
-              amount: parseInt(amt), 
-              status: "pending", 
-              timestamp: new Date() 
+              uid: auth.currentUser.uid, amount: parseInt(amt), status: "pending", timestamp: new Date() 
           });
           alert("Deposit berhasil diproses.");
       }
   };
 
-  // --- FUNGSI ADMIN DATA ---
+  window.withdraw = async function() { 
+      const amt = prompt("Withdraw:"); 
+      if(amt) {
+          await setDoc(doc(db, "withdraws", auth.currentUser.uid + "_" + Date.now()), { uid: auth.currentUser.uid, amount: parseInt(amt), status: "pending" });
+          alert("Withdraw diproses");
+      }
+  };
+
+  window.createLobby = async function() {
+      const id = Math.random().toString(36).substring(2, 8).toUpperCase();
+      try {
+          await setDoc(doc(db, "lobbies", id), { createdAt: new Date(), status: "waiting", players: {} });
+          window.location.href = `lobby.html?id=${id}`;
+      } catch (e) { alert("Gagal membuat lobby: " + e.message); }
+  };
+
+  window.joinLobby = async function() { 
+      const code = document.getElementById('joinCode').value.toUpperCase();
+      if(code) {
+          await setDoc(doc(db, "users", auth.currentUser.uid), { lobbyHistory: arrayUnion(code) }, { merge: true });
+          window.location.href = `lobby.html?id=${code}`;
+      }
+  };
+
+  window.savePayment = async function() { 
+      await setDoc(doc(db, "settings", "payment"), { info: document.getElementById('paymentData').value }); 
+      alert("Tersimpan!"); 
+  };
+
+  window.cleanupOldLobbies = async function() {
+      const twentyFourHoursAgo = new Date(Date.now() - 86400000);
+      const q = query(collection(db, "lobbies"), where("createdAt", "<", twentyFourHoursAgo));
+      const snap = await getDocs(q);
+      snap.forEach(doc => deleteDoc(doc.ref));
+  };
+
   function loadAdminData() {
-      window.setWinner = async (lobbyId, winnerUid, winnerName) => {
+      window.setWinner = async function(lobbyId, winnerUid, winnerName) {
           if(confirm(`Yakin tentukan ${winnerName} sebagai PEMENANG?`)) {
-              await updateDoc(doc(db, "lobbies", lobbyId), {
-                  winner: winnerUid,
-                  status: "finished"
-              });
+              await updateDoc(doc(db, "lobbies", lobbyId), { winner: winnerUid, status: "finished" });
               alert(`Pemenang diatur ke: ${winnerName}!`);
           }
       };
@@ -228,122 +276,45 @@
       onSnapshot(qLobby, (snap) => {
           const wadahLobby = document.getElementById('adminLobbyList');
           if (!wadahLobby) return;
-
           let htmlLobby = '';
           snap.forEach(doc => {
               const data = doc.data();
               let p1 = "Menunggu...", p2 = "Menunggu...", uid1 = null, uid2 = null, bet1 = 0, bet2 = 0;
-
               if (data.players) {
                   const uids = Object.keys(data.players);
                   if (uids.length > 0) { uid1 = uids[0]; p1 = data.players[uid1].username; bet1 = data.players[uid1].bet; }
                   if (uids.length > 1) { uid2 = uids[1]; p2 = data.players[uid2].username; bet2 = data.players[uid2].bet; }
               }
-
               const isPanggilAdmin = (data.status === "admin_called" || data.adminCalled === true);
-              
               let adminActions = `<button onclick="window.location.href='lobby.html?id=${doc.id}'" class="w-full bg-slate-700 text-white py-2 rounded-lg font-bold text-xs mb-2">Masuk ke Ruangan</button>`;
-              
               if (uid1 && uid2 && !data.winner) {
-                  adminActions += `
-                      <div class="flex gap-2 border-t border-slate-800 pt-2">
-                          <button onclick="setWinner('${doc.id}', '${uid1}', '${p1}')" class="w-1/2 bg-yellow-600 text-black py-1 rounded font-black text-[10px]">Menang ${p1}</button>
-                          <button onclick="setWinner('${doc.id}', '${uid2}', '${p2}')" class="w-1/2 bg-yellow-600 text-black py-1 rounded font-black text-[10px]">Menang ${p2}</button>
-                      </div>`;
+                  adminActions += `<div class="flex gap-2 border-t border-slate-800 pt-2"><button onclick="setWinner('${doc.id}', '${uid1}', '${p1}')" class="w-1/2 bg-yellow-600 text-black py-1 rounded font-black text-[10px]">Menang ${p1}</button><button onclick="setWinner('${doc.id}', '${uid2}', '${p2}')" class="w-1/2 bg-yellow-600 text-black py-1 rounded font-black text-[10px]">Menang ${p2}</button></div>`;
               } else if (data.winner) {
                   adminActions += `<div class="text-center text-blue-500 font-bold text-[10px] mt-2 uppercase">Kemenangan Sudah Diputuskan</div>`;
               }
-
-              htmlLobby += `
-                  <div class="bg-slate-900 p-4 rounded-xl border ${isPanggilAdmin ? 'border-red-500' : 'border-slate-700'} mb-3">
-                      <div class="flex justify-between mb-2">
-                          <span class="font-black text-blue-400 text-sm">LOBBY: ${doc.id}</span>
-                          ${isPanggilAdmin ? '<span class="text-red-500 font-black animate-pulse text-[10px]">ADMIN DIPANGGIL</span>' : ''}
-                      </div>
-                      <div class="flex justify-between text-white text-xs mb-3">
-                          <span>${p1}: Rp ${bet1.toLocaleString()}</span>
-                          <span class="font-bold">VS</span>
-                          <span>${p2}: Rp ${bet2.toLocaleString()}</span>
-                      </div>
-                      ${adminActions}
-                  </div>
-              `;
+              htmlLobby += `<div class="bg-slate-900 p-4 rounded-xl border ${isPanggilAdmin ? 'border-red-500' : 'border-slate-700'} mb-3"><div class="flex justify-between mb-2"><span class="font-black text-blue-400 text-sm">LOBBY: ${doc.id}</span></div><div class="flex justify-between text-white text-xs mb-3"><span>${p1}: Rp ${bet1.toLocaleString()}</span><span class="font-bold">VS</span><span>${p2}: Rp ${bet2.toLocaleString()}</span></div>${adminActions}</div>`;
           });
           wadahLobby.innerHTML = htmlLobby || '<p class="text-slate-500 text-center">Belum ada lobby.</p>';
       });
+
+      window.approve = async function(id) {
+          const snap = await getDoc(doc(db, "deposits", id));
+          const data = snap.data();
+          await updateDoc(doc(db, "deposits", id), { status: "approved" });
+          await setDoc(doc(db, "users", data.uid), { balance: increment(data.amount) }, { merge: true });
+          alert("Disetujui!");
+      };
 
       onSnapshot(collection(db, "deposits"), (snap) => {
           let html = "";
           snap.forEach(d => {
               if (d.data().status === "pending") {
-                  html += `<div class="bg-slate-800 p-3 rounded flex justify-between">
-                      <span>User: ${d.data().uid.substring(0,5)} | Rp ${d.data().amount.toLocaleString()}</span>
-                      <button onclick="approve('${d.id}')" class="bg-blue-600 px-3 py-1 rounded text-xs">Setujui</button>
-                  </div>`;
+                  html += `<div class="bg-slate-800 p-3 rounded flex justify-between"><span>User: ${d.data().uid.substring(0,5)} | Rp ${d.data().amount.toLocaleString()}</span><button onclick="approve('${d.id}')" class="bg-blue-600 px-3 py-1 rounded text-xs">Setujui</button></div>`;
               }
           });
           document.getElementById('adminList').innerHTML = html || 'Tidak ada pending.';
       });
   }
-
-  // --- FUNGSI APPROVE ---
-  window.approve = async (id) => {
-      const snap = await getDoc(doc(db, "deposits", id));
-      const data = snap.data();
-      await updateDoc(doc(db, "deposits", id), { status: "approved" });
-      await setDoc(doc(db, "users", data.uid), { balance: increment(data.amount) }, { merge: true });
-      alert("Disetujui!");
-  };
-
-  // --- FUNGSI BUAT LOBBY BARU ---
-  window.createLobby = async () => {
-      const id = Math.random().toString(36).substring(2, 8).toUpperCase();
-      try {
-          await setDoc(doc(db, "lobbies", id), {
-              createdAt: new Date(),
-              status: "waiting",
-              players: {} 
-          });
-          window.location.href = `lobby.html?id=${id}`;
-      } catch (e) {
-          console.error(e); 
-          alert("Gagal membuat lobby: " + e.message); 
-      }
-  }; // PENUTUP KURUNG INI YANG SEBELUMNYA HILANG DAN BIKIN ERROR
-
-  // --- FUNGSI JOIN LOBBY ---
-  window.joinLobby = async () => { 
-      const code = document.getElementById('joinCode').value.toUpperCase();
-      if(code) {
-          await setDoc(doc(db, "users", auth.currentUser.uid), { lobbyHistory: arrayUnion(code) }, { merge: true });
-          window.location.href = `lobby.html?id=${code}`;
-      }
-  };
-
-  // --- FUNGSI LAINNYA ---
-  window.withdraw = async () => { 
-      const amt = prompt("Withdraw:"); 
-      if(amt) {
-          await setDoc(doc(db, "withdraws", auth.currentUser.uid + "_" + Date.now()), { uid: auth.currentUser.uid, amount: parseInt(amt), status: "pending" });
-          alert("Withdraw diproses");
-      }
-  };
-
-  window.savePayment = async () => { 
-      await setDoc(doc(db, "settings", "payment"), { info: document.getElementById('paymentData').value }); 
-      alert("Tersimpan!"); 
-  };
-
-  // --- FUNGSI AUTO-CLEANUP LOBBY LAMA (24 JAM) ---
-  window.cleanupOldLobbies = async () => {
-      const twentyFourHoursAgo = new Date(Date.now() - 86400000);
-      const q = query(collection(db, "lobbies"), where("createdAt", "<", twentyFourHoursAgo));
-      const snap = await getDocs(q);
-      snap.forEach(doc => deleteDoc(doc.ref));
-  };
-
-  window.logout = () => signOut(auth).then(() => location.reload());
-
 </script>
 </body>
 </html>
