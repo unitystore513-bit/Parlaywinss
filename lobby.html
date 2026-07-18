@@ -123,19 +123,30 @@
         });
 
         // Fitur Panggil Admin
-        window.callAdmin = async () => {
-            try {
-                await updateDoc(doc(db, "lobbies", lobbyId), { needsAdmin: true });
-                document.getElementById('callAdminBtn').innerText = "Admin Dipanggil!";
-                document.getElementById('callAdminBtn').classList.replace("text-red-500", "text-white");
-                document.getElementById('callAdminBtn').classList.replace("bg-red-600/20", "bg-red-600");
-                
-                // Kirim notif sistem ke chat
-                await addDoc(collection(db, `lobbies/${lobbyId}/chats`), {
-                    text: "⚠️ Panggilan kepada Admin telah dikirim.", senderEmail: "Sistem", timestamp: new Date()
-                });
-            } catch (e) { alert("Gagal memanggil admin."); }
-        };
+window.callAdmin = async () => {
+    if (!lobbyId) return alert("Kode lobby tidak ditemukan!");
+    
+    try {
+        // Mengirim sinyal panggilan admin ke database Firebase
+        await updateDoc(doc(db, "lobbies", lobbyId), {
+            adminCalled: true,
+            status: "admin_called"
+        });
+
+        // Mengubah tampilan tombol di layar user
+        const btn = document.getElementById('callAdminBtn');
+        if (btn) {
+            btn.innerHTML = "Admin Dipanggil!";
+            btn.classList.remove('bg-red-600/20', 'text-red-500');
+            btn.classList.add('bg-red-600', 'text-white');
+        }
+
+        alert("Panggilan kepada Admin telah berhasil dikirim ke sistem!");
+    } catch (e) {
+        console.error("Error panggil admin:", e);
+        alert("Gagal memanggil admin, coba lagi.");
+    }
+};
 
         // Kirim Pesan
         window.sendMessage = async () => {
