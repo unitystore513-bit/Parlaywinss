@@ -117,11 +117,15 @@ import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, upda
         });
 
         // --- FUNGSI TOGGLE FORM ---
-window.toggleForm = () => {
-    document.getElementById('loginForm').classList.toggle('hidden');
-    document.getElementById('registerForm').classList.toggle('hidden');
+window.toggleForm = (formName) => {
+    if(formName === 'registar') {
+        document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('registerForm').classList.remove('hidden');
+    } else {
+        document.getElementById('loginForm').classList.remove('hidden');
+        document.getElementById('registerForm').classList.add('hidden');
+    }
 };
-
 // --- FUNGSI LOGIN ---
 window.login = async () => {
     const emailInput = document.getElementById('email').value;
