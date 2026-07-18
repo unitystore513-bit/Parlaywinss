@@ -98,6 +98,8 @@
 
     <!-- SCRIPT SECTION -->
     <script type="module">
+        console.log("Script Berhasil Dimuat!");
+alert("System Siap!");
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, getDocs, deleteDoc, setDoc, getDoc, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
@@ -127,19 +129,18 @@ window.toggleForm = (formName) => {
     }
 };
 // --- FUNGSI LOGIN ---
-window.login = async () => {
+window.login = () => {
+    alert("Tombol diklik!"); // Tambahkan ini untuk tes
     const emailInput = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     
-    // Pastikan email berakhiran @cvtaruhan.com
-    const email = emailInput.includes('@') ? emailInput : emailInput + "@cvtaruhan.com";
-    
-    try {
-        await signInWithEmailAndPassword(auth, email, password);
-    } catch (e) {
-        console.error(e);
-        alert("Login gagal: " + e.message);
+    if (!emailInput || !password) {
+        alert("Email dan Password tidak boleh kosong!");
+        return;
     }
+    
+    console.log("Mencoba login...");
+    // Sisa kode login Anda...
 };
 
         // --- FUNGSI DAFTAR ---
