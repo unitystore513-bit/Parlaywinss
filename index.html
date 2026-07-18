@@ -171,7 +171,14 @@
   window.logout = function() { signOut(auth).then(() => location.reload()); };
 
   // 3. INISIALISASI FIREBASE
-  const firebaseConfig = { apiKey: "AlzaSyADl5f9vTDZRTWSpuVuAUzX6G4tXcq4kNB", authDomain: "parlaywins-new.firebaseapp.com" };
+  const firebaseConfig = {
+  apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8",
+  authDomain: "parlaywins-new.firebaseapp.com",
+  projectId: "parlaywins-new",
+  storageBucket: "parlaywins-new.firebasestorage.app",
+  messagingSenderId: "1025882923334",
+  appId: "1:1025882923334:web:9c8912e08f27e8a7f48547"
+};
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
