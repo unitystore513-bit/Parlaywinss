@@ -147,10 +147,14 @@
           alert("Password dan Konfirmasi Password tidak sama!");
           return;
       }
+      if(pass.length < 6) {
+          alert("Mohon maaf, Password wajib minimal 6 karakter!");
+          return;
+      }
 
       const email = emailInput.includes('@') ? emailInput : emailInput + "@cvtaruhan.com";
       const regBtn = document.querySelector('#registerForm button');
-      regBtn.innerText = "Memproses..."; // Efek tombol ditekan
+      regBtn.innerText = "Memproses..."; 
 
       try { 
           const c = await createUserWithEmailAndPassword(auth, email, pass);
@@ -158,12 +162,12 @@
           alert("Daftar sukses! Silakan login.");
           window.toggleForm('login');
       } catch(e) { 
-          alert("Gagal daftar: Pastikan password minimal 6 karakter atau username sudah dipakai."); 
+          // KODE INI AKAN MEMUNCULKAN ALASAN ASLI DARI FIREBASE
+          alert("Pesan Error Firebase: " + e.message); 
       } finally {
           regBtn.innerText = "Daftar Akun";
       }
   };
-
   window.logout = function() { signOut(auth).then(() => location.reload()); };
 
   // 3. INISIALISASI FIREBASE
