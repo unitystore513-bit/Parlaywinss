@@ -190,65 +190,65 @@
         // --- FUNGSI ADMIN DATA ---
         function loadAdminData() {
             // --- LOGIKA PANTAU LOBBY UNTUK ADMIN ---
-    onSnapshot(collection(db, "lobbies"), (snap) => {
-        const wadahLobby = document.getElementById('adminLobbyList');
-        if (!wadahLobby) return;
-
-        let htmlLobby = '';
-        snap.forEach(doc => {
-            const data = doc.data();
-            let p1 = "Menunggu...", p2 = "Menunggu...";
-            let bet1 = 0, bet2 = 0;
-
-            if (data.players) {
-                const uids = Object.keys(data.players);
-                if (uids.length > 0) {
-                    p1 = data.players[uids[0]].username;
-                    bet1 = data.players[uids[0]].bet;
-                }
-                if (uids.length > 1) {
-                    p2 = data.players[uids[1]].username;
-                    bet2 = data.players[uids[1]].bet;
-                }
-            }
-
-            // Mengecek status panggilan admin
-            const isPanggilAdmin = (data.status === "admin_called" || data.adminCalled === true);
-            
-            const badgeStatus = isPanggilAdmin 
-                ? '<span class="bg-red-600 text-white text-[10px] uppercase px-2 py-1 rounded font-black animate-pulse">ADMIN DIPANGGIL</span>' 
-                : '<span class="bg-green-600/20 text-green-500 text-[10px] uppercase border border-green-600/50 px-2 py-1 rounded font-bold">Aktif</span>';
-
-            htmlLobby += `
-                <div class="bg-slate-900 p-4 rounded-xl border ${isPanggilAdmin ? 'border-red-500' : 'border-slate-700'} mb-3">
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="font-black text-blue-400 text-sm">LOBBY: ${doc.id}</span>
-                        ${badgeStatus}
-                    </div>
-                    <div class="flex justify-between items-center text-xs text-slate-300 bg-slate-950 p-3 rounded-lg border border-slate-800 mb-3">
-                        <div class="text-left w-2/5">
-                            <div class="font-bold text-white truncate">${p1}</div>
-                            <div class="text-blue-400 font-mono mt-1">Rp ${bet1.toLocaleString()}</div>
-                        </div>
-                        <div class="font-black text-slate-600 italic text-center w-1/5">VS</div>
-                        <div class="text-right w-2/5">
-                            <div class="font-bold text-white truncate">${p2}</div>
-                            <div class="text-blue-400 font-mono mt-1">Rp ${bet2.toLocaleString()}</div>
-                        </div>
-                    </div>
-                    <button onclick="window.location.href='lobby.html?id=${doc.id}'" class="w-full ${isPanggilAdmin ? 'bg-red-600 hover:bg-red-500' : 'bg-slate-700 hover:bg-slate-600'} text-white py-2 rounded-lg font-bold text-xs transition">
-                        Masuk ke Ruangan
-                    </button>
-                </div>
-            `;
+    // --- FUNGSI ADMIN: PILIH PEMENANG ---
+window.setWinner = async (lobbyId, winnerUid, winnerName) => {
+    if(confirm(`Yakin tentukan ${winnerName} sebagai PEMENANG?`)) {
+        await updateDoc(doc(db, "lobbies", lobbyId), {
+            winner: winnerUid,
+            status: "finished"
         });
+        alert(`Pemenang diatur ke: ${winnerName}!`);
+    }
+};
 
-        if (htmlLobby === '') {
-            wadahLobby.innerHTML = '<p class="text-center text-slate-500 text-xs italic py-4 bg-slate-900 rounded-xl border border-slate-800">Belum ada lobby yang aktif saat ini.</p>';
-        } else {
-            wadahLobby.innerHTML = htmlLobby;
+// --- LOGIKA PANTAU LOBBY UNTUK ADMIN (LENGKAP) ---
+onSnapshot(collection(db, "lobbies"), (snap) => {
+    const wadahLobby = document.getElementById('adminLobbyList');
+    if (!wadahLobby) return;
+
+    let htmlLobby = '';
+    snap.forEach(doc => {
+        const data = doc.data();
+        let p1 = "Menunggu...", p2 = "Menunggu...", uid1 = null, uid2 = null, bet1 = 0, bet2 = 0;
+
+        if (data.players) {
+            const uids = Object.keys(data.players);
+            if (uids.length > 0) { uid1 = uids[0]; p1 = data.players[uid1].username; bet1 = data.players[uid1].bet; }
+            if (uids.length > 1) { uid2 = uids[1]; p2 = data.players[uid2].username; bet2 = data.players[uid2].bet; }
         }
+
+        const isPanggilAdmin = (data.status === "admin_called" || data.adminCalled === true);
+        
+        // Tombol aksi admin (Masuk + Tombol Pemenang)
+        let adminActions = `<button onclick="window.location.href='lobby.html?id=${doc.id}'" class="w-full bg-slate-700 text-white py-2 rounded-lg font-bold text-xs mb-2">Masuk ke Ruangan</button>`;
+        
+        if (uid1 && uid2 && !data.winner) {
+            adminActions += `
+                <div class="flex gap-2 border-t border-slate-800 pt-2">
+                    <button onclick="setWinner('${doc.id}', '${uid1}', '${p1}')" class="w-1/2 bg-yellow-600 text-black py-1 rounded font-black text-[10px]">Menang ${p1}</button>
+                    <button onclick="setWinner('${doc.id}', '${uid2}', '${p2}')" class="w-1/2 bg-yellow-600 text-black py-1 rounded font-black text-[10px]">Menang ${p2}</button>
+                </div>`;
+        } else if (data.winner) {
+            adminActions += `<div class="text-center text-blue-500 font-bold text-[10px] mt-2 uppercase">Kemenangan Sudah Diputuskan</div>`;
+        }
+
+        htmlLobby += `
+            <div class="bg-slate-900 p-4 rounded-xl border ${isPanggilAdmin ? 'border-red-500' : 'border-slate-700'} mb-3">
+                <div class="flex justify-between mb-2">
+                    <span class="font-black text-blue-400 text-sm">LOBBY: ${doc.id}</span>
+                    ${isPanggilAdmin ? '<span class="text-red-500 font-black animate-pulse text-[10px]">ADMIN DIPANGGIL</span>' : ''}
+                </div>
+                <div class="flex justify-between text-white text-xs mb-3">
+                    <span>${p1}: Rp ${bet1.toLocaleString()}</span>
+                    <span class="font-bold">VS</span>
+                    <span>${p2}: Rp ${bet2.toLocaleString()}</span>
+                </div>
+                ${adminActions}
+            </div>
+        `;
     });
+    wadahLobby.innerHTML = htmlLobby || '<p class="text-slate-500 text-center">Belum ada lobby.</p>';
+});
             onSnapshot(collection(db, "deposits"), (snap) => {
                 let html = "";
                 snap.forEach(d => {
