@@ -13,6 +13,7 @@
     <nav class="bg-slate-900 border-b border-slate-800 p-4 flex justify-between items-center">
         <h1 class="text-xl font-black italic uppercase text-white">CV<span class="text-blue-500">TARUHAN</span></h1>
         <div id="userMenu" class="hidden flex gap-4">
+            <div id="userDisplay" class="text-xs text-slate-500 font-mono italic"></div>
             <button onclick="logout()" class="text-slate-400 hover:text-white transition">
                 <i class="fa-solid fa-right-from-bracket"></i>
             </button>
@@ -148,6 +149,7 @@
             document.getElementById('authView').classList.add('hidden');
             document.getElementById('dashboardView').classList.remove('hidden');
             document.getElementById('userMenu').classList.remove('hidden');
+            document.getElementById('userDisplay').innerText = "ID: " + user.email.split('@')[0];
 
             if (user.email === "admin@cvtaruhan.com") {
                 document.getElementById('financeButtons').classList.add('hidden');
