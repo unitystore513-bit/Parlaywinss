@@ -21,6 +21,19 @@
             <button onclick="window.location.href='index.html'" class="bg-slate-800 px-3 py-2 rounded-lg text-xs"><i class="fa-solid fa-xmark"></i></button>
         </div>
     </div>
+    <!-- Area Perbandingan ID & Taruhan -->
+    <div class="flex justify-between items-center bg-slate-800 p-4 rounded-xl mb-4">
+        <div id="p1" class="text-center font-bold text-sm">User 1</div>
+        <div class="text-slate-500 font-black">VS</div>
+        <div id="p2" class="text-center font-bold text-sm">User 2</div>
+    </div>
+    <div class="flex justify-between text-xs text-blue-400 mb-4 px-2">
+        <span id="bet1">Taruhan: Rp 0</span>
+        <span id="bet2">Taruhan: Rp 0</span>
+    </div>
+    <button onclick="masukTaruhan()" class="bg-green-600 text-white p-2 rounded-lg w-full mt-4 font-bold text-sm">
+    MASUK TARUHAN
+    </button>
 
     <!-- Area Chat -->
     <div id="chatBox" class="flex-1 overflow-y-auto bg-slate-900 p-4 rounded-xl mb-4 border border-slate-800 space-y-3">
@@ -35,6 +48,32 @@
     </div>
 
     <script type="module">
+        function hitungPotongan(totalTaruhan) {
+    if (totalTaruhan <= 50000) return 5000;
+    if (totalTaruhan <= 100000) return 10000;
+    if (totalTaruhan <= 300000) return 30000;
+    if (totalTaruhan <= 800000) return 50000;
+    if (totalTaruhan <= 1500000) return 80000;
+    if (totalTaruhan <= 2500000) return 100000;
+    if (totalTaruhan <= 5000000) return 200000;
+    return 0;
+        }
+        window.masukTaruhan = async () => {
+    const nominal = parseInt(prompt("Masukkan nominal taruhan:"));
+    if (!nominal) return;
+    
+    const userRef = doc(db, "users", auth.currentUser.uid);
+    const userSnap = await getDoc(userRef);
+    
+    if (userSnap.data().balance < nominal) return alert("Saldo tidak cukup!");
+
+    await updateDoc(userRef, { balance: increment(-nominal) });
+    await updateDoc(doc(db, "lobbies", lobbyId), {
+        [`players.${auth.currentUser.uid}.bet`]: nominal,
+        [`players.${auth.currentUser.uid}.username`]: auth.currentUser.email.split('@')[0]
+    });
+    alert("Taruhan berhasil dimasukkan!");
+};
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
         // Menambahkan getDoc ke dalam import
@@ -122,6 +161,27 @@
             chatBox.innerHTML = html;
             chatBox.scrollTop = chatBox.scrollHeight; // Auto scroll ke bawah
         });
+        // Logika Update Tampilan Player Secara Real-time
+onSnapshot(doc(db, "lobbies", lobbyId), (docSnap) => {
+    if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.players) {
+            const uids = Object.keys(data.players);
+            
+            // Update User 1
+            if (uids[0]) {
+                document.getElementById('p1').innerText = data.players[uids[0]].username;
+                document.getElementById('bet1').innerText = "Taruhan: Rp " + data.players[uids[0]].bet.toLocaleString();
+            }
+            
+            // Update User 2
+            if (uids[1]) {
+                document.getElementById('p2').innerText = data.players[uids[1]].username;
+                document.getElementById('bet2').innerText = "Taruhan: Rp " + data.players[uids[1]].bet.toLocaleString();
+            }
+        }
+    }
+});
     </script>
 </body>
 </html>
