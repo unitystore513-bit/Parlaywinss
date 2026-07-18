@@ -96,18 +96,24 @@
         </div>
     </main>
 
-    <!-- SCRIPT SECTION -->
-    <script type="module">
-        console.log("Script Berhasil Dimuat!");
-alert("System Siap!");
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, getDocs, deleteDoc, setDoc, getDoc, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-        // Konfigurasi Firebase
-        const firebaseConfig = { apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8", authDomain: "parlaywins-new.firebaseapp.com", projectId: "parlaywins-new", storageBucket: "parlaywins-new.firebasestorage.app", messagingSenderId: "1025882923334", appId: "1:1025882923334:web:715307a770239023f48547" };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+    // --- SCRIPT SECTION ---
+<script type="module">
+  // 1. IMPORT (Wajib paling atas)
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, getDocs, deleteDoc, setDoc, getDoc, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+  // 2. TESTING (Untuk memastikan script berjalan)
+  console.log("Script berhasil dimuat!");
+  alert("System Siap!");
+
+  // 3. KONFIGURASI FIREBASE
+  const firebaseConfig = { apiKey: "AlzaSyADl5f9vTDZRTWSpuVuAUzX6G4tXcq4kNB", authDomain: "parlaywins-new.firebaseapp.com" };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  
 
         // --- SISTEM SESI LOGIN (ANTI-BUG) ---
         onAuthStateChanged(auth, (user) => {
