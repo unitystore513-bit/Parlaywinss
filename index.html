@@ -40,9 +40,14 @@
 
         <!-- Dashboard Area -->
         <div id="dashboardView" class="hidden space-y-4">
+            <!-- Saldo & Tombol Keuangan (Digabung Sesuai Permintaan) -->
             <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
                 <p id="balanceTitle" class="text-slate-400 text-xs">Saldo Anda</p>
-                <h3 id="displayBalance" class="text-3xl font-black mt-1">Rp 0</h3>
+                <h3 id="displayBalance" class="text-3xl font-black mt-1 mb-5">Rp 0</h3>
+                <div id="financeButtons" class="grid grid-cols-2 gap-3">
+                    <button onclick="deposit()" class="bg-slate-800 border border-blue-600 text-blue-400 py-2.5 rounded-xl text-sm font-bold">Deposit</button>
+                    <button onclick="withdraw()" class="bg-slate-800 border border-red-600 text-red-400 py-2.5 rounded-xl text-sm font-bold">Withdraw</button>
+                </div>
             </div>
 
             <!-- Menu Khusus User -->
@@ -50,19 +55,22 @@
                 <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
                     <button onclick="createLobby()" class="w-full bg-green-600 py-3 rounded-xl font-bold mb-3">Buat Lobby Taruhan Baru</button>
                     <div class="flex gap-2">
-                        <input type="text" id="joinCode" placeholder="Masukkan Kode Lobby" class="w-2/3 bg-slate-950 border border-slate-700 p-3 rounded-xl focus:outline-none focus:border-blue-500 uppercase text-center font-bold">
+                        <input type="text" id="joinCode" placeholder="Kode Lobby" class="w-2/3 bg-slate-950 border border-slate-700 p-3 rounded-xl focus:outline-none focus:border-blue-500 uppercase text-center font-bold">
                         <button onclick="joinLobby()" class="w-1/3 bg-blue-600 py-3 rounded-xl font-bold">Masuk</button>
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <button onclick="deposit()" class="bg-slate-800 border border-blue-600 text-blue-400 py-3 rounded-xl font-bold">Deposit</button>
-                    <button onclick="withdraw()" class="bg-slate-800 border border-red-600 text-red-400 py-3 rounded-xl font-bold">Withdraw</button>
+            </div>
+
+            <!-- Fitur Baru: Riwayat Lobby -->
+            <div id="lobbyHistorySection" class="hidden bg-slate-900 p-4 rounded-xl border border-slate-800">
+                <h2 class="font-bold text-slate-300 text-sm mb-3">Riwayat Lobby Anda</h2>
+                <div id="historyList" class="space-y-2">
+                    <p class="text-xs text-slate-500">Belum ada riwayat...</p>
                 </div>
             </div>
 
             <!-- Menu Khusus Admin -->
             <div id="adminPanel" class="hidden space-y-4">
-                <!-- Daftar Lobby Aktif & Panggilan Admin -->
                 <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
                     <h2 class="font-bold text-yellow-500 text-sm mb-3">Lobby Aktif & Panggilan</h2>
                     <div id="adminLobbyList" class="space-y-2">
@@ -89,8 +97,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        // Penambahan 'increment' pada baris di bawah ini
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        // Penambahan arrayUnion untuk menyimpan riwayat lobby
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, onSnapshot, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8", authDomain: "parlaywins-new.firebaseapp.com", projectId: "parlaywins-new", storageBucket: "parlaywins-new.firebasestorage.app", messagingSenderId: "1025882923334", appId: "1:1025882923334:web:715307a770239023f48547" };
         const app = initializeApp(firebaseConfig);
@@ -115,18 +123,35 @@
                 
                 if (email === "admin@cvtaruhan.com") {
                     document.getElementById('balanceTitle').innerText = "Pendapatan Bulan Ini";
+                    document.getElementById('financeButtons').classList.add('hidden'); // Sembunyikan deposit/withdraw utk admin
                     document.getElementById('userActions').classList.add('hidden');
+                    document.getElementById('lobbyHistorySection').classList.add('hidden');
                     document.getElementById('adminPanel').classList.remove('hidden');
                     loadAdminData();
                 } else {
                     document.getElementById('balanceTitle').innerText = "Saldo Anda";
+                    document.getElementById('financeButtons').classList.remove('hidden');
                     document.getElementById('userActions').classList.remove('hidden');
                     document.getElementById('adminPanel').classList.add('hidden');
+                    document.getElementById('lobbyHistorySection').classList.remove('hidden');
                     
-                    // Memantau saldo user secara real-time
+                    // Memantau saldo user & riwayat lobby secara real-time
                     onSnapshot(doc(db, "users", auth.currentUser.uid), (docSnap) => {
                         if (docSnap.exists()) {
-                            document.getElementById('displayBalance').innerText = "Rp " + (docSnap.data().balance || 0).toLocaleString('id-ID');
+                            const data = docSnap.data();
+                            document.getElementById('displayBalance').innerText = "Rp " + (data.balance || 0).toLocaleString('id-ID');
+                            
+                            // Render Riwayat Lobby
+                            const history = data.lobbyHistory || [];
+                            let historyHtml = "";
+                            history.forEach(code => {
+                                historyHtml += `
+                                    <div class="flex justify-between items-center bg-slate-800 p-3 rounded-lg border border-slate-700 mb-2">
+                                        <div><p class="text-[10px] text-slate-400 font-bold">KODE LOBBY</p><p class="text-sm font-black text-blue-400">${code}</p></div>
+                                        <button onclick="window.location.href='lobby.html?id=${code}'" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-xs font-bold transition">Masuk Lagi</button>
+                                    </div>`;
+                            });
+                            document.getElementById('historyList').innerHTML = historyHtml || '<p class="text-xs text-slate-500">Belum ada riwayat lobby.</p>';
                         }
                     });
                 }
@@ -142,8 +167,7 @@
             if (!email || !pass || !phone) return alert("Semua kolom wajib diisi!");
             try {
                 const cred = await createUserWithEmailAndPassword(auth, email, pass);
-                // Ditambahkan saldo 0 saat pertama daftar
-                await setDoc(doc(db, "users", cred.user.uid), { email, phone, balance: 0, createdAt: new Date() });
+                await setDoc(doc(db, "users", cred.user.uid), { email, phone, balance: 0, lobbyHistory: [], createdAt: new Date() });
                 alert('Daftar berhasil! Silakan masuk.');
                 toggleForm('login');
             } catch (e) { alert('Gagal: ' + e.message); }
@@ -151,18 +175,21 @@
 
         // --- FITUR LOBBY USER ---
         window.createLobby = async () => {
-            // Ditambahkan pop up untuk memasukkan nominal taruhan
             const amount = prompt("Masukkan jumlah taruhan (Rp):");
             if (!amount || isNaN(amount)) return alert("Nominal tidak valid!");
             
             const code = Math.random().toString(36).substring(7).toUpperCase();
             await setDoc(doc(db, "lobbies", code), { 
                 creator: auth.currentUser.uid, 
-                betAmount: parseInt(amount), // Simpan nominal taruhan ke database
+                betAmount: parseInt(amount),
                 status: "active", 
                 needsAdmin: false, 
                 timestamp: new Date() 
             });
+            
+            // Simpan ke riwayat user (menggunakan setDoc + merge agar anti error)
+            await setDoc(doc(db, "users", auth.currentUser.uid), { lobbyHistory: arrayUnion(code) }, { merge: true });
+            
             window.location.href = `lobby.html?id=${code}`; 
         };
 
@@ -171,7 +198,9 @@
             if (!code) return alert("Masukkan kode lobby!");
             const lobbySnap = await getDoc(doc(db, "lobbies", code));
             if (lobbySnap.exists()) {
-                window.location.href = `lobby.html?id=${code}`; // Masuk pakai URL
+                // Simpan ke riwayat user jika berhasil join
+                await setDoc(doc(db, "users", auth.currentUser.uid), { lobbyHistory: arrayUnion(code) }, { merge: true });
+                window.location.href = `lobby.html?id=${code}`;
             } else {
                 alert("Kode Lobby tidak ditemukan!");
             }
@@ -181,19 +210,18 @@
             const paySnap = await getDoc(doc(db, "settings", "payment"));
             const info = paySnap.exists() ? paySnap.data().info : "Hubungi admin.";
             const amt = prompt("Transfer ke:\n" + info + "\n\nMasukkan nominal deposit:");
-            if (amt) { await setDoc(doc(db, "deposits", auth.currentUser.uid + "_" + Date.now()), { uid: auth.currentUser.uid, amount: parseInt(amt), status: "pending", timestamp: new Date() }); alert("Deposit diproses!"); }
+            if (amt) { await setDoc(doc(db, "deposits", auth.currentUser.uid + "_" + Date.now()), { uid: auth.currentUser.uid, amount: parseInt(amt), status: "pending", timestamp: new Date() }); alert("Deposit sedang diproses. Menunggu konfirmasi admin."); }
         };
 
         window.withdraw = async () => {
             const amt = prompt("Masukkan nominal withdraw:");
-            if (amt) { await setDoc(doc(db, "withdraws", auth.currentUser.uid + "_" + Date.now()), { uid: auth.currentUser.uid, amount: parseInt(amt), status: "pending", timestamp: new Date() }); alert("Withdraw diproses!"); }
+            if (amt) { await setDoc(doc(db, "withdraws", auth.currentUser.uid + "_" + Date.now()), { uid: auth.currentUser.uid, amount: parseInt(amt), status: "pending", timestamp: new Date() }); alert("Withdraw sedang diproses. Menunggu konfirmasi admin."); }
         };
 
         // --- FITUR KHUSUS ADMIN ---
         window.loadAdminData = () => {
             getDoc(doc(db, "settings", "payment")).then(paySnap => { if (paySnap.exists()) document.getElementById('paymentData').value = paySnap.data().info; });
 
-            // Pantau Deposit
             onSnapshot(collection(db, "deposits"), (snapshot) => {
                 let html = ""; let income = 0; const now = new Date();
                 snapshot.forEach(doc => {
@@ -207,10 +235,9 @@
                     }
                 });
                 document.getElementById('displayBalance').innerText = "Rp " + income.toLocaleString('id-ID');
-                document.getElementById('adminList').innerHTML = html || '<p class="text-xs text-slate-500">Tidak ada pending.</p>';
+                document.getElementById('adminList').innerHTML = html || '<p class="text-xs text-slate-500">Tidak ada transaksi pending.</p>';
             });
 
-            // Pantau Lobby (Notifikasi Admin)
             onSnapshot(collection(db, "lobbies"), (snapshot) => {
                 let lobbyHtml = "";
                 snapshot.forEach(doc => {
@@ -229,18 +256,24 @@
             });
         };
 
-        // Otomatis tambah saldo saat setujui
+        // BUG FIX: Menggunakan setDoc dengan { merge: true } untuk mencegah error pada akun lama
         window.approveTransaction = async (id, col) => { 
-            const transSnap = await getDoc(doc(db, col, id));
-            if (!transSnap.exists()) return;
-            const transData = transSnap.data();
+            try {
+                const transSnap = await getDoc(doc(db, col, id));
+                if (!transSnap.exists()) return;
+                const transData = transSnap.data();
 
-            await updateDoc(doc(db, col, id), { status: "approved" }); 
-            
-            if (col === "deposits") {
-                await updateDoc(doc(db, "users", transData.uid), { balance: increment(transData.amount) });
+                await updateDoc(doc(db, col, id), { status: "approved" }); 
+                
+                if (col === "deposits") {
+                    // Update saldo secara aman, otomatis menambah field balance jika belum ada di database
+                    await setDoc(doc(db, "users", transData.uid), { balance: increment(transData.amount) }, { merge: true });
+                }
+                alert("Berhasil disetujui! Saldo user telah bertambah."); 
+            } catch (error) {
+                alert("Terjadi kesalahan sistem saat menyetujui transaksi.");
+                console.error(error);
             }
-            alert("Disetujui dan saldo user telah bertambah!"); 
         };
         
         window.savePayment = async () => { await setDoc(doc(db, "settings", "payment"), { info: document.getElementById('paymentData').value }); alert("Tersimpan!"); };
