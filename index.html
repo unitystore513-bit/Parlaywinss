@@ -53,7 +53,7 @@
                 <p id="balanceTitle" class="text-slate-400 text-xs">Saldo Anda</p>
                 <h3 id="displayBalance" class="text-3xl font-black mt-1 mb-5">Rp 0</h3>
                 <div id="financeButtons" class="grid grid-cols-2 gap-3">
-                    <button onclick="deposit()" class="bg-slate-800 border border-blue-600 text-blue-400 py-2.5 rounded-xl text-sm font-bold">Deposit</button>
+                    <button onclick="bukaModalDeposit()" class="bg-slate-800 border border-blue-600 text-blue-400 py-2.5 rounded">Deposit</button>
                     <button onclick="withdraw()" class="bg-slate-800 border border-red-600 text-red-400 py-2.5 rounded-xl text-sm font-bold">Withdraw</button>
                 </div>
             </div>
@@ -95,7 +95,44 @@
             </div>
         </div>
     </main>
+<!-- MODAL DEPOSIT BARU -->
+<div id="depositModal" class="hidden fixed inset-0 bg-slate-900/90 flex justify-center items-center z-50 p-4">
+    <div class="bg-slate-200 w-full max-w-md max-h-full rounded-xl flex flex-col overflow-hidden shadow-2xl">
+        <!-- Header Modal -->
+        <div class="bg-slate-800 p-4 flex justify-between items-center">
+            <h2 class="text-white font-bold text-lg"><i class="fa-solid fa-wallet mr-2"></i>Deposit Akun</h2>
+            <button onclick="tutupModalDeposit()" class="text-slate-400 hover:text-red-500 transition">
+                <i class="fa-solid fa-xmark fa-xl"></i>
+            </button>
+        </div>
+        
+        <!-- Body Modal -->
+        <div class="p-4 overflow-y-auto">
+            <p class="text-slate-600 text-xs font-bold mb-3 text-center">DIREKOMENDASIKAN</p>
+            
+            <!-- Grid Kotak-kotak Bank -->
+            <div id="gridPaymentMethods" class="grid grid-cols-2 gap-3">
+                <!-- Data statis sementara (Nanti akan diganti otomatis dari database Admin) -->
+                <button onclick="pilihBank('BCA', '0382882922')" class="bg-white border border-slate-300 rounded-lg overflow-hidden flex flex-col shadow-sm hover:ring-2 hover:ring-blue-500 transition">
+                    <div class="h-16 flex items-center justify-center p-2 bg-white">
+                        <!-- URL logo dummy BCA -->
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/5c/Bank_Central_Asia.svg" alt="BCA" class="max-h-8">
+                    </div>
+                    <div class="bg-blue-600 text-white text-xs font-bold py-2 w-full text-center">BCA</div>
+                </button>
 
+                <button onclick="pilihBank('Qris', 'Scan Barcode Admin')" class="bg-white border border-slate-300 rounded-lg overflow-hidden flex flex-col shadow-sm hover:ring-2 hover:ring-blue-500 transition">
+                    <div class="h-16 flex items-center justify-center p-2 bg-white">
+                        <!-- URL logo dummy QRIS -->
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS" class="max-h-8">
+                    </div>
+                    <div class="bg-blue-600 text-white text-xs font-bold py-2 w-full text-center">QRIS</div>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+    
 <script type="module">
   // 1. IMPORT FIREBASE
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
@@ -326,6 +363,23 @@
           document.getElementById('adminList').innerHTML = html || 'Tidak ada pending.';
       });
   }
+    // --- FUNGSI MODAL DEPOSIT ---
+window.bukaModalDeposit = function() {
+    document.getElementById('depositModal').classList.remove('hidden');
+};
+
+window.tutupModalDeposit = function() {
+    document.getElementById('depositModal').classList.add('hidden');
+};
+
+window.pilihBank = function(namaBank, noRekening) {
+    tutupModalDeposit();
+    const nominal = prompt(`Transfer ke: ${namaBank} : ${noRekening}\nMasukkan nominal:`);
+    
+    if (nominal && !isNaN(nominal) && parseInt(nominal) > 0) {
+        alert("Permintaan deposit Rp " + nominal + " sedang diproses."); 
+    }
+};
 </script>
 </body>
 </html>
