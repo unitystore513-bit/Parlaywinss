@@ -16,9 +16,10 @@
             <!-- Element Baru untuk Menampilkan Nominal Taruhan -->
             <p id="betDisplay" class="text-xs text-yellow-400 font-bold mt-1">Taruhan: Rp 0</p>
         </div>
-        <div class="flex gap-2">
+        <div class="flex gap-2">            
             <button onclick="callAdmin()" id="callAdminBtn" class="bg-red-600/20 text-red-500 border border-red-600 px-3 py-2 rounded-lg text-xs font-bold transition">Panggil Admin</button>
             <button onclick="window.location.href='index.html'" class="bg-slate-800 px-3 py-2 rounded-lg text-xs"><i class="fa-solid fa-xmark"></i></button>
+            <button onclick="tutupLobby()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg text-xs ml-1">Tutup Lobby</button>
         </div>
     </div>
     <!-- Area Perbandingan ID & Taruhan -->
@@ -94,7 +95,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
         // Menambahkan getDoc ke dalam import
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
         
         const firebaseConfig = { apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8", authDomain: "parlaywins-new.firebaseapp.com", projectId: "parlaywins-new", storageBucket: "parlaywins-new.firebasestorage.app", messagingSenderId: "1025882923334", appId: "1:1025882923334:web:715307a770239023f48547" };
         const app = initializeApp(firebaseConfig);
