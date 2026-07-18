@@ -59,20 +59,31 @@
     return 0;
         }
         window.masukTaruhan = async () => {
-    const nominal = parseInt(prompt("Masukkan nominal taruhan:"));
-    if (!nominal) return;
+    const nominal = parseInt(prompt("Masukkan nominal taruhan Anda:"));
+    if (!nominal || nominal <= 0) return;
     
     const userRef = doc(db, "users", auth.currentUser.uid);
     const userSnap = await getDoc(userRef);
     
     if (userSnap.data().balance < nominal) return alert("Saldo tidak cukup!");
 
-    await updateDoc(userRef, { balance: increment(-nominal) });
-    await updateDoc(doc(db, "lobbies", lobbyId), {
-        [`players.${auth.currentUser.uid}.bet`]: nominal,
-        [`players.${auth.currentUser.uid}.username`]: auth.currentUser.email.split('@')[0]
-    });
-    alert("Taruhan berhasil dimasukkan!");
+    try {
+        // 1. Potong saldo user
+        await updateDoc(userRef, { balance: increment(-nominal) });
+        
+        // 2. Simpan nama dan taruhan ke dalam lobby
+        const username = auth.currentUser.email.split('@')[0];
+        await updateDoc(doc(db, "lobbies", lobbyId), {
+            [`players.${auth.currentUser.uid}`]: {
+                username: username,
+                bet: nominal
+            }
+        });
+        alert("Taruhan berhasil dimasukkan!");
+    } catch (e) {
+        console.error(e);
+        alert("Terjadi kesalahan saat memasukkan taruhan.");
+    }
 };
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
@@ -165,19 +176,22 @@
 onSnapshot(doc(db, "lobbies", lobbyId), (docSnap) => {
     if (docSnap.exists()) {
         const data = docSnap.data();
+        
         if (data.players) {
             const uids = Object.keys(data.players);
             
-            // Update User 1
-            if (uids[0]) {
-                document.getElementById('p1').innerText = data.players[uids[0]].username;
-                document.getElementById('bet1').innerText = "Taruhan: Rp " + data.players[uids[0]].bet.toLocaleString();
+            // Update User 1 (Pemain pertama yang masuk taruhan)
+            if (uids.length > 0) {
+                const p1Data = data.players[uids[0]];
+                document.getElementById('p1').innerText = p1Data.username;
+                document.getElementById('bet1').innerText = "Taruhan: Rp " + p1Data.bet.toLocaleString();
             }
             
-            // Update User 2
-            if (uids[1]) {
-                document.getElementById('p2').innerText = data.players[uids[1]].username;
-                document.getElementById('bet2').innerText = "Taruhan: Rp " + data.players[uids[1]].bet.toLocaleString();
+            // Update User 2 (Pemain kedua yang masuk taruhan)
+            if (uids.length > 1) {
+                const p2Data = data.players[uids[1]];
+                document.getElementById('p2').innerText = p2Data.username;
+                document.getElementById('bet2').innerText = "Taruhan: Rp " + p2Data.bet.toLocaleString();
             }
         }
     }
