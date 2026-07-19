@@ -7,7 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-950 text-white p-4 h-screen flex flex-col max-w-md mx-auto">
+<body class="bg-slate-950 text-white p-4 h-screen flex flex-col max-w-md mx-auto relative">
+    
     <!-- Header Lobby -->
     <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 mb-4 flex justify-between items-center">
         <div>
@@ -16,9 +17,9 @@
             <p id="betDisplay" class="text-xs text-yellow-400 font-bold mt-1">Taruhan: Rp 0</p>
         </div>
         <div class="flex gap-2">            
-            <button onclick="callAdmin()" id="callAdminBtn" class="bg-red-600/20 text-red-500 border border-red-600 px-3 py-2 rounded-lg text-xs font-bold transition">Panggil Admin</button>
+            <button onclick="window.callAdmin()" id="callAdminBtn" class="bg-red-600/20 text-red-500 border border-red-600 px-3 py-2 rounded-lg text-xs font-bold transition hover:bg-red-600 hover:text-white">Panggil Admin</button>
             <button onclick="window.location.href='index.html'" class="bg-slate-800 px-3 py-2 rounded-lg text-xs"><i class="fa-solid fa-xmark"></i></button>
-            <button onclick="tutupLobby()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg text-xs ml-1">Tutup Lobby</button>
+            <button onclick="window.tutupLobby()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg text-xs ml-1">Tutup Lobby</button>
         </div>
     </div>
 
@@ -28,27 +29,42 @@
         <div class="text-slate-500 font-black">VS</div>
         <div id="p2" class="text-center font-bold text-sm">User 2</div>
     </div>
-
     <div class="flex justify-between text-xs text-blue-400 mb-4 px-2">
         <span id="bet1">Taruhan: Rp 0</span>
         <span id="bet2">Taruhan: Rp 0</span>
     </div>
-
     <div id="actionContainer">
-        <button onclick="masukTaruhan()" class="bg-green-600 text-white p-2 rounded-lg w-full mt-4 font-bold text-sm hover:bg-green-500">
+        <button onclick="window.masukTaruhan()" class="bg-green-600 text-white p-3 rounded-lg w-full mt-4 font-bold text-sm hover:bg-green-500 transition shadow-[0_0_10px_rgba(22,163,74,0.4)]">
             MASUK TARUHAN
         </button>
     </div>
 
     <!-- Area Chat -->
-    <div id="chatBox" class="flex-1 overflow-y-auto bg-slate-900 p-4 rounded-xl mb-4 border border-slate-800 space-y-3">
+    <div id="chatBox" class="flex-1 overflow-y-auto bg-slate-900 p-4 rounded-xl mb-4 border border-slate-800 space-y-3 mt-4">
         <p class="text-center text-xs text-slate-500 my-4">Selamat datang di lobby taruhan.</p>
+        <!-- Pesan muncul di sini -->
     </div>
 
     <!-- Input Chat -->
     <div class="flex gap-2 mb-4">
         <input type="text" id="messageInput" placeholder="Ketik pesan..." class="flex-1 bg-slate-900 border border-slate-700 p-3 rounded-xl focus:outline-none focus:border-blue-500">
-        <button onclick="sendMessage()" class="bg-blue-600 px-5 rounded-xl font-bold"><i class="fa-solid fa-paper-plane"></i></button>
+        <button onclick="window.sendMessage()" class="bg-blue-600 px-5 rounded-xl font-bold hover:bg-blue-500 transition"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+
+    <!-- POPUP MODERN CUSTOM -->
+    <div id="customModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div id="modalBox" class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-sm p-5 scale-95 opacity-0 transition-all duration-200 shadow-2xl">
+            <h3 id="modalTitle" class="text-lg font-black text-white mb-2">Title</h3>
+            <p id="modalMessage" class="text-sm text-slate-300 mb-4">Message goes here</p>
+            
+            <div id="modalInputContainer" class="hidden mb-4">
+                <input type="number" id="modalInput" class="w-full bg-slate-950 border border-slate-700 p-3 rounded-xl text-white font-bold focus:outline-blue-500 focus:border-blue-500" placeholder="0">
+            </div>
+            
+            <div id="modalButtons" class="flex justify-end gap-2">
+                <!-- Tombol Akan Disuntik dari JS -->
+            </div>
+        </div>
     </div>
 
     <script type="module">
@@ -56,22 +72,88 @@
         import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
         
-        const firebaseConfig = { 
-            apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8", 
-            authDomain: "parlaywins-new.firebaseapp.com", 
-            projectId: "parlaywins-new", 
-            storageBucket: "parlaywins-new.firebasestorage.app", 
-            messagingSenderId: "1025882923334", 
-            appId: "1:1025882923334:web:715307a770239023f48547" 
-        };
+        const firebaseConfig = { apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8", authDomain: "parlaywins-new.firebaseapp.com", projectId: "parlaywins-new", storageBucket: "parlaywins-new.firebasestorage.app", messagingSenderId: "1025882923334", appId: "1:1025882923334:web:715307a770239023f48547" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // --- SISTEM POPUP MODERN ---
+        window.showModernPopup = (title, message, type = 'alert', onConfirm = null) => {
+            const modal = document.getElementById('customModal');
+            const box = document.getElementById('modalBox');
+            const titleEl = document.getElementById('modalTitle');
+            const messageEl = document.getElementById('modalMessage');
+            const inputContainer = document.getElementById('modalInputContainer');
+            const inputEl = document.getElementById('modalInput');
+            const btns = document.getElementById('modalButtons');
+
+            titleEl.innerText = title;
+            messageEl.innerText = message;
+            
+            // Animasi masuk
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                box.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+
+            const closeModal = () => {
+                box.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => modal.classList.add('hidden'), 200);
+            };
+
+            if (type === 'prompt') {
+                inputContainer.classList.remove('hidden');
+                inputEl.value = '';
+                inputEl.focus();
+                btns.innerHTML = `
+                    <button id="cancelBtn" class="px-4 py-2 text-sm text-slate-400 hover:text-white transition">Batal</button>
+                    <button id="confirmBtn" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-bold text-white transition">Konfirmasi</button>
+                `;
+                document.getElementById('cancelBtn').onclick = closeModal;
+                document.getElementById('confirmBtn').onclick = () => {
+                    if (onConfirm) onConfirm(inputEl.value);
+                    closeModal();
+                };
+            } else if (type === 'confirm') {
+                inputContainer.classList.add('hidden');
+                btns.innerHTML = `
+                    <button id="cancelBtn" class="px-4 py-2 text-sm text-slate-400 hover:text-white transition">Batal</button>
+                    <button id="confirmBtn" class="px-5 py-2 bg-red-600 hover:bg-red-500 rounded-lg text-sm font-bold text-white transition">Yakin</button>
+                `;
+                document.getElementById('cancelBtn').onclick = closeModal;
+                document.getElementById('confirmBtn').onclick = () => {
+                    if (onConfirm) onConfirm();
+                    closeModal();
+                };
+            } else { 
+                inputContainer.classList.add('hidden');
+                btns.innerHTML = `
+                    <button id="okBtn" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-bold text-white transition">Tutup</button>
+                `;
+                document.getElementById('okBtn').onclick = closeModal;
+            }
+        };
+
         const urlParams = new URLSearchParams(window.location.search);
         const lobbyId = urlParams.get('id');
 
-        // FUNGSI PERHITUNGAN POTONGAN
+        if (!lobbyId) {
+            window.showModernPopup("Error", "Akses ditolak. Kode lobby tidak valid.", "alert", () => {
+                window.location.href = "index.html";
+            });
+        } else {
+            document.getElementById('lobbyTitle').innerText = lobbyId;
+            getDoc(doc(db, "lobbies", lobbyId)).then(snap => {
+                if(snap.exists() && snap.data().betAmount) {
+                    document.getElementById('betDisplay').innerText = "Taruhan: Rp " + snap.data().betAmount.toLocaleString('id-ID');
+                }
+            });
+        }
+
+        auth.onAuthStateChanged(user => {
+            if (!user) window.location.href = "index.html";
+        });
+
         function hitungPotongan(totalTaruhan) {
             if (totalTaruhan <= 50000) return 5000;
             if (totalTaruhan <= 100000) return 10000;
@@ -83,79 +165,100 @@
             return 0;
         }
 
-        // FUNGSI MASUK TARUHAN
-        window.masukTaruhan = async () => {
-            const nominal = parseInt(prompt("Masukkan nominal taruhan Anda:"));
-            if (!nominal || nominal <= 0) return;
-            
-            const userRef = doc(db, "users", auth.currentUser.uid);
-            const userSnap = await getDoc(userRef);
-            const currentBalance = userSnap.data().balance || 0;
-            
-            if (currentBalance < nominal) {
-                return window.showPopup("Gagal", "Saldo tidak cukup!", "error");
-            }
+        // --- FUNGSI MASUK TARUHAN ---
+        window.masukTaruhan = () => {
+            window.showModernPopup("Pasang Taruhan", "Masukkan nominal taruhan Anda:", "prompt", async (val) => {
+                const nominal = parseInt(val);
+                if (!nominal || nominal <= 0) return;
+                
+                const userRef = doc(db, "users", auth.currentUser.uid);
+                const userSnap = await getDoc(userRef);
+                const currentBalance = userSnap.data().balance || 0;
+                
+                if (currentBalance < nominal) {
+                    return window.showModernPopup("Gagal", "Saldo Anda tidak mencukupi!", "alert");
+                }
 
-            try {
-                const sisaSaldo = currentBalance - nominal;
-                await updateDoc(userRef, { balance: sisaSaldo });
-                const username = auth.currentUser.email.split('@')[0];
-                await updateDoc(doc(db, "lobbies", lobbyId), {
-                    [`players.${auth.currentUser.uid}`]: { username: username, bet: nominal }
-                });
-                window.showPopup("Berhasil", "Taruhan berhasil dimasukkan!", "success");
-            } catch (e) {
-                window.showPopup("Error", "Terjadi kesalahan saat memasukkan taruhan.", "error");
-            }
+                try {
+                    const sisaSaldo = currentBalance - nominal;
+                    await updateDoc(userRef, { balance: sisaSaldo });
+                    
+                    const username = auth.currentUser.email.split('@')[0];
+                    await updateDoc(doc(db, "lobbies", lobbyId), {
+                        [`players.${auth.currentUser.uid}`]: {
+                            username: username,
+                            bet: nominal
+                        }
+                    });
+                    
+                    window.showModernPopup("Berhasil", "Taruhan berhasil dimasukkan ke dalam sistem!", "alert");
+                } catch (e) {
+                    console.error(e);
+                    window.showModernPopup("Error", "Terjadi kesalahan saat memasukkan taruhan.", "alert");
+                }
+            });
         };
 
-        // FUNGSI PANGGIL ADMIN
+        // --- FUNGSI PANGGIL ADMIN ---
         window.callAdmin = async () => {
-            if (!lobbyId) return window.showPopup("Error", "Kode lobby tidak ditemukan!", "error");
+            if (!lobbyId) return window.showModernPopup("Error", "Kode lobby tidak ditemukan!", "alert");
+            
             try {
-                await updateDoc(doc(db, "lobbies", lobbyId), { adminCalled: true, status: "admin_called" });
+                await updateDoc(doc(db, "lobbies", lobbyId), {
+                    adminCalled: true,
+                    status: "admin_called"
+                });
+
                 const btn = document.getElementById('callAdminBtn');
                 if (btn) {
                     btn.innerHTML = "Admin Dipanggil!";
                     btn.classList.remove('bg-red-600/20', 'text-red-500');
                     btn.classList.add('bg-red-600', 'text-white');
                 }
-                window.showPopup("Berhasil", "Panggilan ke Admin berhasil dikirim!", "success");
+
+                window.showModernPopup("Sukses", "Panggilan kepada Admin telah berhasil dikirim ke sistem!", "alert");
             } catch (e) {
-                window.showPopup("Error", "Gagal memanggil admin.", "error");
+                console.error(e);
+                window.showModernPopup("Gagal", "Gagal memanggil admin, coba lagi.", "alert");
             }
         };
 
-        // FUNGSI TUTUP LOBBY
-        window.tutupLobby = async () => {
-            window.showPopup("Konfirmasi", "Yakin ingin menutup dan menghapus lobby ini?", "warning", async () => {
+        // --- FUNGSI TUTUP LOBBY ---
+        window.tutupLobby = () => {
+            window.showModernPopup("Tutup Ruangan", "Apakah Anda yakin ingin menutup dan menghapus lobby ini secara permanen?", "confirm", async () => {
                 await deleteDoc(doc(db, "lobbies", lobbyId));
                 window.location.href = "index.html";
             });
         };
 
-        // FUNGSI CHAT
         window.sendMessage = async () => {
             const input = document.getElementById('messageInput');
             if (!input.value.trim()) return;
+            
             let sender = auth.currentUser.email === "admin@cvtaruhan.com" ? "ADMIN" : auth.currentUser.email.split('@')[0];
+
             await addDoc(collection(db, `lobbies/${lobbyId}/chats`), {
                 text: input.value, senderEmail: sender, timestamp: new Date()
             });
             input.value = "";
+            
             if (auth.currentUser.email === "admin@cvtaruhan.com") {
                 await updateDoc(doc(db, "lobbies", lobbyId), { needsAdmin: false });
             }
         };
 
-        // SNAPSHOT CHAT & LOBBY (DIPISAH AGAR LEBIH PANJANG)
-        onSnapshot(query(collection(db, `lobbies/${lobbyId}/chats`), orderBy("timestamp")), (snapshot) => {
+        const q = query(collection(db, `lobbies/${lobbyId}/chats`), orderBy("timestamp"));
+        onSnapshot(q, (snapshot) => {
             let html = "";
             snapshot.forEach(docData => { 
                 const data = docData.data();
                 const isAdmin = data.senderEmail === "ADMIN";
                 const isSystem = data.senderEmail === "Sistem";
-                let bubbleClass = isAdmin ? "bg-yellow-600/20 border border-yellow-600 text-yellow-100" : (isSystem ? "bg-slate-800 text-slate-400 text-center italic text-[10px] w-full border-none p-1" : "bg-blue-600 text-white");
+                
+                let bubbleClass = isAdmin ? "bg-yellow-600/20 border border-yellow-600 text-yellow-100" : 
+                                 isSystem ? "bg-slate-800 text-slate-400 text-center italic text-[10px] w-full border-none p-1" :
+                                 "bg-blue-600 text-white";
+
                 html += `<div class="mb-2 p-2 rounded-lg text-sm w-fit max-w-[85%] ${bubbleClass}">
                     ${isSystem ? '' : `<p class="text-[10px] font-bold mb-1 ${isAdmin ? 'text-yellow-500' : 'text-slate-300'}">${data.senderEmail}</p>`}
                     ${data.text}
@@ -166,23 +269,62 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         });
 
-        // FUNGSI PEMENANG DAN STATUS
         onSnapshot(doc(db, "lobbies", lobbyId), (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                // ... (Logika UI Anda disini)
+                let bet1 = 0, bet2 = 0;
+                
+                if (data.players) {
+                    const uids = Object.keys(data.players);
+                    
+                    if (uids.length > 0) {
+                        document.getElementById('p1').innerText = data.players[uids[0]].username;
+                        document.getElementById('bet1').innerText = "Taruhan: Rp " + data.players[uids[0]].bet.toLocaleString();
+                        bet1 = data.players[uids[0]].bet;
+                    }
+                    if (uids.length > 1) {
+                        document.getElementById('p2').innerText = data.players[uids[1]].username;
+                        document.getElementById('bet2').innerText = "Taruhan: Rp " + data.players[uids[1]].bet.toLocaleString();
+                        bet2 = data.players[uids[1]].bet;
+                    }
+                }
+
+                const totalTaruhan = bet1 + bet2;
+                document.getElementById('betDisplay').innerText = "Taruhan: Rp " + totalTaruhan.toLocaleString();
+
+                const actionContainer = document.getElementById('actionContainer');
+                const myUid = auth.currentUser ? auth.currentUser.uid : null;
+
+                if (actionContainer && myUid && data.winner) {
+                    if (data.winner === myUid) {
+                        if (data.claimed) {
+                            actionContainer.innerHTML = `<div class="bg-blue-600 text-white p-3 rounded-lg w-full mt-4 font-bold text-sm text-center">Kemenangan Sudah Diambil</div>`;
+                        } else {
+                            actionContainer.innerHTML = `<button onclick="window.ambilKemenangan(${totalTaruhan})" class="bg-yellow-500 text-black p-3 rounded-lg w-full mt-4 font-black text-sm animate-pulse shadow-[0_0_15px_rgba(234,179,8,0.5)]">AMBIL KEMENANGAN (Rp ${totalTaruhan.toLocaleString()})</button>`;
+                        }
+                    } else {
+                        actionContainer.innerHTML = `<div class="bg-red-600 text-slate-300 border border-red-500 p-3 rounded-lg w-full mt-4 font-bold text-sm text-center italic">Taruhan Anda Kalah</div>`;
+                    }
+                }
             }
         });
 
-        // FUNGSI AMBIL KEMENANGAN
         window.ambilKemenangan = async (totalTaruhan) => {
             const potongan = hitungPotongan(totalTaruhan); 
             const bersih = totalTaruhan - potongan;
+            
             try {
-                // ... (Proses Update Saldo & Claimed)
-                window.showPopup("Selamat!", `Anda menang Rp ${bersih.toLocaleString()}`, "success");
+                const userRef = doc(db, "users", auth.currentUser.uid);
+                const userSnap = await getDoc(userRef);
+                const currentBalance = userSnap.data().balance || 0;
+                
+                await updateDoc(userRef, { balance: currentBalance + bersih });
+                await updateDoc(doc(db, "lobbies", lobbyId), { claimed: true });
+                
+                window.showModernPopup("Selamat!", `Anda memenangkan Rp ${bersih.toLocaleString()}\n(Dipotong Admin: Rp ${potongan.toLocaleString()})`, "alert");
             } catch (e) {
-                window.showPopup("Error", "Gagal mengambil kemenangan.", "error");
+                console.error(e);
+                window.showModernPopup("Error", "Terjadi kesalahan saat mengambil kemenangan.", "alert");
             }
         };
     </script>
