@@ -89,8 +89,15 @@
                 
                 <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
                     <h2 class="font-bold text-yellow-500 text-sm mb-3">Kelola Metode Pembayaran</h2>
-                    <textarea id="paymentData" rows="2" class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mb-3 text-sm focus:outline-none focus:border-blue-500"></textarea>
-                    <button onclick="window.savePayment()" class="w-full bg-green-600 py-3 rounded-xl font-bold text-sm">Simpan Metode Pembayaran</button>
+                    <input type="text" id="payBank" placeholder="Nama Bank/E-Wallet (Misal: BCA, DANA)" class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mb-2 text-sm focus:outline-none focus:border-blue-500">
+                    <input type="text" id="payRek" placeholder="Nomor Rekening / No HP" class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mb-2 text-sm focus:outline-none focus:border-blue-500">
+                    <input type="text" id="payLogo" placeholder="URL Logo (Link gambar - Opsional)" class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mb-3 text-sm focus:outline-none focus:border-blue-500">
+                    
+                    <button onclick="window.savePayment()" class="w-full bg-green-600 py-3 rounded-xl font-bold text-sm mb-2">Tambah Metode Pembayaran</button>
+                    
+                    <div id="paymentListAdmin" class="space-y-2 mt-4 border-t border-slate-800 pt-3">
+                        <!-- List pembayaran admin akan dirender di sini -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -103,9 +110,9 @@
                 <h2 class="font-bold">Deposit Akun</h2>
                 <button onclick="window.tutupModalDeposit()"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="p-4 grid grid-cols-2 gap-3">
-                <button onclick="window.pilihBank('BCA', 'BCA', '0382882922')" class="bg-white p-4 rounded-lg shadow text-slate-800 font-bold">BCA</button>
-                <button onclick="window.pilihBank('QRIS', 'QRIS', 'Scan Barcode')" class="bg-white p-4 rounded-lg shadow text-slate-800 font-bold">QRIS</button>
+            <div class="p-4 grid grid-cols-2 gap-3" id="depositMethodsGrid">
+                <!-- Metode deposit dari Firestore akan muncul di sini -->
+                <p class="text-xs text-slate-500 col-span-2 text-center py-4">Memuat metode pembayaran...</p>
             </div>
         </div>
     </div>
@@ -134,7 +141,6 @@
         </div>
     </div>
 
-    <!-- STRUKTUR POPUP MODERN YANG TADI SALAH TEMPAT (Pindah ke Sini) -->
     <div id="modernPopup" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[9999]">
         <div class="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-4/5 max-w-sm text-center shadow-2xl">
             <h2 id="modernPopupTitle" class="text-white font-bold text-lg mb-2"></h2>
@@ -149,7 +155,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, query, collection, where, getDocs, deleteDoc, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove, query, collection, where, getDocs, deleteDoc, onSnapshot, increment, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8",
@@ -164,7 +170,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- SISTEM POPUP MODERN (TELAH DIPERBAIKI) ---
+        // --- SISTEM POPUP MODERN ---
         window.showPopup = function(title, message, type = 'info', onConfirm = null) {
             const popup = document.getElementById('globalPopup');
             const content = document.getElementById('popupContent');
@@ -268,6 +274,7 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 renderDashboard(user);
+                loadPaymentMethods(); // Load metode pembayaran untuk deposit modal
             } else {
                 document.getElementById('authView').classList.remove('hidden');
                 document.getElementById('dashboardView').classList.add('hidden');
@@ -275,7 +282,7 @@
             }
         });
 
-        // --- FUNGSI RENDER DASHBOARD ---
+                // --- FUNGSI RENDER DASHBOARD ---
         function renderDashboard(user) {
             document.getElementById('authView').classList.add('hidden');
             document.getElementById('dashboardView').classList.remove('hidden');
@@ -298,19 +305,59 @@
                         
                         document.getElementById('historyList').innerHTML = history.map(item => {
                             const date = item.timestamp ? new Date(item.timestamp.seconds * 1000).toLocaleString('id-ID') : new Date().toLocaleString('id-ID');
+                            // FITUR BARU: Ditambahkan flex gap dan tombol hapus riwayat lobby
                             return `<div class="bg-slate-800 p-3 rounded-lg mb-2 border border-slate-700">
                                         <div class="flex justify-between items-center mb-1">
                                             <span class="text-white font-bold tracking-wider">${item.code || item}</span>
                                             <span class="text-[9px] text-slate-500 font-mono">${date}</span>
                                         </div>
-                                        <button onclick="window.location.href='lobby.html?id=${item.code || item}'" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-1.5 rounded-lg text-xs font-bold transition">
-                                            MASUK KEMBALI
-                                        </button>
+                                        <div class="flex gap-2">
+                                            <button onclick="window.location.href='lobby.html?id=${item.code || item}'" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-1.5 rounded-lg text-xs font-bold transition">
+                                                MASUK KEMBALI
+                                            </button>
+                                            <button onclick="window.hapusRiwayatLobby('${item.code || item}')" class="bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded-lg text-xs transition" title="Hapus dari Riwayat">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </div>
                                     </div>`;
                         }).join('') || '<p class="text-xs text-slate-500 text-center">Belum ada riwayat.</p>';
                     }
                 });
             }
+        }
+
+        // --- FUNGSI HAPUS RIWAYAT LOBBY (USER) ---
+        window.hapusRiwayatLobby = async function(code) {
+            window.showPopup("Hapus Riwayat", "Apakah Anda yakin ingin menghapus lobby ini dari riwayat Anda?", "warning", async () => {
+                try {
+                    await updateDoc(doc(db, "users", auth.currentUser.uid), {
+                        lobbyHistory: arrayRemove(code)
+                    });
+                } catch(e) {
+                    window.showPopup("Gagal", e.message, "error");
+                }
+            });
+        };
+
+        // --- LOAD METODE PEMBAYARAN KE MODAL USER ---
+        function loadPaymentMethods() {
+            onSnapshot(collection(db, "payment_methods"), (snap) => {
+                const depositGrid = document.getElementById('depositMethodsGrid');
+                let html = "";
+                snap.forEach(d => {
+                    const data = d.data();
+                    html += `<button onclick="window.pilihBank('${data.bank}', '${data.bank}', '${data.rek}')" class="bg-white p-3 rounded-lg shadow text-slate-800 font-bold flex flex-col items-center justify-center gap-2 hover:bg-slate-50 transition">
+                                ${data.logo ? `<img src="${data.logo}" class="h-8 object-contain" alt="${data.bank}">` : `<span class="text-lg"><i class="fa-solid fa-building-columns"></i></span>`}
+                                <span class="text-xs">${data.bank}</span>
+                             </button>`;
+                });
+                
+                if (html) {
+                    depositGrid.innerHTML = html;
+                } else {
+                    depositGrid.innerHTML = `<p class="text-xs text-slate-500 col-span-2 text-center py-4">Belum ada metode pembayaran yang tersedia.</p>`;
+                }
+            });
         }
 
         // --- FUNGSI MODAL ---
@@ -323,7 +370,7 @@
             document.getElementById('actionModal').classList.remove('hidden');
             document.getElementById('modalTitle').innerText = "Deposit " + tipe;
             document.getElementById('inputContent').innerHTML = `
-                <p class="text-sm text-slate-600 mb-2">Tujuan: <strong>${info}</strong></p>
+                <p class="text-sm text-slate-600 mb-2">Tujuan Transfer: <strong>${info}</strong></p>
                 <input type="number" id="inputNominal" placeholder="Jumlah Nominal" class="w-full p-3 border rounded-lg mb-2 focus:outline-blue-500">
                 <input type="text" id="inputRek" placeholder="Nomor Rekening Anda" class="w-full p-3 border rounded-lg mb-2 focus:outline-blue-500">
                 <label class="block text-sm font-bold text-slate-700 mt-2">Upload Bukti (Opsional):</label>
@@ -413,15 +460,43 @@
         };
 
         // --- FUNGSI ADMIN ---
-        window.addPaymentMethod = async function() {
-            const name = document.getElementById('paymentName').value;
-            const number = document.getElementById('paymentNumber').value;
-            const logoUrl = document.getElementById('paymentLogo').value;
+        // Simpan / Tambah Metode Pembayaran via Admin
+        window.savePayment = async function() {
+            const bank = document.getElementById('payBank').value;
+            const rek = document.getElementById('payRek').value;
+            const logo = document.getElementById('payLogo').value;
             
-            if(!name || !number) return window.showPopup("Gagal", "Nama & Nomor harus diisi!");
+            if(!bank || !rek) return window.showPopup("Gagal", "Nama Bank/E-Wallet dan Nomor Rekening wajib diisi!", "error");
             
-            await addDoc(collection(db, "paymentMethods"), { name, number, logoUrl, createdAt: new Date() });
-            window.showPopup("Berhasil", "Metode pembayaran baru ditambahkan!");
+            try {
+                await addDoc(collection(db, "payment_methods"), { 
+                    bank, rek, logo, createdAt: new Date() 
+                });
+                document.getElementById('payBank').value = '';
+                document.getElementById('payRek').value = '';
+                document.getElementById('payLogo').value = '';
+                window.showPopup("Berhasil", "Metode pembayaran baru berhasil ditambahkan!", "success");
+            } catch(e) { 
+                window.showPopup("Gagal", e.message, "error"); 
+            }
+        };
+
+        // Hapus Metode Pembayaran via Admin
+        window.hapusPaymentAdmin = async function(id) {
+            window.showPopup("Hapus Metode", "Yakin ingin menghapus metode pembayaran ini?", "warning", async () => {
+                await deleteDoc(doc(db, "payment_methods", id));
+            });
+        };
+
+        // Hapus / Tutup Lobby via Admin
+        window.tutupLobbyAdmin = async function(id) {
+            window.showPopup("Tutup Lobby", `Yakin ingin menutup dan menghapus lobby ${id}?`, "warning", async () => {
+                try {
+                    await deleteDoc(doc(db, "lobbies", id));
+                } catch(e) {
+                    window.showPopup("Gagal", e.message, "error");
+                }
+            });
         };
 
         function loadAdminData() {
@@ -437,6 +512,7 @@
                 );
             };
 
+            // Listener Lobbies Aktif Admin
             const qLobby = query(collection(db, "lobbies"), where("status", "!=", "finished"));
             onSnapshot(qLobby, (snap) => {
                 const wadahLobby = document.getElementById('adminLobbyList');
@@ -451,7 +527,14 @@
                         if (uids.length > 1) { uid2 = uids[1]; p2 = data.players[uid2].username; bet2 = data.players[uid2].bet; }
                     }
                     const isPanggilAdmin = (data.status === "admin_called" || data.adminCalled === true);
-                    let adminActions = `<button onclick="window.location.href='lobby.html?id=${docSnap.id}'" class="w-full bg-slate-700 text-white py-2 rounded-lg font-bold text-xs mb-2">Masuk ke Ruangan</button>`;
+                    
+                    let adminActions = `<button onclick="window.location.href='lobby.html?id=${docSnap.id}'" class="w-full bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-lg font-bold text-xs mb-2 transition">Masuk ke Ruangan</button>`;
+                    
+                    // FITUR BARU: Tambah tombol Tutup Lobby jika tidak bergaris merah (bukan panggil admin)
+                    if (!isPanggilAdmin && !data.winner) {
+                        adminActions += `<button onclick="window.tutupLobbyAdmin('${docSnap.id}')" class="w-full bg-red-600 hover:bg-red-500 text-white py-2 rounded-lg font-bold text-xs mb-2 transition">Tutup Lobby</button>`;
+                    }
+
                     if (uid1 && uid2 && !data.winner) {
                         adminActions += `<div class="flex gap-2 border-t border-slate-800 pt-2"><button onclick="window.setWinner('${docSnap.id}', '${uid1}', '${p1}')" class="w-1/2 bg-yellow-600 text-black py-2 rounded font-black text-[10px]">Menang ${p1}</button><button onclick="window.setWinner('${docSnap.id}', '${uid2}', '${p2}')" class="w-1/2 bg-yellow-600 text-black py-2 rounded font-black text-[10px]">Menang ${p2}</button></div>`;
                     } else if (data.winner) {
@@ -460,6 +543,27 @@
                     htmlLobby += `<div class="bg-slate-900 p-4 rounded-xl border ${isPanggilAdmin ? 'border-red-500' : 'border-slate-700'} mb-3"><div class="flex justify-between mb-2"><span class="font-black text-blue-400 text-sm">LOBBY: ${docSnap.id}</span></div><div class="flex justify-between text-white text-xs mb-3"><span>${p1}: Rp ${bet1.toLocaleString()}</span><span class="font-bold text-slate-500">VS</span><span>${p2}: Rp ${bet2.toLocaleString()}</span></div>${adminActions}</div>`;
                 });
                 wadahLobby.innerHTML = htmlLobby || '<p class="text-slate-500 text-center text-sm">Belum ada lobby aktif.</p>';
+            });
+
+            // Listener Metode Pembayaran Admin
+            onSnapshot(collection(db, "payment_methods"), (snap) => {
+                let html = "";
+                snap.forEach(d => {
+                    const data = d.data();
+                    html += `<div class="flex justify-between items-center bg-slate-800 p-3 rounded-lg border border-slate-700">
+                                <div class="flex items-center gap-3">
+                                    ${data.logo ? `<img src="${data.logo}" class="w-8 h-8 object-contain bg-white rounded p-1">` : `<div class="w-8 h-8 bg-slate-700 rounded flex items-center justify-center"><i class="fa-solid fa-building-columns text-slate-400 text-xs"></i></div>`}
+                                    <div class="text-xs text-slate-300">
+                                        <b class="text-white">${data.bank}</b><br>
+                                        ${data.rek}
+                                    </div>
+                                </div>
+                                <button onclick="window.hapusPaymentAdmin('${d.id}')" class="text-red-500 hover:text-red-400 bg-red-500/10 p-2 rounded">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                             </div>`;
+                });
+                document.getElementById('paymentListAdmin').innerHTML = html || '<p class="text-xs text-slate-500 text-center">Belum ada metode pembayaran yang dikonfigurasi.</p>';
             });
 
             window.approve = async function(id) {
@@ -502,24 +606,26 @@
                 }
             };
 
-            onSnapshot(collection(db, "withdraws"), (snap) => {
-                let html = "";
-                snap.forEach(d => {
-                    const data = d.data();
-                    if (data.status === "pending") {
-                        html += `<div class="bg-slate-800 p-4 rounded-xl border border-red-500 mb-3 text-sm mt-3">
-                                    <p class="font-bold text-white mb-1">User ID: ${data.uid}</p>
-                                    <p class="text-red-400 font-black text-lg mb-1">Rp ${data.amount.toLocaleString()} (WD)</p>
-                                    <p class="text-xs text-slate-300 mb-3">Tujuan Trf: ${data.rek}</p>
-                                    <button onclick="window.approveWithdraw('${d.id}')" class="w-full bg-red-600 hover:bg-red-500 py-2 rounded-lg font-bold text-white transition">Tandai Sudah Ditransfer</button>
-                                 </div>`;
-                    }
-                });
-                if(html) {
-                    document.getElementById('adminList').innerHTML = html + document.getElementById('adminList').innerHTML;
+                    onSnapshot(collection(db, "withdraws"), (snap) => {
+            let html = "";
+            snap.forEach(d => {
+                const data = d.data();
+                if (data.status === "pending") {
+                    html += `<div class="bg-slate-800 p-4 rounded-xl border border-red-500 mb-3 text-sm mt-3">
+                                <p class="font-bold text-white mb-1">User ID: ${data.uid}</p>
+                                <p class="text-red-400 font-black text-lg mb-1">Rp ${data.amount.toLocaleString()} (WD)</p>
+                                <p class="text-xs text-slate-300 mb-3">Tujuan Trf: ${data.rek}</p>
+                                <button onclick="window.approveWithdraw('${d.id}')" class="w-full bg-red-600 hover:bg-red-500 py-2 rounded-lg font-bold text-white transition">Tandai Sudah Ditransfer</button>
+                             </div>`;
                 }
             });
-        }
+            if(html) {
+                document.getElementById('adminList').innerHTML = html + document.getElementById('adminList').innerHTML;
+            }
+        });
+    }
     </script>
 </body>
 </html>
+
+                
