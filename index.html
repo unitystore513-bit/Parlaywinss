@@ -526,8 +526,8 @@
             });
         };
 
-                          function loadAdminData() {
-            // FITUR BARU: Pop-up internal untuk melihat foto bukti transfer (Bebas dari bug tab blank di HP)
+                               function loadAdminData() {
+            // Pop-up internal untuk melihat foto bukti transfer
             window.lihatBuktiFoto = function(base64Data) {
                 let modal = document.getElementById('imageViewerModal');
                 if (!modal) {
@@ -548,14 +548,83 @@
                 modal.classList.remove('hidden');
             };
 
+            // KODE PERBAIKAN: Menggabungkan Potongan Awal (<5jt) dan Potongan Baru (5jt-100jt)
             window.setWinner = async function(lobbyId, winnerUid, winnerName) {
                 window.showPopup(
                     "Tentukan Pemenang", 
                     `Apakah Anda yakin ingin menetapkan ${winnerName} sebagai pemenang dari Lobby ini?`, 
                     "warning", 
                     async () => {
-                        await updateDoc(doc(db, "lobbies", lobbyId), { winner: winnerUid, status: "finished" });
-                        window.showPopup("Selesai!", `Pemenang berhasil diatur ke: ${winnerName}!`, "success");
+                        try {
+                            const lobbyRef = doc(db, "lobbies", lobbyId);
+                            const lobbySnap = await getDoc(lobbyRef);
+                            if (!lobbySnap.exists()) return window.showPopup("Gagal", "Data lobby tidak ditemukan!", "error");
+                            
+                            const lobbyData = lobbySnap.data();
+                            let totalPool = 0;
+                            
+                            // Hitung total uang taruhan di dalam lobby (Bet P1 + Bet P2)
+                            if (lobbyData.players) {
+                                for (let key in lobbyData.players) {
+                                    totalPool += lobbyData.players[key].bet || 0;
+                                }
+                            }
+
+                            let potongan = 0;
+
+                            // =========================================================
+                            // 1. STRUKTUR POTONGAN BARU (5 JT - 100 JT)
+                            // =========================================================
+                            if (totalPool >= 70000000 && totalPool <= 100000000) {
+                                potongan = 3500000; // 70jt - 100jt dipotong 3.5jt
+                            } else if (totalPool >= 50000000 && totalPool < 70000000) {
+                                potongan = 2000000; // 50jt - 70jt dipotong 2jt
+                            } else if (totalPool >= 30000000 && totalPool < 50000000) {
+                                potongan = 1200000; // 30jt - 50jt dipotong 1.2jt
+                            } else if (totalPool >= 20000000 && totalPool < 30000000) {
+                                potongan = 800000;  // 20jt - 30jt dipotong 800rb
+                            } else if (totalPool >= 10000000 && totalPool < 20000000) {
+                                potongan = 500000;  // 10jt - 20jt dipotong 500rb
+                            } else if (totalPool >= 5000000 && totalPool < 10000000) {
+                                potongan = 350000;  // 5jt - 10jt dipotong 350rb
+                            } 
+                            // =========================================================
+                            // 2. STRUKTUR POTONGAN AWAL ANDA (DI BAWAH 5 JT)
+                            // Silakan ubah angka nominal potongan di bawah ini sesuai aturan awal Anda
+                            // =========================================================
+                            else if (totalPool >= 3000000 && totalPool < 5000000) {
+                                potongan = 200000;  // Rentang 3jt - 5jt (Silakan sesuaikan)
+                            } else if (totalPool >= 1000000 && totalPool < 3000000) {
+                                potongan = 100000;  // Rentang 1jt - 3jt (Silakan sesuaikan)
+                            } else if (totalPool > 0 && totalPool < 1000000) {
+                                potongan = 50000;   // Rentang di bawah 1jt (Silakan sesuaikan)
+                            } else {
+                                potongan = 0;
+                            }
+
+                            // Hitung sisa uang bersih untuk pemenang
+                            const hadiahBersih = totalPool - potongan;
+
+                            // Kirim saldo bersih ke akun pemenang
+                            const userRef = doc(db, "users", winnerUid);
+                            await setDoc(userRef, { balance: increment(hadiahBersih) }, { merge: true });
+
+                            // Update status ruangan/lobby di database
+                            await updateDoc(lobbyRef, { 
+                                winner: winnerUid, 
+                                status: "finished",
+                                adminFeeApplied: potongan,
+                                totalPrizeNet: hadiahBersih
+                            });
+
+                            window.showPopup(
+                                "Selesai!", 
+                                `Hadiah Rp ${hadiahBersih.toLocaleString()} berhasil masuk ke dompet ${winnerName}. (Potongan Admin: Rp ${potongan.toLocaleString()})`, 
+                                "success"
+                            );
+                        } catch (e) {
+                            window.showPopup("Gagal Proses", e.message, "error");
+                        }
                     }
                 );
             };
@@ -648,7 +717,6 @@
                     if (data.status === "pending") {
                         const displayId = data.username || data.uid;
                         
-                        // Perubahan tombol memakai window.lihatBuktiFoto
                         html += `<div class="bg-slate-800 p-4 rounded-xl border border-yellow-500 mb-3 text-sm">
                                     <p class="font-bold text-white mb-1">User: <span class="text-yellow-400">${displayId}</span></p>
                                     <p class="text-blue-400 font-black text-lg mb-1">Rp ${data.amount.toLocaleString()}</p>
@@ -701,3 +769,5 @@
     </script>
 </body>
 </html>
+
+                            
