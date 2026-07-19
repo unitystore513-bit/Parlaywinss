@@ -321,31 +321,66 @@
   };
 
   function loadAdminData() {
-      window.setWinner = async function(lobbyId, winnerUid, winnerName) {
-          if(confirm(`Yakin tentukan ${winnerName} sebagai PEMENANG?`)) {
-              await updateDoc(doc(db, "lobbies", lobbyId), { winner: winnerUid, status: "finished" });
-              alert(`Pemenang berhasil diatur ke: ${winnerName}!`);
-          }
-      };
+          window.setWinner = async function(lobbyId, winnerUid, winnerName) {
+              if(confirm(`Yakin tentukan ${winnerName} sebagai PEMENANG?`)) {
+                  await updateDoc(doc(db, "lobbies", lobbyId), { winner: winnerUid, status: "finished" });
+                  alert(`Pemenang berhasil diatur ke: ${winnerName}!`);
+              }
+          };
 
-      const qLobby = query(collection(db, "lobbies"), where("status", "!=", "finished"));
-      onSnapshot(qLobby, (snap) => {
-          const wadahLobby = document.getElementById('adminLobbyList');
-          if (!wadahLobby) return;
-          let htmlLobby = '';
-          snap.forEach(docSnap => {
-              const data = docSnap.data();
-              let p1 = "Menunggu...", p2 = "Menunggu...", uid1 = null, uid2 = null, bet1 = 0, bet2 = 0;
-              if (data.players) {
-                  const uids = Object.keys(data.players);
-                  if (uids.length > 0) { uid1 = uids[0]; p1 = data.players[uid1].username; bet1 = data.players[uid1].bet; }
-                  if (uids.length > 1) { uid2 = uids[1]; p2 = data.players[uid2].username; bet2 = data.players[uid2].bet; }
+          const qLobby = query(collection(db, "lobbies"), where("status", "!=", "finished"));
+          onSnapshot(qLobby, (snap) => {
+              const wadahLobby = document.getElementById('adminLobbyList');
+              if (!wadahLobby) return;
+              let htmlLobby = '';
+              snap.forEach(docSnap => {
+                  const data = docSnap.data();
+                  let p1 = "Menunggu...", p2 = "Menunggu...", uid1 = null, uid2 = null, bet1 = 0, bet2 = 0;
+                  if (data.players) {
+                      const uids = Object.keys(data.players);
+                      if (uids.length > 0) { uid1 = uids[0]; p1 = data.players[uid1].username; bet1 = data.players[uid1].bet; }
+                      if (uids.length > 1) { uid2 = uids[1]; p2 = data.players[uid2].username; bet2 = data.players[uid2].bet; }
+                  }
+                  const isPanggilAdmin = (data.status === "admin_called" || data.adminCalled === true);
+                  let adminActions = `<button onclick="window.location.href='lobby.html?id=${docSnap.id}'" class="w-full bg-slate-700 text-white py-2 rounded-lg font-bold text-xs mb-2">Masuk ke Ruangan</button>`;
+                  if (uid1 && uid2 && !data.winner) {
+                      adminActions += `<div class="flex gap-2 border-t border-slate-800 pt-2"><button onclick="window.setWinner('${docSnap.id}', '${uid1}', '${p1}')" class="w-1/2 bg-yellow-600 text-black py-2 rounded font-black text-[10px]">Menang ${p1}</button><button onclick="window.setWinner('${docSnap.id}', '${uid2}', '${p2}')" class="w-1/2 bg-yellow-600 text-black py-2 rounded font-black text-[10px]">Menang ${p2}</button></div>`;
+                  } else if (data.winner) {
+                      adminActions += `<div class="text-center text-blue-500 font-bold text-xs mt-2 uppercase">Selesai</div>`;
+                  }
+                  htmlLobby += `<div class="bg-slate-900 p-4 rounded-xl border ${isPanggilAdmin ? 'border-red-500' : 'border-slate-700'} mb-3"><div class="flex justify-between mb-2"><span class="font-black text-blue-400 text-sm">LOBBY: ${docSnap.id}</span></div><div class="flex justify-between text-white text-xs mb-3"><span>${p1}: Rp ${bet1.toLocaleString()}</span><span class="font-bold text-slate-500">VS</span><span>${p2}: Rp ${bet2.toLocaleString()}</span></div>${adminActions}</div>`;
+              });
+              wadahLobby.innerHTML = htmlLobby || '<p class="text-slate-500 text-center text-sm">Belum ada lobby aktif.</p>';
+          });
+
+          window.approve = async function(id) {
+              try {
+                  const snap = await getDoc(doc(db, "deposits", id));
+                  const data = snap.data();
+                  await updateDoc(doc(db, "deposits", id), { status: "approved" });
+                  await setDoc(doc(db, "users", data.uid), { balance: increment(data.amount) }, { merge: true });
+                  alert("Transaksi berhasil disetujui!");
+              } catch(e) {
+                  alert("Gagal menyetujui: " + e.message);
               }
-              const isPanggilAdmin = (data.status === "admin_called" || data.adminCalled === true);
-              let adminActions = `<button onclick="window.location.href='lobby.html?id=${docSnap.id}'" class="w-full bg-slate-700 text-white py-2 rounded-lg font-bold text-xs mb-2">Masuk ke Ruangan</button>`;
-              if (uid1 && uid2 && !data.winner) {
-                  adminActions += `<div class="flex gap-2 border-t border-slate-800 pt-2"><button onclick="window.setWinner('${docSnap.id}', '${uid1}', '${p1}')" class="w-1/2 bg-yellow-600 text-black py-2 rounded font-black text-[10px]">Menang ${p1}</button><button onclick="window.setWinner('${docSnap.id}', '${uid2}', '${p2}')" class="w-1/2 bg-yellow-600 text-black py-2 rounded font-black text-[10px]">Menang ${p2}</button></div>`;
-              } else if (data.winner) {
-                  adminActions += `<div class="text-center text-blue-500 font-bold text-xs mt-2 uppercase">Selesai</div>`;
-              }
-              htmlLobby += `<div class="bg-slate-900 p-4 rounded-xl border ${isPanggilAdmin ? 'border-red-500' : 'border-slate-700'} mb-3"><div class="flex justify-between mb-2"><span class="font-black text-blue-400 text-sm">LOBBY: ${docSnap.id}</span></div><div class="flex justify-between text-white text-xs mb-3"><span>${p1}: Rp ${bet1.toLocaleString()}</span><span class="font-bold text-slate-500">VS</span><span>${p2}: Rp ${bet2.toLocaleString()
+          };
+
+          onSnapshot(collection(db, "deposits"), (snap) => {
+              let html = "";
+              snap.forEach(d => {
+                  const data = d.data();
+                  if (data.status === "pending") {
+                      html += `<div class="bg-slate-800 p-4 rounded-xl border border-yellow-500 mb-3 text-sm">
+                                  <p class="font-bold text-white mb-1">User: ${data.uid.substring(0,5)}...</p>
+                                  <p class="text-blue-400 font-black text-lg mb-1">Rp ${data.amount.toLocaleString()}</p>
+                                  <p class="text-xs text-slate-300 mb-3">Rekening: ${data.rek}</p>
+                                  <button onclick="window.approve('${d.id}')" class="w-full bg-blue-600 hover:bg-blue-500 py-2 rounded-lg font-bold text-white transition">Setujui Deposit</button>
+                               </div>`;
+                  }
+              });
+              document.getElementById('adminList').innerHTML = html || '<p class="text-slate-500 text-center text-sm">Tidak ada permintaan pending.</p>';
+          });
+      }
+</script>
+</body>
+</html>
