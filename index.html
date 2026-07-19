@@ -326,33 +326,53 @@
 
   window.submitAction = async () => {
       const title = document.getElementById('modalTitle').innerText;
-      const nominal = document.getElementById('inputNominal')?.value;
+      const nominal = parseInt(document.getElementById('inputNominal')?.value);
       const rek = document.getElementById('inputRek')?.value;
       
       if(!nominal || !rek) return window.showPopup("Gagal", "Mohon isi Nominal dan Rekening Anda!", "error");
 
-      const col = title.includes("Withdraw") ? "withdraws" : "deposits";
-      try {
-          await setDoc(doc(db, col, auth.currentUser.uid + "_" + Date.now()), {
+      const userRef = doc(db, "users", auth.currentUser.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (title.includes("Withdraw")) {
+          if (userSnap.data().balance < nominal) return window.showPopup("Gagal", "Saldo tidak mencukupi!", "error");
+          // Kurangi saldo user
+          await updateDoc(userRef, { balance: increment(-nominal) });
+          
+          await setDoc(doc(db, "withdraws", auth.currentUser.uid + "_" + Date.now()), {
               uid: auth.currentUser.uid,
-              amount: parseInt(nominal),
+              amount: nominal,
               rek: rek,
               status: "pending",
               timestamp: new Date()
           });
-          window.tutupActionModal();
-          window.showPopup("Berhasil!", "Permintaan berhasil dikirim! Silakan tunggu konfirmasi Admin.", "success");
-      } catch (error) {
-          window.showPopup("Gagal", "Gagal mengirim data: " + error.message, "error");
+      } else {
+          await setDoc(doc(db, "deposits", auth.currentUser.uid + "_" + Date.now()), {
+              uid: auth.currentUser.uid,
+              amount: nominal,
+              rek: rek,
+              status: "pending",
+              timestamp: new Date()
+          });
       }
+      
+      window.tutupActionModal();
+      window.showPopup("Berhasil!", "Permintaan berhasil dikirim! Silakan tunggu konfirmasi Admin.", "success");
   };
-
   // --- FUNGSI LOBBY ---
   window.createLobby = async function() {
       const id = Math.random().toString(36).substring(2, 8).toUpperCase();
       try {
-          await setDoc(doc(db, "lobbies",
-                           id), { createdAt: new Date(), status: "waiting", players: {} });
+          await setDoc(doc(db, "lobbies", id), { 
+              createdAt: new Date(), 
+              status: "waiting", 
+              players: {},
+              adminCalled: false 
+          });
+          // Update riwayat user langsung saat membuat lobby
+          await updateDoc(doc(db, "users", auth.currentUser.uid), { 
+              lobbyHistory: arrayUnion(id) 
+          });
           window.location.href = `lobby.html?id=${id}`;
       } catch (e) { 
           window.showPopup("Gagal", "Gagal membuat lobby: " + e.message, "error"); 
@@ -431,20 +451,51 @@
           }
       };
 
+      // Menampilkan Transaksi Deposit
       onSnapshot(collection(db, "deposits"), (snap) => {
           let html = "";
           snap.forEach(d => {
               const data = d.data();
               if (data.status === "pending") {
                   html += `<div class="bg-slate-800 p-4 rounded-xl border border-yellow-500 mb-3 text-sm">
-                              <p class="font-bold text-white mb-1">User: ${data.uid.substring(0,5)}...</p>
+                              <p class="font-bold text-white mb-1">User ID: ${data.uid}</p>
                               <p class="text-blue-400 font-black text-lg mb-1">Rp ${data.amount.toLocaleString()}</p>
                               <p class="text-xs text-slate-300 mb-3">Rekening: ${data.rek}</p>
+                              ${data.buktiLink ? `<a href="${data.buktiLink}" target="_blank" class="text-green-500 underline text-xs block mb-3 font-bold">Lihat Bukti Foto</a>` : ''}
                               <button onclick="window.approve('${d.id}')" class="w-full bg-blue-600 hover:bg-blue-500 py-2 rounded-lg font-bold text-white transition">Setujui Deposit</button>
                            </div>`;
               }
           });
           document.getElementById('adminList').innerHTML = html || '<p class="text-slate-500 text-center text-sm">Tidak ada permintaan pending.</p>';
+      });
+
+      // (TAMBAHAN BARU) Menampilkan Transaksi Withdraw
+      window.approveWithdraw = async function(id) {
+          try {
+              await updateDoc(doc(db, "withdraws", id), { status: "approved" });
+              window.showPopup("Berhasil", "Withdraw disetujui! Pastikan Anda sudah mentransfer ke user.", "success");
+          } catch(e) {
+              window.showPopup("Gagal", "Error: " + e.message, "error");
+          }
+      };
+
+      onSnapshot(collection(db, "withdraws"), (snap) => {
+          let html = "";
+          snap.forEach(d => {
+              const data = d.data();
+              if (data.status === "pending") {
+                  html += `<div class="bg-slate-800 p-4 rounded-xl border border-red-500 mb-3 text-sm mt-3">
+                              <p class="font-bold text-white mb-1">User ID: ${data.uid}</p>
+                              <p class="text-red-400 font-black text-lg mb-1">Rp ${data.amount.toLocaleString()} (WD)</p>
+                              <p class="text-xs text-slate-300 mb-3">Tujuan Trf: ${data.rek}</p>
+                              <button onclick="window.approveWithdraw('${d.id}')" class="w-full bg-red-600 hover:bg-red-500 py-2 rounded-lg font-bold text-white transition">Tandai Sudah Ditransfer</button>
+                           </div>`;
+              }
+          });
+          // Gabungkan list withdraw di atas list deposit
+          if(html) {
+              document.getElementById('adminList').innerHTML = html + document.getElementById('adminList').innerHTML;
+          }
       });
   }
 </script>
