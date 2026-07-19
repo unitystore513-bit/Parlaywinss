@@ -14,7 +14,7 @@
         <h1 class="text-xl font-black italic uppercase text-white">CV<span class="text-blue-500">TARUHAN</span></h1>
         <div id="userMenu" class="hidden flex gap-4">
             <div id="userDisplay" class="text-xs text-slate-500 font-mono italic"></div>
-            <button onclick="logout()" class="text-slate-400 hover:text-white transition">
+            <button onclick="window.logout()" class="text-slate-400 hover:text-white transition">
                 <i class="fa-solid fa-right-from-bracket"></i>
             </button>
         </div>
@@ -29,8 +29,8 @@
                 <h2 class="text-2xl font-bold mb-6">Masuk</h2>
                 <input type="text" id="email" placeholder="Username/Email" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-4 focus:outline-none focus:border-blue-500">
                 <input type="password" id="password" placeholder="Password" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-4 focus:outline-none focus:border-blue-500">
-                <button onclick="login()" class="w-full bg-blue-600 py-3 rounded-lg font-bold">Masuk</button>
-                <p class="text-center mt-4 text-sm">Belum punya akun? <button onclick="toggleForm('register')" class="text-blue-400 font-bold">Daftar</button></p>
+                <button onclick="window.login()" class="w-full bg-blue-600 py-3 rounded-lg font-bold">Masuk</button>
+                <p class="text-center mt-4 text-sm">Belum punya akun? <button onclick="window.toggleForm('register')" class="text-blue-400 font-bold">Daftar</button></p>
             </div>
             
             <!-- Form Daftar -->
@@ -40,8 +40,8 @@
                 <input type="text" id="regPhone" placeholder="Nomor Telepon" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-2 focus:outline-none focus:border-blue-500">
                 <input type="password" id="regPassword" placeholder="Password" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-2 focus:outline-none focus:border-blue-500">
                 <input type="password" id="regConfirm" placeholder="Konfirmasi Password" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-4 focus:outline-none focus:border-blue-500">
-                <button onclick="register()" class="w-full bg-green-600 py-3 rounded-lg font-bold">Daftar Akun</button>
-                <p class="text-center mt-4 text-sm">Sudah punya akun? <button onclick="toggleForm('login')" class="text-blue-400 font-bold">Masuk</button></p>
+                <button onclick="window.register()" class="w-full bg-green-600 py-3 rounded-lg font-bold">Daftar Akun</button>
+                <p class="text-center mt-4 text-sm">Sudah punya akun? <button onclick="window.toggleForm('login')" class="text-blue-400 font-bold">Masuk</button></p>
             </div>
         </div>
 
@@ -53,18 +53,18 @@
                 <p id="balanceTitle" class="text-slate-400 text-xs">Saldo Anda</p>
                 <h3 id="displayBalance" class="text-3xl font-black mt-1 mb-5">Rp 0</h3>
                 <div id="financeButtons" class="grid grid-cols-2 gap-3">
-                    <button onclick="bukaModalDeposit()" class="bg-slate-800 border border-blue-600 text-blue-400 py-2.5 rounded">Deposit</button>
-                    <button onclick="bukaWithdraw()" class="bg-slate-800 border border-red-600 text-red-500 py-2.5 rounded">Withdraw</button>
+                    <button onclick="window.bukaModalDeposit()" class="bg-slate-800 border border-blue-600 text-blue-400 py-2.5 rounded">Deposit</button>
+                    <button onclick="window.bukaWithdraw()" class="bg-slate-800 border border-red-600 text-red-500 py-2.5 rounded">Withdraw</button>
                 </div>
             </div>
 
             <!-- MENU USER -->
             <div id="userActions" class="space-y-4">
                 <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
-                    <button onclick="createLobby()" class="w-full bg-green-600 py-3 rounded-xl font-bold mb-3">Buat Lobby Taruhan Baru</button>
+                    <button onclick="window.createLobby()" class="w-full bg-green-600 py-3 rounded-xl font-bold mb-3">Buat Lobby Taruhan Baru</button>
                     <div class="flex gap-2">
                         <input type="text" id="joinCode" placeholder="Kode Lobby" class="w-2/3 bg-slate-950 border border-slate-700 p-3 rounded-xl focus:outline-none focus:border-blue-500 uppercase text-center font-bold">
-                        <button onclick="joinLobby()" class="w-1/3 bg-blue-600 py-3 rounded-xl font-bold">Masuk</button>
+                        <button onclick="window.joinLobby()" class="w-1/3 bg-blue-600 py-3 rounded-xl font-bold">Masuk</button>
                     </div>
                 </div>
             </div>
@@ -90,37 +90,38 @@
                 <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
                     <h2 class="font-bold text-yellow-500 text-sm mb-3">Kelola Metode Pembayaran</h2>
                     <textarea id="paymentData" rows="2" class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg mb-3 text-sm focus:outline-none focus:border-blue-500"></textarea>
-                    <button onclick="savePayment()" class="w-full bg-green-600 py-3 rounded-xl font-bold text-sm">Simpan Metode Pembayaran</button>
+                    <button onclick="window.savePayment()" class="w-full bg-green-600 py-3 rounded-xl font-bold text-sm">Simpan Metode Pembayaran</button>
                 </div>
             </div>
         </div>
     </main>
 
-      <!-- MODAL DEPOSIT (Posisi Baris 99) -->
+<!-- MODAL DEPOSIT -->
 <div id="depositModal" class="hidden fixed inset-0 bg-slate-900/90 flex justify-center items-center z-50 p-4">
     <div class="bg-slate-200 w-full max-w-md rounded-xl shadow-2xl overflow-hidden">
         <div class="bg-slate-800 p-4 flex justify-between items-center text-white">
             <h2 class="font-bold">Deposit Akun</h2>
-            <button onclick="tutupModalDeposit()"><i class="fa-solid fa-xmark"></i></button>
+            <button onclick="window.tutupModalDeposit()"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="p-4 grid grid-cols-2 gap-3">
-            <button onclick="pilihBank('BCA', 'BCA', '0382882922')" class="bg-white p-4 rounded-lg shadow">BCA</button>
-            <button onclick="pilihBank('QRIS', 'QRIS', 'Scan Barcode')" class="bg-white p-4 rounded-lg shadow">QRIS</button>
+            <button onclick="window.pilihBank('BCA', 'BCA', '0382882922')" class="bg-white p-4 rounded-lg shadow text-slate-800 font-bold">BCA</button>
+            <button onclick="window.pilihBank('QRIS', 'QRIS', 'Scan Barcode')" class="bg-white p-4 rounded-lg shadow text-slate-800 font-bold">QRIS</button>
         </div>
     </div>
 </div>
 
-<!-- MODAL INPUT (Posisi setelah Modal Deposit) -->
+<!-- MODAL INPUT -->
 <div id="actionModal" class="hidden fixed inset-0 bg-slate-950/90 flex justify-center items-center z-50 p-4">
     <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl text-slate-800">
         <h3 id="modalTitle" class="text-xl font-bold mb-4">Input Data</h3>
         <div id="inputContent" class="space-y-4"></div>
         <div class="flex gap-2 mt-6">
-            <button onclick="tutupActionModal()" class="flex-1 py-2 rounded-lg bg-slate-200 font-bold">Batal</button>
-            <button onclick="submitAction()" class="flex-1 py-2 rounded-lg bg-blue-600 text-white font-bold">Kirim</button>
+            <button onclick="window.tutupActionModal()" class="flex-1 py-2 rounded-lg bg-slate-200 font-bold text-slate-800">Batal</button>
+            <button onclick="window.submitAction()" class="flex-1 py-2 rounded-lg bg-blue-600 text-white font-bold">Kirim</button>
         </div>
     </div>
-    </div>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
@@ -139,15 +140,21 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
+  // --- FUNGSI AUTENTIKASI ---
   window.login = async function() {
       const emailInput = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       if(!emailInput || !password) return alert("Mohon isi semua data!");
+      
       const email = emailInput.includes('@') ? emailInput : emailInput + "@cvtaruhan.com";
+      const loginBtn = document.querySelector('#loginForm button');
+      loginBtn.innerText = "Memproses...";
+      
       try {
           await signInWithEmailAndPassword(auth, email, password);
       } catch (error) {
           alert("Gagal masuk: " + error.message);
+          loginBtn.innerText = "Masuk";
       }
   };
   
@@ -167,20 +174,26 @@
       const passConfirm = document.getElementById('regConfirm').value;
       if(!emailInput || !pass) return alert("Data pendaftaran tidak boleh kosong!");
       if(pass !== passConfirm) return alert("Password tidak sama!");
+      if(pass.length < 6) return alert("Password minimal 6 karakter!");
+      
       const email = emailInput.includes('@') ? emailInput : emailInput + "@cvtaruhan.com";
+      const regBtn = document.querySelector('#registerForm button');
+      regBtn.innerText = "Memproses...";
+      
       try { 
           const c = await createUserWithEmailAndPassword(auth, email, pass);
           await setDoc(doc(db, "users", c.user.uid), { balance: 0, lobbyHistory: [] });
-          alert("Daftar sukses!");
+          alert("Daftar sukses! Silakan login.");
           window.toggleForm('login');
       } catch(e) { 
           alert("Error: " + e.message); 
+      } finally {
+          regBtn.innerText = "Daftar Akun";
       }
   };
 
   window.logout = function() { signOut(auth).then(() => location.reload()); };
 
-  
   // --- SISTEM SESI LOGIN ---
   onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -215,8 +228,8 @@
                   
                   document.getElementById('historyList').innerHTML = history.map(code => {
                       return `<div class="bg-slate-800 p-3 rounded-lg mb-2 flex justify-between items-center">
-                                  <span class="text-white">${code}</span>
-                                  <button onclick="window.location.href='lobby.html?id=${code}'" class="bg-blue-600 text-white px-2 py-1 rounded text-xs">Masuk</button>
+                                  <span class="text-white font-bold">${code}</span>
+                                  <button onclick="window.location.href='lobby.html?id=${code}'" class="bg-blue-600 text-white px-3 py-1 rounded-lg text-xs font-bold">Masuk</button>
                               </div>`;
                   }).join('') || '<p class="text-xs text-slate-500">Belum ada riwayat.</p>';
               }
@@ -224,50 +237,58 @@
       }
   }
 
-// --- FUNGSI DEPOSIT & WITHDRAW MODERN ---
-window.bukaModalDeposit = () => document.getElementById('depositModal').classList.remove('hidden');
-window.tutupModalDeposit = () => document.getElementById('depositModal').classList.add('hidden');
-window.tutupActionModal = () => document.getElementById('actionModal').classList.add('hidden');
+  // --- FUNGSI MODAL ---
+  window.bukaModalDeposit = () => document.getElementById('depositModal').classList.remove('hidden');
+  window.tutupModalDeposit = () => document.getElementById('depositModal').classList.add('hidden');
+  window.tutupActionModal = () => document.getElementById('actionModal').classList.add('hidden');
 
-window.pilihBank = (tipe, nama, info) => {
-    tutupModalDeposit();
-    document.getElementById('actionModal').classList.remove('hidden');
-    document.getElementById('modalTitle').innerText = tipe;
-    document.getElementById('inputContent').innerHTML = `
-        <p class="text-xs text-slate-500">Tujuan: <strong>${info}</strong></p>
-        <input type="number" id="inputNominal" placeholder="Jumlah Nominal" class="w-full p-3 border rounded-lg">
-        <input type="text" id="inputRek" placeholder="Nomor Rekening Anda" class="w-full p-3 border rounded-lg">
-    `;
-};
+  window.pilihBank = (tipe, nama, info) => {
+      window.tutupModalDeposit();
+      document.getElementById('actionModal').classList.remove('hidden');
+      document.getElementById('modalTitle').innerText = "Deposit " + tipe;
+      document.getElementById('inputContent').innerHTML = `
+          <p class="text-sm text-slate-600 mb-2">Tujuan: <strong>${info}</strong></p>
+          <input type="number" id="inputNominal" placeholder="Jumlah Nominal" class="w-full p-3 border rounded-lg mb-2 focus:outline-blue-500">
+          <input type="text" id="inputRek" placeholder="Nomor Rekening Anda" class="w-full p-3 border rounded-lg mb-2 focus:outline-blue-500">
+          <label class="block text-sm font-bold text-slate-700 mt-2">Upload Bukti (Opsional):</label>
+          <input type="file" id="inputBukti" class="w-full p-2 border rounded-lg text-xs">
+      `;
+  };
 
-window.bukaWithdraw = () => {
-    document.getElementById('actionModal').classList.remove('hidden');
-    document.getElementById('modalTitle').innerText = "Withdraw Akun";
-    document.getElementById('inputContent').innerHTML = `
-        <input type="text" id="inputBank" placeholder="Nama Bank" class="w-full p-3 border rounded-lg">
-        <input type="text" id="inputRek" placeholder="Nomor Rekening Anda" class="w-full p-3 border rounded-lg">
-        <input type="number" id="inputNominal" placeholder="Jumlah Withdraw" class="w-full p-3 border rounded-lg">
-    `;
-};
+  window.bukaWithdraw = () => {
+      document.getElementById('actionModal').classList.remove('hidden');
+      document.getElementById('modalTitle').innerText = "Withdraw Akun";
+      document.getElementById('inputContent').innerHTML = `
+          <input type="text" id="inputBank" placeholder="Nama Bank" class="w-full p-3 border rounded-lg mb-2 focus:outline-blue-500">
+          <input type="text" id="inputRek" placeholder="Nomor Rekening Anda" class="w-full p-3 border rounded-lg mb-2 focus:outline-blue-500">
+          <input type="number" id="inputNominal" placeholder="Jumlah Withdraw" class="w-full p-3 border rounded-lg focus:outline-blue-500">
+      `;
+  };
 
-window.submitAction = async () => {
-    const title = document.getElementById('modalTitle').innerText;
-    const nominal = document.getElementById('inputNominal').value;
-    const rek = document.getElementById('inputRek').value;
-    
-    if(!nominal || !rek) return alert("Mohon isi semua data!");
+  window.submitAction = async () => {
+      const title = document.getElementById('modalTitle').innerText;
+      const nominal = document.getElementById('inputNominal')?.value;
+      const rek = document.getElementById('inputRek')?.value;
+      
+      if(!nominal || !rek) return alert("Mohon isi Nominal dan Rekening Anda!");
 
-    const col = title === "Withdraw Akun" ? "withdraws" : "deposits";
-    await setDoc(doc(db, col, auth.currentUser.uid + "_" + Date.now()), {
-        uid: auth.currentUser.uid,
-        amount: parseInt(nominal),
-        rek: rek,
-        status: "pending",
-        timestamp: new Date()
-    });
-    alert("Berhasil dikirim!");
-    tutupActionModal();
-};
+      const col = title.includes("Withdraw") ? "withdraws" : "deposits";
+      try {
+          await setDoc(doc(db, col, auth.currentUser.uid + "_" + Date.now()), {
+              uid: auth.currentUser.uid,
+              amount: parseInt(nominal),
+              rek: rek,
+              status: "pending",
+              timestamp: new Date()
+          });
+          alert("Permintaan berhasil dikirim! Silakan tunggu konfirmasi Admin.");
+          window.tutupActionModal();
+      } catch (error) {
+          alert("Gagal mengirim data: " + error.message);
+      }
+  };
+
+  // --- FUNGSI LOBBY ---
   window.createLobby = async function() {
       const id = Math.random().toString(36).substring(2, 8).toUpperCase();
       try {
@@ -281,26 +302,29 @@ window.submitAction = async () => {
       if(code) {
           await setDoc(doc(db, "users", auth.currentUser.uid), { lobbyHistory: arrayUnion(code) }, { merge: true });
           window.location.href = `lobby.html?id=${code}`;
+      } else {
+          alert("Masukkan kode lobby!");
       }
-  };
-
-  window.savePayment = async function() { 
-      await setDoc(doc(db, "settings", "payment"), { info: document.getElementById('paymentData').value }); 
-      alert("Tersimpan!"); 
   };
 
   window.cleanupOldLobbies = async function() {
       const twentyFourHoursAgo = new Date(Date.now() - 86400000);
       const q = query(collection(db, "lobbies"), where("createdAt", "<", twentyFourHoursAgo));
       const snap = await getDocs(q);
-      snap.forEach(doc => deleteDoc(doc.ref));
+      snap.forEach(d => deleteDoc(d.ref));
+  };
+
+  // --- FUNGSI ADMIN ---
+  window.savePayment = async function() { 
+      await setDoc(doc(db, "settings", "payment"), { info: document.getElementById('paymentData').value }); 
+      alert("Metode pembayaran berhasil disimpan!"); 
   };
 
   function loadAdminData() {
       window.setWinner = async function(lobbyId, winnerUid, winnerName) {
           if(confirm(`Yakin tentukan ${winnerName} sebagai PEMENANG?`)) {
               await updateDoc(doc(db, "lobbies", lobbyId), { winner: winnerUid, status: "finished" });
-              alert(`Pemenang diatur ke: ${winnerName}!`);
+              alert(`Pemenang berhasil diatur ke: ${winnerName}!`);
           }
       };
 
@@ -309,8 +333,8 @@ window.submitAction = async () => {
           const wadahLobby = document.getElementById('adminLobbyList');
           if (!wadahLobby) return;
           let htmlLobby = '';
-          snap.forEach(doc => {
-              const data = doc.data();
+          snap.forEach(docSnap => {
+              const data = docSnap.data();
               let p1 = "Menunggu...", p2 = "Menunggu...", uid1 = null, uid2 = null, bet1 = 0, bet2 = 0;
               if (data.players) {
                   const uids = Object.keys(data.players);
@@ -318,88 +342,10 @@ window.submitAction = async () => {
                   if (uids.length > 1) { uid2 = uids[1]; p2 = data.players[uid2].username; bet2 = data.players[uid2].bet; }
               }
               const isPanggilAdmin = (data.status === "admin_called" || data.adminCalled === true);
-              let adminActions = `<button onclick="window.location.href='lobby.html?id=${doc.id}'" class="w-full bg-slate-700 text-white py-2 rounded-lg font-bold text-xs mb-2">Masuk ke Ruangan</button>`;
+              let adminActions = `<button onclick="window.location.href='lobby.html?id=${docSnap.id}'" class="w-full bg-slate-700 text-white py-2 rounded-lg font-bold text-xs mb-2">Masuk ke Ruangan</button>`;
               if (uid1 && uid2 && !data.winner) {
-                  adminActions += `<div class="flex gap-2 border-t border-slate-800 pt-2"><button onclick="setWinner('${doc.id}', '${uid1}', '${p1}')" class="w-1/2 bg-yellow-600 text-black py-1 rounded font-black text-[10px]">Menang ${p1}</button><button onclick="setWinner('${doc.id}', '${uid2}', '${p2}')" class="w-1/2 bg-yellow-600 text-black py-1 rounded font-black text-[10px]">Menang ${p2}</button></div>`;
+                  adminActions += `<div class="flex gap-2 border-t border-slate-800 pt-2"><button onclick="window.setWinner('${docSnap.id}', '${uid1}', '${p1}')" class="w-1/2 bg-yellow-600 text-black py-2 rounded font-black text-[10px]">Menang ${p1}</button><button onclick="window.setWinner('${docSnap.id}', '${uid2}', '${p2}')" class="w-1/2 bg-yellow-600 text-black py-2 rounded font-black text-[10px]">Menang ${p2}</button></div>`;
               } else if (data.winner) {
-                  adminActions += `<div class="text-center text-blue-500 font-bold text-[10px] mt-2 uppercase">Kemenangan Sudah Diputuskan</div>`;
+                  adminActions += `<div class="text-center text-blue-500 font-bold text-xs mt-2 uppercase">Selesai</div>`;
               }
-              htmlLobby += `<div class="bg-slate-900 p-4 rounded-xl border ${isPanggilAdmin ? 'border-red-500' : 'border-slate-700'} mb-3"><div class="flex justify-between mb-2"><span class="font-black text-blue-400 text-sm">LOBBY: ${doc.id}</span></div><div class="flex justify-between text-white text-xs mb-3"><span>${p1}: Rp ${bet1.toLocaleString()}</span><span class="font-bold">VS</span><span>${p2}: Rp ${bet2.toLocaleString()}</span></div>${adminActions}</div>`;
-          });
-          wadahLobby.innerHTML = htmlLobby || '<p class="text-slate-500 text-center">Belum ada lobby.</p>';
-      });
-
-      window.approve = async function(id) {
-          const snap = await getDoc(doc(db, "deposits", id));
-          const data = snap.data();
-          await updateDoc(doc(db, "deposits", id), { status: "approved" });
-          await setDoc(doc(db, "users", data.uid), { balance: increment(data.amount) }, { merge: true });
-          alert("Disetujui!");
-      };
-
-      // Ganti blok onSnapshot(collection(db, "deposits")...) dengan ini:
-onSnapshot(collection(db, "deposits"), (snap) => {
-    let html = "";
-    snap.forEach(d => {
-        const data = d.data();
-        if (data.status === "pending") {
-            html += `<div class="bg-slate-800 p-4 rounded-xl border border-yellow-500 mb-3 text-sm">
-                        <p class="font-bold">User: ${data.uid.substring(0,5)}</p>
-                        <p class="text-blue-400 font-black">Rp ${data.amount.toLocaleString()}</p>
-                        <p class="text-xs text-slate-300">Rekening: ${data.rek}</p>
-                        <button onclick="approve('${d.id}')" class="w-full mt-2 bg-blue-600 py-2 rounded-lg font-bold">Setujui</button>
-                     </div>`;
-        }
-    });
-    document.getElementById('adminList').innerHTML = html || 'Tidak ada pending.';
-});
-    // --- FUNGSI MODAL DEPOSIT ---
-window.bukaModalDeposit = function() {
-    document.getElementById('depositModal').classList.remove('hidden');
-};
-
-window.tutupModalDeposit = function() {
-    document.getElementById('depositModal').classList.add('hidden');
-};
-
-window.tutupActionModal = () => document.getElementById('actionModal').classList.add('hidden');
-
-window.pilihBank = (tipe, nama, info) => {
-    tutupActionModal();
-    document.getElementById('depositModal').classList.add('hidden');
-    
-    // Buka Modal Input Modern
-    document.getElementById('actionModal').classList.remove('hidden');
-    document.getElementById('modalTitle').innerText = tipe + " " + nama;
-    document.getElementById('inputContent').innerHTML = `
-        <p class="text-xs text-slate-500">Tujuan: <strong>${info}</strong></p>
-        <input type="number" id="inputNominal" placeholder="Jumlah Nominal" class="w-full p-3 border rounded-lg">
-        <input type="text" id="inputRek" placeholder="Nomor Rekening Anda" class="w-full p-3 border rounded-lg">
-        <label class="block text-sm font-bold text-slate-700">Upload Bukti:</label>
-        <input type="file" id="inputBukti" class="w-full p-2 border rounded-lg text-xs">
-    `;
-};
-
-// Fungsi untuk tombol Withdraw
-window.bukaWithdraw = () => {
-    document.getElementById('actionModal').classList.remove('hidden');
-    document.getElementById('modalTitle').innerText = "Withdraw Akun";
-    document.getElementById('inputContent').innerHTML = `
-        <input type="text" id="inputBank" placeholder="Nama Bank (BCA/Mandiri/OVO)" class="w-full p-3 border rounded-lg">
-        <input type="text" id="inputRek" placeholder="Nomor Rekening Anda" class="w-full p-3 border rounded-lg">
-        <input type="number" id="inputNominal" placeholder="Jumlah Withdraw" class="w-full p-3 border rounded-lg">
-    `;
-};
-    window.submitAction = () => {
-    // Tambahkan logika untuk mengambil nilai input di sini
-    const nominal = document.getElementById('inputNominal')?.value;
-    alert("Data berhasil dikirim! Nominal: " + nominal);
-    tutupActionModal();
-};
-      window.login = login;
-window.register = register;
-window.toggleForm = toggleForm;
-console.log("Fungsi berhasil dimuat ke browser.");
-</script>
-</body>
-</html>
+              htmlLobby += `<div class="bg-slate-900 p-4 rounded-xl border ${isPanggilAdmin ? 'border-red-500' : 'border-slate-700'} mb-3"><div class="flex justify-between mb-2"><span class="font-black text-blue-400 text-sm">LOBBY: ${docSnap.id}</span></div><div class="flex justify-between text-white text-xs mb-3"><span>${p1}: Rp ${bet1.toLocaleString()}</span><span class="font-bold text-slate-500">VS</span><span>${p2}: Rp ${bet2.toLocaleString()
