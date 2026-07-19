@@ -154,33 +154,33 @@
 
   // --- SISTEM POPUP MODERN ---
   window.showPopup = function(title, message, type = 'info', onConfirm = null) {
-      const popup = document.getElementById('globalPopup');
-      const content = document.getElementById('popupContent');
-      const icon = document.getElementById('popupIcon');
-      const buttonsEl = document.getElementById('popupButtons');
+    const popup = document.getElementById('globalPopup');
+    const content = document.getElementById('popupContent');
+    const icon = document.getElementById('popupIcon');
+    const buttonsEl = document.getElementById('popupButtons');
 
-      document.getElementById('popupTitle').innerText = title;
-      document.getElementById('popupMessage').innerText = message;
+    document.getElementById('popupTitle').innerText = title;
+    document.getElementById('popupMessage').innerText = message;
 
-      if(type === 'success') icon.innerHTML = '<i class="fa-solid fa-circle-check text-green-500 drop-shadow-[0_0_10px_rgba(34,197,94,0.5)]"></i>';
-      else if(type === 'error') icon.innerHTML = '<i class="fa-solid fa-circle-xmark text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]"></i>';
-      else if(type === 'warning') icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-yellow-500 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]"></i>';
-      else icon.innerHTML = '<i class="fa-solid fa-circle-info text-blue-500 drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]"></i>';
+    if (type === 'success') icon.innerHTML = '<i class="fa-solid fa-circle-check text-green-500 text-5xl mb-4"></i>';
+    else if (type === 'error') icon.innerHTML = '<i class="fa-solid fa-circle-xmark text-red-500 text-5xl mb-4"></i>';
+    else if (type === 'warning') icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-yellow-500 text-5xl mb-4"></i>';
+    else icon.innerHTML = '<i class="fa-solid fa-circle-info text-blue-500 text-5xl mb-4"></i>';
 
-      if (onConfirm) {
-          buttonsEl.innerHTML = `
-              <button onclick="window.closePopup()" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-bold hover:bg-slate-700 transition border border-slate-700">Batal</button>
-              <button id="confirmBtn" class="flex-1 py-2.5 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-500 transition shadow-[0_0_15px_rgba(37,99,235,0.4)]">Yakin</button>
-          `;
-          document.getElementById('confirmBtn').onclick = () => {
-              window.closePopup();
-              onConfirm(); 
-          };
-      } else {
-          buttonsEl.innerHTML = `
-              <button onclick="window.closePopup()" class="w-full py-3 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-500 transition shadow-[0_0_15px_rgba(37,99,235,0.4)]">Oke, Mengerti</button>
-          `;
-      }
+    if (onConfirm) {
+        buttonsEl.innerHTML = `
+            <button id="btnCancel" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-white font-bold">Batal</button>
+            <button id="btnConfirm" class="flex-1 py-2.5 rounded-xl bg-blue-600 text-white font-bold">Oke</button>
+        `;
+        document.getElementById('btnCancel').onclick = () => window.closePopup();
+        document.getElementById('btnConfirm').onclick = () => {
+            onConfirm();
+            window.closePopup();
+        };
+    } else {
+        buttonsEl.innerHTML = `<button onclick="window.closePopup()" class="w-full py-3 rounded-xl bg-blue-600 text-white font-bold">Oke</button>`;
+    }
+};
 
       popup.classList.remove('hidden');
       setTimeout(() => {
