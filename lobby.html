@@ -308,25 +308,53 @@
                 }
             }
         });
-
-        window.ambilKemenangan = async (totalTaruhan) => {
-            const potongan = hitungPotongan(totalTaruhan); 
-            const bersih = totalTaruhan - potongan;
-            
+        // --- FUNGSI KLAIM KEMENANGAN USER (SINKRON DENGAN ADMIN) ---
+        window.ambilKemenangan = async function(lobbyId) {
             try {
-                const userRef = doc(db, "users", auth.currentUser.uid);
-                const userSnap = await getDoc(userRef);
-                const currentBalance = userSnap.data().balance || 0;
+                if (!auth.currentUser) return window.showPopup("Gagal", "Anda harus login terlebih dahulu!", "error");
+
+                const lobbyRef = doc(db, "lobbies", lobbyId);
+                const lobbySnap = await getDoc(lobbyRef);
                 
-                await updateDoc(userRef, { balance: currentBalance + bersih });
-                await updateDoc(doc(db, "lobbies", lobbyId), { claimed: true });
+                if (!lobbySnap.exists()) {
+                    return window.showPopup("Gagal", "Data lobby tidak ditemukan!", "error");
+                }
                 
-                window.showModernPopup("Selamat!", `Anda memenangkan Rp ${bersih.toLocaleString()}\n(Dipotong Admin: Rp ${potongan.toLocaleString()})`, "alert");
+                const lobbyData = lobbySnap.data();
+                
+                // 1. Validasi keaslian pemenang
+                if (lobbyData.winner !== auth.currentUser.uid) {
+                    return window.showPopup("Gagal", "Anda bukan pemenang sah di lobby ini!", "error");
+                }
+                
+                // 2. Cegah klaim berulang (Double Claim)
+                if (lobbyData.status === "claimed") {
+                    return window.showPopup("Info", "Kemenangan sudah diambil sebelumnya.", "info", () => {
+                        window.location.href = "index.html";
+                    });
+                }
+                
+                // 3. Update status lobby menjadi 'claimed' agar tanda selesai secara formal
+                await updateDoc(lobbyRef, { 
+                    status: "claimed" 
+                });
+                
+                // 4. Tampilkan pesan sukses dan arahkan kembali ke halaman utama/dashboard
+                window.showPopup(
+                    "Berhasil!", 
+                    "Kemenangan Anda telah berhasil dikonfirmasi dan masuk ke saldo utama!", 
+                    "success", 
+                    () => {
+                        window.location.href = "index.html"; // Arahkan ke beranda setelah klik OK
+                    }
+                );
+                
             } catch (e) {
-                console.error(e);
-                window.showModernPopup("Error", "Terjadi kesalahan saat mengambil kemenangan.", "alert");
+                console.error("Error claim victory:", e);
+                window.showPopup("Gagal", "Terjadi kesalahan saat mengambil kemenangan: " + e.message, "error");
             }
         };
+        
     </script>
 </body>
 </html>
