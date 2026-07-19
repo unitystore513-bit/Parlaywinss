@@ -154,17 +154,7 @@
             if (!user) window.location.href = "index.html";
         });
 
-        function hitungPotongan(totalTaruhan) {
-            if (totalTaruhan <= 50000) return 5000;
-            if (totalTaruhan <= 100000) return 10000;
-            if (totalTaruhan <= 300000) return 30000;
-            if (totalTaruhan <= 800000) return 50000;
-            if (totalTaruhan <= 1500000) return 80000;
-            if (totalTaruhan <= 2500000) return 100000;
-            if (totalTaruhan <= 5000000) return 200000;
-            return 0;
-        }
-
+        
         // --- FUNGSI MASUK TARUHAN ---
         window.masukTaruhan = () => {
             window.showModernPopup("Pasang Taruhan", "Masukkan nominal taruhan Anda:", "prompt", async (val) => {
@@ -313,75 +303,61 @@
         
         // --- FUNGSI KLAIM KEMENANGAN (DIPERBARUI) ---
         window.ambilKemenangan = async function() {
-            // Karena lobbyId sudah ada di global scope (dari urlParams), kita bisa langsung menggunakannya.
-            if (!lobbyId) {
-                return window.showModernPopup("Gagal", "ID Ruangan tidak terdeteksi oleh sistem!", "alert");
+    if (!lobbyId) {
+        return window.showModernPopup("Gagal", "ID Ruangan tidak terdeteksi oleh sistem!", "alert");
+    }
+
+    try {
+        if (!auth.currentUser) {
+            return window.showModernPopup("Gagal", "Sistem autentikasi belum siap atau Anda belum login!", "alert");
+        }
+
+        const lobbyRef = doc(db, "lobbies", lobbyId);
+        const lobbySnap = await getDoc(lobbyRef);
+        
+        if (!lobbySnap.exists()) {
+            return window.showModernPopup("Gagal", "Data room lobby tidak ditemukan di database!", "alert");
+        }
+        
+        const lobbyData = lobbySnap.data();
+        
+        if (lobbyData.winner !== auth.currentUser.uid) {
+            return window.showModernPopup("Gagal", "Anda bukan pemenang sah di ruangan ini!", "alert");
+        }
+        
+        if (lobbyData.claimed) {
+            return window.showModernPopup("Info", "Kemenangan sudah diambil sebelumnya.", "alert", () => {
+                window.location.href = "index.html";
+            });
+        }
+
+        // --- AMBIL DATA DARI ADMIN ---
+        // Saldo kemenangan SUDAH DITAMBAHKAN secara otomatis oleh sistem Admin di index.html
+        // Di sini kita hanya mengambil log datanya saja untuk ditampilkan di popup
+        const potongan = lobbyData.adminFeeApplied || 0;
+        const bersihKemenangan = lobbyData.totalPrizeNet || 0;
+        
+        // --- UPDATE STATUS LOBBY ---
+        await updateDoc(lobbyRef, { 
+            claimed: true,
+            status: "claimed" 
+        });
+        
+        // --- TAMPILKAN POPUP KEMENANGAN ---
+        window.showModernPopup(
+            "Berhasil!", 
+            `Kemenangan terkonfirmasi!\nPotongan admin: Rp ${potongan.toLocaleString('id-ID')}\nTotal diterima di Saldo: Rp ${bersihKemenangan.toLocaleString('id-ID')}`, 
+            "alert", 
+            () => {
+                window.location.href = "index.html";
             }
-
-            try {
-                if (!auth.currentUser) {
-                    return window.showModernPopup("Gagal", "Sistem autentikasi belum siap atau Anda belum login!", "alert");
-                }
-
-                const lobbyRef = doc(db, "lobbies", lobbyId);
-                const lobbySnap = await getDoc(lobbyRef);
-                
-                if (!lobbySnap.exists()) {
-                    return window.showModernPopup("Gagal", "Data room lobby tidak ditemukan di database!", "alert");
-                }
-                
-                const lobbyData = lobbySnap.data();
-                
-                if (lobbyData.winner !== auth.currentUser.uid) {
-                    return window.showModernPopup("Gagal", "Anda bukan pemenang sah di ruangan ini!", "alert");
-                }
-                
-                if (lobbyData.claimed) {
-                    return window.showModernPopup("Info", "Kemenangan sudah diambil sebelumnya.", "alert", () => {
-                        window.location.href = "index.html";
-                    });
-                }
-
-                // --- HITUNG KEMENANGAN DAN POTONGAN PAJAK ---
-                let bet1 = 0, bet2 = 0;
-                const uids = Object.keys(lobbyData.players || {});
-                if (uids.length > 0) bet1 = lobbyData.players[uids[0]].bet || 0;
-                if (uids.length > 1) bet2 = lobbyData.players[uids[1]].bet || 0;
-                
-                const totalTaruhan = bet1 + bet2;
-                const potongan = hitungPotongan(totalTaruhan); // Menarik fungsi hitung potongan Anda
-                const bersihKemenangan = totalTaruhan - potongan;
-                
-                // --- UPDATE SALDO AKUN USER ---
-                const userRef = doc(db, "users", auth.currentUser.uid);
-                const userSnap = await getDoc(userRef);
-                const currentBalance = userSnap.exists() ? (userSnap.data().balance || 0) : 0;
-                
-                await updateDoc(userRef, { 
-                    balance: currentBalance + bersihKemenangan 
-                });
-                
-                // --- UPDATE STATUS LOBBY ---
-                await updateDoc(lobbyRef, { 
-                    claimed: true,
-                    status: "claimed" 
-                });
-                
-                // Berhasil: Gunakan popup yang benar
-                window.showModernPopup(
-                    "Berhasil!", 
-                    `Kemenangan terkonfirmasi!\nPotongan admin: Rp ${potongan.toLocaleString('id-ID')}\nTotal diterima di Saldo: Rp ${bersihKemenangan.toLocaleString('id-ID')}`, 
-                    "alert", 
-                    () => {
-                        window.location.href = "index.html";
-                    }
-                );
-                
-            } catch (e) {
-                console.error("Error claim:", e);
-                window.showModernPopup("Gagal Sistem", "Terjadi error internal: " + e.message, "alert");
-            }
-        };
+        );
+        
+    } catch (e) {
+        console.error("Error claim:", e);
+        window.showModernPopup("Gagal Sistem", "Terjadi error internal: " + e.message, "alert");
+    }
+};
         
     </script>
 </body>
