@@ -206,7 +206,20 @@
                     btn.classList.add('bg-red-600', 'text-white');
                 }
 
-                window.showModernPopup("Sukses", "Panggilan kepada Admin telah berhasil dikirim ke sistem!", "alert");
+                window.showModernPopup(
+                    "Sukses", 
+                    "Sistem telah mencatat panggilan Anda. Klik 'Tutup' untuk mengirim notifikasi ke WhatsApp Admin agar segera diproses.", 
+                    "alert",
+                    () => {
+                        // --- PENGATURAN WHATSAPP ADMIN ---
+                        // Ganti angka 628... di bawah dengan nomor WA Anda. (Harus pakai 62, jangan pakai 0 di awal)
+                        const nomorWAAdmin = "6281213847109"; 
+                        const pesanWA = `Halo Admin, tolong segera pantau ruangan dengan Kode Lobby: *${lobbyId}*`;
+                        
+                        // Membuka tab baru ke WhatsApp user dengan pesan yang sudah terisi
+                        window.open(`https://wa.me/${nomorWAAdmin}?text=${encodeURIComponent(pesanWA)}`, '_blank');
+                    }
+                );
             } catch (e) {
                 console.error(e);
                 window.showModernPopup("Gagal", "Gagal memanggil admin, coba lagi.", "alert");
