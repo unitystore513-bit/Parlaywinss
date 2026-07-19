@@ -285,12 +285,21 @@
                   document.getElementById('displayBalance').innerText = "Rp " + (data.balance || 0).toLocaleString();
                   const history = data.lobbyHistory || [];
                   
-                  document.getElementById('historyList').innerHTML = history.map(code => {
-                      return `<div class="bg-slate-800 p-3 rounded-lg mb-2 flex justify-between items-center">
-                                  <span class="text-white font-bold">${code}</span>
-                                  <button onclick="window.location.href='lobby.html?id=${code}'" class="bg-blue-600 text-white px-3 py-1 rounded-lg text-xs font-bold">Masuk</button>
-                              </div>`;
-                  }).join('') || '<p class="text-xs text-slate-500">Belum ada riwayat.</p>';
+                  // Ganti blok ini di dalam fungsi renderDashboard
+document.getElementById('historyList').innerHTML = history.map(item => {
+    // Menampilkan tanggal dari timestamp jika ada, jika tidak pakai waktu saat ini
+    const date = item.timestamp ? new Date(item.timestamp.seconds * 1000).toLocaleString('id-ID') : new Date().toLocaleString('id-ID');
+    
+    return `<div class="bg-slate-800 p-3 rounded-lg mb-2 border border-slate-700">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-white font-bold tracking-wider">${item.code || item}</span>
+                    <span class="text-[9px] text-slate-500 font-mono">${date}</span>
+                </div>
+                <button onclick="window.location.href='lobby.html?id=${item.code || item}'" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-1.5 rounded-lg text-xs font-bold transition">
+                    MASUK KEMBALI
+                </button>
+            </div>`;
+}).join('') || '<p class="text-xs text-slate-500 text-center">Belum ada riwayat.</p>';
               }
           });
       }
@@ -395,11 +404,17 @@
       const snap = await getDocs(q);
       snap.forEach(d => deleteDoc(d.ref));
   };
-    // --- FUNGSI ADMIN ---
-  window.savePayment = async function() { 
-      await setDoc(doc(db, "settings", "payment"), { info: document.getElementById('paymentData').value }); 
-      window.showPopup("Tersimpan!", "Metode pembayaran berhasil disimpan!", "success");
-  };
+    // --- FUNGSI KELOLA PAYMENT ---
+window.addPaymentMethod = async function() {
+    const name = document.getElementById('paymentName').value;
+    const number = document.getElementById('paymentNumber').value;
+    const logoUrl = document.getElementById('paymentLogo').value;
+    
+    if(!name || !number) return window.showPopup("Gagal", "Nama & Nomor harus diisi!");
+    
+    await addDoc(collection(db, "paymentMethods"), { name, number, logoUrl, createdAt: new Date() });
+    window.showPopup("Berhasil", "Metode pembayaran baru ditambahkan!");
+};
 
   function loadAdminData() {
       window.setWinner = async function(lobbyId, winnerUid, winnerName) {
@@ -451,23 +466,25 @@
           }
       };
 
-      // Menampilkan Transaksi Deposit
-      onSnapshot(collection(db, "deposits"), (snap) => {
-          let html = "";
-          snap.forEach(d => {
-              const data = d.data();
-              if (data.status === "pending") {
-                  html += `<div class="bg-slate-800 p-4 rounded-xl border border-yellow-500 mb-3 text-sm">
-                              <p class="font-bold text-white mb-1">User ID: ${data.uid}</p>
-                              <p class="text-blue-400 font-black text-lg mb-1">Rp ${data.amount.toLocaleString()}</p>
-                              <p class="text-xs text-slate-300 mb-3">Rekening: ${data.rek}</p>
-                              ${data.buktiLink ? `<a href="${data.buktiLink}" target="_blank" class="text-green-500 underline text-xs block mb-3 font-bold">Lihat Bukti Foto</a>` : ''}
-                              <button onclick="window.approve('${d.id}')" class="w-full bg-blue-600 hover:bg-blue-500 py-2 rounded-lg font-bold text-white transition">Setujui Deposit</button>
-                           </div>`;
-              }
-          });
-          document.getElementById('adminList').innerHTML = html || '<p class="text-slate-500 text-center text-sm">Tidak ada permintaan pending.</p>';
-      });
+      // TEMPATKAN DI DALAM fungsi loadAdminData pada bagian onSnapshot(collection(db, "deposits")...
+onSnapshot(collection(db, "deposits"), (snap) => {
+    let html = "";
+    snap.forEach(d => {
+        const data = d.data();
+        if (data.status === "pending") {
+            html += `<div class="bg-slate-800 p-4 rounded-xl border border-yellow-500 mb-3 text-sm">
+                        <p class="font-bold text-white mb-1">User ID: ${data.uid}</p>
+                        <p class="text-blue-400 font-black text-lg mb-1">Rp ${data.amount.toLocaleString()}</p>
+                        <p class="text-xs text-slate-300 mb-3">Rekening: ${data.rek}</p>
+                        ${data.buktiLink ? 
+                            `<a href="${data.buktiLink}" target="_blank" class="block w-full bg-green-700 text-white text-center py-2 rounded-lg font-bold text-xs mb-3">LIHAT BUKTI FOTO</a>` 
+                            : '<p class="text-xs text-red-500 mb-3 italic">User tidak mengupload bukti</p>'}
+                        <button onclick="window.approve('${d.id}')" class="w-full bg-blue-600 hover:bg-blue-500 py-2 rounded-lg font-bold text-white transition">Setujui Deposit</button>
+                     </div>`;
+        }
+    });
+    document.getElementById('adminList').innerHTML = html || '<p class="text-slate-500 text-center text-sm">Tidak ada permintaan pending.</p>';
+});
 
       // (TAMBAHAN BARU) Menampilkan Transaksi Withdraw
       window.approveWithdraw = async function(id) {
@@ -498,6 +515,17 @@
           }
       });
   }
+    <!-- STRUKTUR POPUP MODERN -->
+<div id="modernPopup" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[9999]">
+    <div class="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-4/5 max-w-sm text-center shadow-2xl">
+        <h2 id="popupTitle" class="text-white font-bold text-lg mb-2"></h2>
+        <p id="popupMessage" class="text-slate-400 text-sm mb-6"></p>
+        <button onclick="document.getElementById('modernPopup').classList.add('hidden')" 
+                class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-xl text-white font-bold transition">
+            TUTUP
+        </button>
+    </div>
+</div>
 </script>
 </body>
 </html>
