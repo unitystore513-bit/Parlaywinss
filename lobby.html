@@ -300,7 +300,9 @@
                         if (data.claimed) {
                             actionContainer.innerHTML = `<div class="bg-blue-600 text-white p-3 rounded-lg w-full mt-4 font-bold text-sm text-center">Kemenangan Sudah Diambil</div>`;
                         } else {
-                            actionContainer.innerHTML = `<button onclick="window.ambilKemenangan(${totalTaruhan})" class="bg-yellow-500 text-black p-3 rounded-lg w-full mt-4 font-black text-sm animate-pulse shadow-[0_0_15px_rgba(234,179,8,0.5)]">AMBIL KEMENANGAN (Rp ${totalTaruhan.toLocaleString()})</button>`;
+                            // PERBAIKAN: Menghapus pelemparan parameter agar menghindari bug, 
+                            // logika kalkulasi diambil langsung di dalam fungsinya.
+                            actionContainer.innerHTML = `<button onclick="window.ambilKemenangan()" class="bg-yellow-500 text-black p-3 rounded-lg w-full mt-4 font-black text-sm animate-pulse shadow-[0_0_15px_rgba(234,179,8,0.5)]">AMBIL KEMENANGAN (Rp ${totalTaruhan.toLocaleString()})</button>`;
                         }
                     } else {
                         actionContainer.innerHTML = `<div class="bg-red-600 text-slate-300 border border-red-500 p-3 rounded-lg w-full mt-4 font-bold text-sm text-center italic">Taruhan Anda Kalah</div>`;
@@ -308,61 +310,68 @@
                 }
             }
         });
-                // --- FUNGSI KLAIM KEMENANGAN USER (ANTI-STUCK & AUTO DETECT) ---
-        window.ambilKemenangan = async function(lobbyId) {
-            // 1. PROTEKSI AUTO-DETECT: Jika ID kosong/tidak terkirim dari HTML, ambil dari URL Browser
-            if (!lobbyId || typeof lobbyId !== 'string' || lobbyId === '[object Object]') {
-                const urlParams = new URLSearchParams(window.location.search);
-                lobbyId = urlParams.get('id');
-            }
-
-            // Jika setelah dicek di URL tetap tidak ada, munculkan error
+        
+        // --- FUNGSI KLAIM KEMENANGAN (DIPERBARUI) ---
+        window.ambilKemenangan = async function() {
+            // Karena lobbyId sudah ada di global scope (dari urlParams), kita bisa langsung menggunakannya.
             if (!lobbyId) {
-                return window.showPopup("Gagal", "ID Ruangan tidak terdeteksi oleh sistem!", "error");
+                return window.showModernPopup("Gagal", "ID Ruangan tidak terdeteksi oleh sistem!", "alert");
             }
 
             try {
-                // 2. Cek apakah Firebase Auth sudah siap jalankan perintah
-                if (typeof auth === 'undefined' || !auth.currentUser) {
-                    return window.showPopup("Gagal", "Sistem autentikasi belum siap atau Anda belum login!", "error");
-                }
-
-                // 3. Cek apakah Firestore terhubung dengan benar
-                if (typeof db === 'undefined' || typeof doc === 'undefined') {
-                    return window.showPopup("Gagal", "Koneksi database Firestore terputus. Muat ulang halaman!", "error");
+                if (!auth.currentUser) {
+                    return window.showModernPopup("Gagal", "Sistem autentikasi belum siap atau Anda belum login!", "alert");
                 }
 
                 const lobbyRef = doc(db, "lobbies", lobbyId);
                 const lobbySnap = await getDoc(lobbyRef);
                 
                 if (!lobbySnap.exists()) {
-                    return window.showPopup("Gagal", "Data room lobby tidak ditemukan di database!", "error");
+                    return window.showModernPopup("Gagal", "Data room lobby tidak ditemukan di database!", "alert");
                 }
                 
                 const lobbyData = lobbySnap.data();
                 
-                // Validasi pemenang
                 if (lobbyData.winner !== auth.currentUser.uid) {
-                    return window.showPopup("Gagal", "Anda bukan pemenang sah di ruangan ini!", "error");
+                    return window.showModernPopup("Gagal", "Anda bukan pemenang sah di ruangan ini!", "alert");
                 }
                 
-                // Cegah klaim ganda
-                if (lobbyData.status === "claimed") {
-                    return window.showPopup("Info", "Kemenangan sudah diambil sebelumnya.", "info", () => {
+                if (lobbyData.claimed) {
+                    return window.showModernPopup("Info", "Kemenangan sudah diambil sebelumnya.", "alert", () => {
                         window.location.href = "index.html";
                     });
                 }
+
+                // --- HITUNG KEMENANGAN DAN POTONGAN PAJAK ---
+                let bet1 = 0, bet2 = 0;
+                const uids = Object.keys(lobbyData.players || {});
+                if (uids.length > 0) bet1 = lobbyData.players[uids[0]].bet || 0;
+                if (uids.length > 1) bet2 = lobbyData.players[uids[1]].bet || 0;
                 
-                // Update status di Firebase database
+                const totalTaruhan = bet1 + bet2;
+                const potongan = hitungPotongan(totalTaruhan); // Menarik fungsi hitung potongan Anda
+                const bersihKemenangan = totalTaruhan - potongan;
+                
+                // --- UPDATE SALDO AKUN USER ---
+                const userRef = doc(db, "users", auth.currentUser.uid);
+                const userSnap = await getDoc(userRef);
+                const currentBalance = userSnap.exists() ? (userSnap.data().balance || 0) : 0;
+                
+                await updateDoc(userRef, { 
+                    balance: currentBalance + bersihKemenangan 
+                });
+                
+                // --- UPDATE STATUS LOBBY ---
                 await updateDoc(lobbyRef, { 
+                    claimed: true,
                     status: "claimed" 
                 });
                 
-                // Berhasil
-                window.showPopup(
+                // Berhasil: Gunakan popup yang benar
+                window.showModernPopup(
                     "Berhasil!", 
-                    "Kemenangan terkonfirmasi! Saldo Anda sudah diperbarui oleh Admin.", 
-                    "success", 
+                    `Kemenangan terkonfirmasi!\nPotongan admin: Rp ${potongan.toLocaleString('id-ID')}\nTotal diterima di Saldo: Rp ${bersihKemenangan.toLocaleString('id-ID')}`, 
+                    "alert", 
                     () => {
                         window.location.href = "index.html";
                     }
@@ -370,10 +379,9 @@
                 
             } catch (e) {
                 console.error("Error claim:", e);
-                window.showPopup("Gagal Sistem", "Terjadi error internal: " + e.message, "error");
+                window.showModernPopup("Gagal Sistem", "Terjadi error internal: " + e.message, "alert");
             }
         };
-        
         
     </script>
 </body>
