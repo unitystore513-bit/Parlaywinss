@@ -308,52 +308,72 @@
                 }
             }
         });
-        // --- FUNGSI KLAIM KEMENANGAN USER (SINKRON DENGAN ADMIN) ---
+                // --- FUNGSI KLAIM KEMENANGAN USER (ANTI-STUCK & AUTO DETECT) ---
         window.ambilKemenangan = async function(lobbyId) {
+            // 1. PROTEKSI AUTO-DETECT: Jika ID kosong/tidak terkirim dari HTML, ambil dari URL Browser
+            if (!lobbyId || typeof lobbyId !== 'string' || lobbyId === '[object Object]') {
+                const urlParams = new URLSearchParams(window.location.search);
+                lobbyId = urlParams.get('id');
+            }
+
+            // Jika setelah dicek di URL tetap tidak ada, munculkan error
+            if (!lobbyId) {
+                return window.showPopup("Gagal", "ID Ruangan tidak terdeteksi oleh sistem!", "error");
+            }
+
             try {
-                if (!auth.currentUser) return window.showPopup("Gagal", "Anda harus login terlebih dahulu!", "error");
+                // 2. Cek apakah Firebase Auth sudah siap jalankan perintah
+                if (typeof auth === 'undefined' || !auth.currentUser) {
+                    return window.showPopup("Gagal", "Sistem autentikasi belum siap atau Anda belum login!", "error");
+                }
+
+                // 3. Cek apakah Firestore terhubung dengan benar
+                if (typeof db === 'undefined' || typeof doc === 'undefined') {
+                    return window.showPopup("Gagal", "Koneksi database Firestore terputus. Muat ulang halaman!", "error");
+                }
 
                 const lobbyRef = doc(db, "lobbies", lobbyId);
                 const lobbySnap = await getDoc(lobbyRef);
                 
                 if (!lobbySnap.exists()) {
-                    return window.showPopup("Gagal", "Data lobby tidak ditemukan!", "error");
+                    return window.showPopup("Gagal", "Data room lobby tidak ditemukan di database!", "error");
                 }
                 
                 const lobbyData = lobbySnap.data();
                 
-                // 1. Validasi keaslian pemenang
+                // Validasi pemenang
                 if (lobbyData.winner !== auth.currentUser.uid) {
-                    return window.showPopup("Gagal", "Anda bukan pemenang sah di lobby ini!", "error");
+                    return window.showPopup("Gagal", "Anda bukan pemenang sah di ruangan ini!", "error");
                 }
                 
-                // 2. Cegah klaim berulang (Double Claim)
+                // Cegah klaim ganda
                 if (lobbyData.status === "claimed") {
                     return window.showPopup("Info", "Kemenangan sudah diambil sebelumnya.", "info", () => {
                         window.location.href = "index.html";
                     });
                 }
                 
-                // 3. Update status lobby menjadi 'claimed' agar tanda selesai secara formal
+                // Update status di Firebase database
                 await updateDoc(lobbyRef, { 
                     status: "claimed" 
                 });
                 
-                // 4. Tampilkan pesan sukses dan arahkan kembali ke halaman utama/dashboard
+                // Berhasil
                 window.showPopup(
                     "Berhasil!", 
-                    "Kemenangan Anda telah berhasil dikonfirmasi dan masuk ke saldo utama!", 
+                    "Kemenangan terkonfirmasi! Saldo Anda sudah diperbarui oleh Admin.", 
                     "success", 
                     () => {
-                        window.location.href = "index.html"; // Arahkan ke beranda setelah klik OK
+                        window.location.href = "index.html";
                     }
                 );
                 
             } catch (e) {
-                console.error("Error claim victory:", e);
-                window.showPopup("Gagal", "Terjadi kesalahan saat mengambil kemenangan: " + e.message, "error");
+                console.error("Error claim:", e);
+                window.showPopup("Gagal Sistem", "Terjadi error internal: " + e.message, "error");
             }
         };
+        
         
     </script>
 </body>
