@@ -526,7 +526,8 @@
             });
         };
 
-                               function loadAdminData() {
+                               
+                        function loadAdminData() {
             // Pop-up internal untuk melihat foto bukti transfer
             window.lihatBuktiFoto = function(base64Data) {
                 let modal = document.getElementById('imageViewerModal');
@@ -548,7 +549,7 @@
                 modal.classList.remove('hidden');
             };
 
-            // KODE PERBAIKAN: Menggabungkan Potongan Awal (<5jt) dan Potongan Baru (5jt-100jt)
+            // PERBAIKAN MUTLAK: Paksa konversi String ke Number dengan parseInt()
             window.setWinner = async function(lobbyId, winnerUid, winnerName) {
                 window.showPopup(
                     "Tentukan Pemenang", 
@@ -563,18 +564,17 @@
                             const lobbyData = lobbySnap.data();
                             let totalPool = 0;
                             
-                            // Hitung total uang taruhan di dalam lobby (Bet P1 + Bet P2)
+                            // PERBAIKAN DI SINI: Gunakan parseInt() agar taruhan dijumlahkan sebagai angka murni
                             if (lobbyData.players) {
                                 for (let key in lobbyData.players) {
-                                    totalPool += lobbyData.players[key].bet || 0;
+                                        const taruhanPemain = parseInt(lobbyData.players[key].bet) || 0;
+                                        totalPool += taruhanPemain;
                                 }
                             }
 
                             let potongan = 0;
 
-                            // =========================================================
                             // 1. STRUKTUR POTONGAN BARU (5 JT - 100 JT)
-                            // =========================================================
                             if (totalPool >= 70000000 && totalPool <= 100000000) {
                                 potongan = 3500000; // 70jt - 100jt dipotong 3.5jt
                             } else if (totalPool >= 50000000 && totalPool < 70000000) {
@@ -588,16 +588,13 @@
                             } else if (totalPool >= 5000000 && totalPool < 10000000) {
                                 potongan = 350000;  // 5jt - 10jt dipotong 350rb
                             } 
-                            // =========================================================
                             // 2. STRUKTUR POTONGAN AWAL ANDA (DI BAWAH 5 JT)
-                            // Silakan ubah angka nominal potongan di bawah ini sesuai aturan awal Anda
-                            // =========================================================
                             else if (totalPool >= 3000000 && totalPool < 5000000) {
-                                potongan = 200000;  // Rentang 3jt - 5jt (Silakan sesuaikan)
+                                potongan = 200000;  
                             } else if (totalPool >= 1000000 && totalPool < 3000000) {
-                                potongan = 100000;  // Rentang 1jt - 3jt (Silakan sesuaikan)
+                                potongan = 100000;  
                             } else if (totalPool > 0 && totalPool < 1000000) {
-                                potongan = 50000;   // Rentang di bawah 1jt (Silakan sesuaikan)
+                                potongan = 50000;   
                             } else {
                                 potongan = 0;
                             }
@@ -639,8 +636,8 @@
                     let p1 = "Menunggu...", p2 = "Menunggu...", uid1 = null, uid2 = null, bet1 = 0, bet2 = 0;
                     if (data.players) {
                         const uids = Object.keys(data.players);
-                        if (uids.length > 0) { uid1 = uids[0]; p1 = data.players[uid1].username; bet1 = data.players[uid1].bet; }
-                        if (uids.length > 1) { uid2 = uids[1]; p2 = data.players[uid2].username; bet2 = data.players[uid2].bet; }
+                        if (uids.length > 0) { uid1 = uids[0]; p1 = data.players[uid1].username; bet1 = parseInt(data.players[uid1].bet) || 0; }
+                        if (uids.length > 1) { uid2 = uids[1]; p2 = data.players[uid2].username; bet2 = parseInt(data.players[uid2].bet) || 0; }
                     }
                     const isPanggilAdmin = (data.status === "admin_called" || data.adminCalled === true);
                     
@@ -769,5 +766,3 @@
     </script>
 </body>
 </html>
-
-                            
