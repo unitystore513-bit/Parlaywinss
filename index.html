@@ -122,6 +122,18 @@
     </div>
 </div>
 
+<!-- GLOBAL MODERN POPUP -->
+<div id="globalPopup" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex justify-center items-center z-[100] p-4 opacity-0 transition-opacity duration-300">
+    <div id="popupContent" class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-6 shadow-2xl text-center transform scale-95 transition-transform duration-300">
+        <div id="popupIcon" class="text-5xl mb-4 mx-auto"></div>
+        <h3 id="popupTitle" class="text-xl font-black text-white mb-2 uppercase italic">Title</h3>
+        <p id="popupMessage" class="text-sm text-slate-400 mb-6">Message</p>
+        <div id="popupButtons" class="flex gap-3 justify-center">
+            <!-- Tombol digenerate otomatis -->
+        </div>
+    </div>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
@@ -140,11 +152,58 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
+  // --- SISTEM POPUP MODERN ---
+  window.showPopup = function(title, message, type = 'info', onConfirm = null) {
+      const popup = document.getElementById('globalPopup');
+      const content = document.getElementById('popupContent');
+      const icon = document.getElementById('popupIcon');
+      const buttonsEl = document.getElementById('popupButtons');
+
+      document.getElementById('popupTitle').innerText = title;
+      document.getElementById('popupMessage').innerText = message;
+
+      if(type === 'success') icon.innerHTML = '<i class="fa-solid fa-circle-check text-green-500 drop-shadow-[0_0_10px_rgba(34,197,94,0.5)]"></i>';
+      else if(type === 'error') icon.innerHTML = '<i class="fa-solid fa-circle-xmark text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]"></i>';
+      else if(type === 'warning') icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-yellow-500 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]"></i>';
+      else icon.innerHTML = '<i class="fa-solid fa-circle-info text-blue-500 drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]"></i>';
+
+      if (onConfirm) {
+          buttonsEl.innerHTML = `
+              <button onclick="window.closePopup()" class="flex-1 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-bold hover:bg-slate-700 transition border border-slate-700">Batal</button>
+              <button id="confirmBtn" class="flex-1 py-2.5 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-500 transition shadow-[0_0_15px_rgba(37,99,235,0.4)]">Yakin</button>
+          `;
+          document.getElementById('confirmBtn').onclick = () => {
+              window.closePopup();
+              onConfirm(); 
+          };
+      } else {
+          buttonsEl.innerHTML = `
+              <button onclick="window.closePopup()" class="w-full py-3 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-500 transition shadow-[0_0_15px_rgba(37,99,235,0.4)]">Oke, Mengerti</button>
+          `;
+      }
+
+      popup.classList.remove('hidden');
+      setTimeout(() => {
+          popup.classList.remove('opacity-0');
+          content.classList.remove('scale-95');
+          content.classList.add('scale-100');
+      }, 10);
+  };
+
+  window.closePopup = function() {
+      const popup = document.getElementById('globalPopup');
+      const content = document.getElementById('popupContent');
+      popup.classList.add('opacity-0');
+      content.classList.remove('scale-100');
+      content.classList.add('scale-95');
+      setTimeout(() => popup.classList.add('hidden'), 300);
+  };
+
   // --- FUNGSI AUTENTIKASI ---
   window.login = async function() {
       const emailInput = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
-      if(!emailInput || !password) return alert("Mohon isi semua data!");
+      if(!emailInput || !password) return window.showPopup("Gagal Masuk", "Mohon isi semua data (Email dan Password)!", "error");
       
       const email = emailInput.includes('@') ? emailInput : emailInput + "@cvtaruhan.com";
       const loginBtn = document.querySelector('#loginForm button');
@@ -153,7 +212,7 @@
       try {
           await signInWithEmailAndPassword(auth, email, password);
       } catch (error) {
-          alert("Gagal masuk: " + error.message);
+          window.showPopup("Gagal Masuk", "Email atau Password salah!", "error");
           loginBtn.innerText = "Masuk";
       }
   };
@@ -172,9 +231,9 @@
       const emailInput = document.getElementById('regEmail').value.trim();
       const pass = document.getElementById('regPassword').value;
       const passConfirm = document.getElementById('regConfirm').value;
-      if(!emailInput || !pass) return alert("Data pendaftaran tidak boleh kosong!");
-      if(pass !== passConfirm) return alert("Password tidak sama!");
-      if(pass.length < 6) return alert("Password minimal 6 karakter!");
+      if(!emailInput || !pass) return window.showPopup("Pendaftaran Gagal", "Data pendaftaran tidak boleh kosong!", "error");
+      if(pass !== passConfirm) return window.showPopup("Pendaftaran Gagal", "Password dan Konfirmasi Password tidak sama!", "error");
+      if(pass.length < 6) return window.showPopup("Pendaftaran Gagal", "Password minimal harus 6 karakter!", "error");
       
       const email = emailInput.includes('@') ? emailInput : emailInput + "@cvtaruhan.com";
       const regBtn = document.querySelector('#registerForm button');
@@ -183,10 +242,10 @@
       try { 
           const c = await createUserWithEmailAndPassword(auth, email, pass);
           await setDoc(doc(db, "users", c.user.uid), { balance: 0, lobbyHistory: [] });
-          alert("Daftar sukses! Silakan login.");
+          window.showPopup("Berhasil!", "Pendaftaran akun sukses! Silakan masuk.", "success");
           window.toggleForm('login');
       } catch(e) { 
-          alert("Error: " + e.message); 
+          window.showPopup("Terjadi Kesalahan", e.message, "error"); 
       } finally {
           regBtn.innerText = "Daftar Akun";
       }
@@ -270,7 +329,7 @@
       const nominal = document.getElementById('inputNominal')?.value;
       const rek = document.getElementById('inputRek')?.value;
       
-      if(!nominal || !rek) return alert("Mohon isi Nominal dan Rekening Anda!");
+      if(!nominal || !rek) return window.showPopup("Gagal", "Mohon isi Nominal dan Rekening Anda!", "error");
 
       const col = title.includes("Withdraw") ? "withdraws" : "deposits";
       try {
@@ -281,10 +340,10 @@
               status: "pending",
               timestamp: new Date()
           });
-          alert("Permintaan berhasil dikirim! Silakan tunggu konfirmasi Admin.");
           window.tutupActionModal();
+          window.showPopup("Berhasil!", "Permintaan berhasil dikirim! Silakan tunggu konfirmasi Admin.", "success");
       } catch (error) {
-          alert("Gagal mengirim data: " + error.message);
+          window.showPopup("Gagal", "Gagal mengirim data: " + error.message, "error");
       }
   };
 
@@ -292,9 +351,12 @@
   window.createLobby = async function() {
       const id = Math.random().toString(36).substring(2, 8).toUpperCase();
       try {
-          await setDoc(doc(db, "lobbies", id), { createdAt: new Date(), status: "waiting", players: {} });
+          await setDoc(doc(db, "lobbies",
+                           id), { createdAt: new Date(), status: "waiting", players: {} });
           window.location.href = `lobby.html?id=${id}`;
-      } catch (e) { alert("Gagal membuat lobby: " + e.message); }
+      } catch (e) { 
+          window.showPopup("Gagal", "Gagal membuat lobby: " + e.message, "error"); 
+      }
   };
 
   window.joinLobby = async function() { 
@@ -303,7 +365,7 @@
           await setDoc(doc(db, "users", auth.currentUser.uid), { lobbyHistory: arrayUnion(code) }, { merge: true });
           window.location.href = `lobby.html?id=${code}`;
       } else {
-          alert("Masukkan kode lobby!");
+          window.showPopup("Perhatian", "Silakan masukkan kode lobby terlebih dahulu!", "warning");
       }
   };
 
@@ -313,74 +375,79 @@
       const snap = await getDocs(q);
       snap.forEach(d => deleteDoc(d.ref));
   };
-
-  // --- FUNGSI ADMIN ---
+    // --- FUNGSI ADMIN ---
   window.savePayment = async function() { 
       await setDoc(doc(db, "settings", "payment"), { info: document.getElementById('paymentData').value }); 
-      alert("Metode pembayaran berhasil disimpan!"); 
+      window.showPopup("Tersimpan!", "Metode pembayaran berhasil disimpan!", "success");
   };
 
   function loadAdminData() {
-          window.setWinner = async function(lobbyId, winnerUid, winnerName) {
-              if(confirm(`Yakin tentukan ${winnerName} sebagai PEMENANG?`)) {
+      window.setWinner = async function(lobbyId, winnerUid, winnerName) {
+          window.showPopup(
+              "Tentukan Pemenang", 
+              `Apakah Anda yakin ingin menetapkan ${winnerName} sebagai pemenang dari Lobby ini?`, 
+              "warning", 
+              async () => {
                   await updateDoc(doc(db, "lobbies", lobbyId), { winner: winnerUid, status: "finished" });
-                  alert(`Pemenang berhasil diatur ke: ${winnerName}!`);
+                  window.showPopup("Selesai!", `Pemenang berhasil diatur ke: ${winnerName}!`, "success");
               }
-          };
+          );
+      };
 
-          const qLobby = query(collection(db, "lobbies"), where("status", "!=", "finished"));
-          onSnapshot(qLobby, (snap) => {
-              const wadahLobby = document.getElementById('adminLobbyList');
-              if (!wadahLobby) return;
-              let htmlLobby = '';
-              snap.forEach(docSnap => {
-                  const data = docSnap.data();
-                  let p1 = "Menunggu...", p2 = "Menunggu...", uid1 = null, uid2 = null, bet1 = 0, bet2 = 0;
-                  if (data.players) {
-                      const uids = Object.keys(data.players);
-                      if (uids.length > 0) { uid1 = uids[0]; p1 = data.players[uid1].username; bet1 = data.players[uid1].bet; }
-                      if (uids.length > 1) { uid2 = uids[1]; p2 = data.players[uid2].username; bet2 = data.players[uid2].bet; }
-                  }
-                  const isPanggilAdmin = (data.status === "admin_called" || data.adminCalled === true);
-                  let adminActions = `<button onclick="window.location.href='lobby.html?id=${docSnap.id}'" class="w-full bg-slate-700 text-white py-2 rounded-lg font-bold text-xs mb-2">Masuk ke Ruangan</button>`;
-                  if (uid1 && uid2 && !data.winner) {
-                      adminActions += `<div class="flex gap-2 border-t border-slate-800 pt-2"><button onclick="window.setWinner('${docSnap.id}', '${uid1}', '${p1}')" class="w-1/2 bg-yellow-600 text-black py-2 rounded font-black text-[10px]">Menang ${p1}</button><button onclick="window.setWinner('${docSnap.id}', '${uid2}', '${p2}')" class="w-1/2 bg-yellow-600 text-black py-2 rounded font-black text-[10px]">Menang ${p2}</button></div>`;
-                  } else if (data.winner) {
-                      adminActions += `<div class="text-center text-blue-500 font-bold text-xs mt-2 uppercase">Selesai</div>`;
-                  }
-                  htmlLobby += `<div class="bg-slate-900 p-4 rounded-xl border ${isPanggilAdmin ? 'border-red-500' : 'border-slate-700'} mb-3"><div class="flex justify-between mb-2"><span class="font-black text-blue-400 text-sm">LOBBY: ${docSnap.id}</span></div><div class="flex justify-between text-white text-xs mb-3"><span>${p1}: Rp ${bet1.toLocaleString()}</span><span class="font-bold text-slate-500">VS</span><span>${p2}: Rp ${bet2.toLocaleString()}</span></div>${adminActions}</div>`;
-              });
-              wadahLobby.innerHTML = htmlLobby || '<p class="text-slate-500 text-center text-sm">Belum ada lobby aktif.</p>';
-          });
-
-          window.approve = async function(id) {
-              try {
-                  const snap = await getDoc(doc(db, "deposits", id));
-                  const data = snap.data();
-                  await updateDoc(doc(db, "deposits", id), { status: "approved" });
-                  await setDoc(doc(db, "users", data.uid), { balance: increment(data.amount) }, { merge: true });
-                  alert("Transaksi berhasil disetujui!");
-              } catch(e) {
-                  alert("Gagal menyetujui: " + e.message);
+      const qLobby = query(collection(db, "lobbies"), where("status", "!=", "finished"));
+      onSnapshot(qLobby, (snap) => {
+          const wadahLobby = document.getElementById('adminLobbyList');
+          if (!wadahLobby) return;
+          let htmlLobby = '';
+          snap.forEach(docSnap => {
+              const data = docSnap.data();
+              let p1 = "Menunggu...", p2 = "Menunggu...", uid1 = null, uid2 = null, bet1 = 0, bet2 = 0;
+              if (data.players) {
+                  const uids = Object.keys(data.players);
+                  if (uids.length > 0) { uid1 = uids[0]; p1 = data.players[uid1].username; bet1 = data.players[uid1].bet; }
+                  if (uids.length > 1) { uid2 = uids[1]; p2 = data.players[uid2].username; bet2 = data.players[uid2].bet; }
               }
-          };
-
-          onSnapshot(collection(db, "deposits"), (snap) => {
-              let html = "";
-              snap.forEach(d => {
-                  const data = d.data();
-                  if (data.status === "pending") {
-                      html += `<div class="bg-slate-800 p-4 rounded-xl border border-yellow-500 mb-3 text-sm">
-                                  <p class="font-bold text-white mb-1">User: ${data.uid.substring(0,5)}...</p>
-                                  <p class="text-blue-400 font-black text-lg mb-1">Rp ${data.amount.toLocaleString()}</p>
-                                  <p class="text-xs text-slate-300 mb-3">Rekening: ${data.rek}</p>
-                                  <button onclick="window.approve('${d.id}')" class="w-full bg-blue-600 hover:bg-blue-500 py-2 rounded-lg font-bold text-white transition">Setujui Deposit</button>
-                               </div>`;
-                  }
-              });
-              document.getElementById('adminList').innerHTML = html || '<p class="text-slate-500 text-center text-sm">Tidak ada permintaan pending.</p>';
+              const isPanggilAdmin = (data.status === "admin_called" || data.adminCalled === true);
+              let adminActions = `<button onclick="window.location.href='lobby.html?id=${docSnap.id}'" class="w-full bg-slate-700 text-white py-2 rounded-lg font-bold text-xs mb-2">Masuk ke Ruangan</button>`;
+              if (uid1 && uid2 && !data.winner) {
+                  adminActions += `<div class="flex gap-2 border-t border-slate-800 pt-2"><button onclick="window.setWinner('${docSnap.id}', '${uid1}', '${p1}')" class="w-1/2 bg-yellow-600 text-black py-2 rounded font-black text-[10px]">Menang ${p1}</button><button onclick="window.setWinner('${docSnap.id}', '${uid2}', '${p2}')" class="w-1/2 bg-yellow-600 text-black py-2 rounded font-black text-[10px]">Menang ${p2}</button></div>`;
+              } else if (data.winner) {
+                  adminActions += `<div class="text-center text-blue-500 font-bold text-xs mt-2 uppercase">Selesai</div>`;
+              }
+              htmlLobby += `<div class="bg-slate-900 p-4 rounded-xl border ${isPanggilAdmin ? 'border-red-500' : 'border-slate-700'} mb-3"><div class="flex justify-between mb-2"><span class="font-black text-blue-400 text-sm">LOBBY: ${docSnap.id}</span></div><div class="flex justify-between text-white text-xs mb-3"><span>${p1}: Rp ${bet1.toLocaleString()}</span><span class="font-bold text-slate-500">VS</span><span>${p2}: Rp ${bet2.toLocaleString()}</span></div>${adminActions}</div>`;
           });
-      }
+          wadahLobby.innerHTML = htmlLobby || '<p class="text-slate-500 text-center text-sm">Belum ada lobby aktif.</p>';
+      });
+
+      window.approve = async function(id) {
+          try {
+              const snap = await getDoc(doc(db, "deposits", id));
+              const data = snap.data();
+              await updateDoc(doc(db, "deposits", id), { status: "approved" });
+              await setDoc(doc(db, "users", data.uid), { balance: increment(data.amount) }, { merge: true });
+              window.showPopup("Berhasil", "Transaksi deposit berhasil disetujui!", "success");
+          } catch(e) {
+              window.showPopup("Gagal", "Gagal menyetujui transaksi: " + e.message, "error");
+          }
+      };
+
+      onSnapshot(collection(db, "deposits"), (snap) => {
+          let html = "";
+          snap.forEach(d => {
+              const data = d.data();
+              if (data.status === "pending") {
+                  html += `<div class="bg-slate-800 p-4 rounded-xl border border-yellow-500 mb-3 text-sm">
+                              <p class="font-bold text-white mb-1">User: ${data.uid.substring(0,5)}...</p>
+                              <p class="text-blue-400 font-black text-lg mb-1">Rp ${data.amount.toLocaleString()}</p>
+                              <p class="text-xs text-slate-300 mb-3">Rekening: ${data.rek}</p>
+                              <button onclick="window.approve('${d.id}')" class="w-full bg-blue-600 hover:bg-blue-500 py-2 rounded-lg font-bold text-white transition">Setujui Deposit</button>
+                           </div>`;
+              }
+          });
+          document.getElementById('adminList').innerHTML = html || '<p class="text-slate-500 text-center text-sm">Tidak ada permintaan pending.</p>';
+      });
+  }
 </script>
 </body>
 </html>
+    
