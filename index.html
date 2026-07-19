@@ -574,30 +574,42 @@
 
                             let potongan = 0;
 
-                            // 1. STRUKTUR POTONGAN BARU (5 JT - 100 JT)
-                            if (totalPool >= 70000000 && totalPool <= 100000000) {
-                                potongan = 3500000; // 70jt - 100jt dipotong 3.5jt
-                            } else if (totalPool >= 50000000 && totalPool < 70000000) {
-                                potongan = 2000000; // 50jt - 70jt dipotong 2jt
-                            } else if (totalPool >= 30000000 && totalPool < 50000000) {
-                                potongan = 1200000; // 30jt - 50jt dipotong 1.2jt
-                            } else if (totalPool >= 20000000 && totalPool < 30000000) {
-                                potongan = 800000;  // 20jt - 30jt dipotong 800rb
-                            } else if (totalPool >= 10000000 && totalPool < 20000000) {
-                                potongan = 500000;  // 10jt - 20jt dipotong 500rb
-                            } else if (totalPool >= 5000000 && totalPool < 10000000) {
-                                potongan = 350000;  // 5jt - 10jt dipotong 350rb
-                            } 
-                            // 2. STRUKTUR POTONGAN AWAL ANDA (DI BAWAH 5 JT)
-                            else if (totalPool >= 3000000 && totalPool < 5000000) {
-                                potongan = 200000;  
-                            } else if (totalPool >= 1000000 && totalPool < 3000000) {
-                                potongan = 100000;  
-                            } else if (totalPool > 0 && totalPool < 1000000) {
-                                potongan = 50000;   
-                            } else {
-                                potongan = 0;
-                            }
+                            // Struktur Potongan Admin Sesuai Daftar Terbaru
+if (totalPool <= 50000) {
+    potongan = 5000;
+} else if (totalPool <= 100000) {
+    potongan = 10000;
+} else if (totalPool <= 300000) {
+    potongan = 20000;
+} else if (totalPool <= 500000) {
+    potongan = 30000;
+} else if (totalPool <= 800000) {
+    potongan = 50000;
+} else if (totalPool <= 1300000) {
+    potongan = 80000;
+} else if (totalPool <= 2000000) {
+    potongan = 120000;
+} else if (totalPool <= 3000000) {
+    potongan = 170000;
+} else if (totalPool <= 5000000) {
+    potongan = 250000;
+} else if (totalPool <= 8000000) {
+    potongan = 350000;
+} else if (totalPool <= 13000000) {
+    potongan = 500000;
+} else if (totalPool <= 20000000) {
+    potongan = 700000;
+} else if (totalPool <= 40000000) {
+    potongan = 1000000;
+} else if (totalPool <= 60000000) {
+    potongan = 1500000;
+} else if (totalPool <= 80000000) {
+    potongan = 2000000;
+} else if (totalPool <= 100000000) {
+    potongan = 2500000;
+} else {
+    potongan = 0; // Jika totalPool melebihi 100 juta
+}
 
                             // Hitung sisa uang bersih untuk pemenang
                             const hadiahBersih = totalPool - potongan;
