@@ -35,7 +35,7 @@
     </div>
     <div id="actionContainer">
         <button onclick="window.masukTaruhan()" class="bg-green-600 text-white p-3 rounded-lg w-full mt-4 font-bold text-sm hover:bg-green-500 transition shadow-[0_0_10px_rgba(22,163,74,0.4)]">
-            MASUK TARUHAN
+            MASUKIN JUMLAH TARUHAN DISINI
         </button>
     </div>
 
@@ -58,7 +58,7 @@
             <p id="modalMessage" class="text-sm text-slate-300 mb-4">Message goes here</p>
             
             <div id="modalInputContainer" class="hidden mb-4">
-                <input type="number" id="modalInput" class="w-full bg-slate-950 border border-slate-700 p-3 rounded-xl text-white font-bold focus:outline-blue-500 focus:border-blue-500" placeholder="0">
+                <input type="text" id="modalInput" oninput="window.formatRupiah(this)" class="w-full bg-slate-950 border border-slate-700 p-3 rounded-xl text-white font-bold focus:outline-blue-500 focus:border-blue-500" placeholder="0">
             </div>
             
             <div id="modalButtons" class="flex justify-end gap-2">
@@ -158,7 +158,7 @@
         // --- FUNGSI MASUK TARUHAN ---
         window.masukTaruhan = () => {
             window.showModernPopup("Pasang Taruhan", "Masukkan nominal taruhan Anda:", "prompt", async (val) => {
-                const nominal = parseInt(val);
+                const nominal = window.hapusFormat(val);
                 if (!nominal || nominal <= 0) return;
                 
                 const userRef = doc(db, "users", auth.currentUser.uid);
