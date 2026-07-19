@@ -358,25 +358,25 @@
         window.showModernPopup("Gagal Sistem", "Terjadi error internal: " + e.message, "alert");
     }
 };
-        <!-- SCRIPT FORMAT ANGKA RUPIAH -->
-<script>
-    // Fungsi untuk memformat inputan angka dengan titik pemisah ribuan
-    window.formatRupiah = function(element) {
-        let val = element.value.replace(/[^0-9]/g, '');
-        if (val) {
-            element.value = parseInt(val, 10).toLocaleString('id-ID');
-        } else {
-            element.value = '';
-        }
-    };
+        </script>
 
-    // Fungsi pembantu untuk mengembalikan angka murni sebelum masuk ke database
-    window.hapusFormat = function(rupiahString) {
-        if (!rupiahString) return 0;
-        return parseInt(rupiahString.toString().replace(/\./g, ''), 10) || 0;
-    };
-</script>
-        
+    <!-- SCRIPT FORMAT ANGKA RUPIAH -->
+    <script>
+        // Fungsi untuk memformat inputan angka dengan titik pemisah ribuan
+        window.formatRupiah = function(element) {
+            let val = element.value.replace(/[^0-9]/g, '');
+            if (val) {
+                element.value = parseInt(val, 10).toLocaleString('id-ID');
+            } else {
+                element.value = '';
+            }
+        };
+
+        // Fungsi pembantu untuk mengembalikan angka murni sebelum masuk ke database
+        window.hapusFormat = function(rupiahString) {
+            if (!rupiahString) return 0;
+            return parseInt(rupiahString.toString().replace(/\./g, ''), 10) || 0;
+        };
     </script>
 </body>
 </html>
