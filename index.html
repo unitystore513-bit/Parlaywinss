@@ -78,7 +78,22 @@
                 <h2 class="font-bold text-slate-300 text-sm mb-3">Riwayat Lobby Anda</h2>
                 <div id="historyList" class="space-y-2"></div>
             </div>
-
+            
+<!-- OBROLAN GLOBAL -->
+            <div id="globalChatSection" class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+                <h2 class="font-bold text-slate-300 text-sm mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-comments text-blue-500"></i> Obrolan Global (Mabar & Tanding)
+                </h2>
+                <!-- Area Teks Chat -->
+                <div id="chatBoxBox" class="h-48 overflow-y-auto space-y-2 mb-3 pr-1 text-xs bg-slate-950 p-3 rounded-xl border border-slate-800 max-h-48">
+                    <p class="text-slate-500 text-center py-4">Memuat obrolan...</p>
+                </div>
+                <!-- Input Pesan -->
+                <div class="flex gap-2">
+                    <input type="text" id="globalChatInput" placeholder="Ajak mabar atau tanding..." onkeydown="if(event.key === 'Enter') window.sendGlobalChat()" class="flex-1 bg-slate-950 border border-slate-700 p-3 rounded-xl focus:outline-none focus:border-blue-500 text-sm text-white">
+                    <button onclick="window.sendGlobalChat()" class="bg-blue-600 hover:bg-blue-500 px-4 rounded-xl font-bold text-sm text-white transition">Kirim</button>
+                </div>
+            </div>
             <!-- ADMIN PANEL -->
             <div id="adminPanel" class="hidden space-y-4">
                 <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
@@ -159,8 +174,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove, query, collection, where, getDocs, deleteDoc, onSnapshot, increment, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove, query, collection, where, getDocs, deleteDoc, onSnapshot, increment, addDoc, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
         const firebaseConfig = {
             apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8",
             authDomain: "parlaywins-new.firebaseapp.com",
@@ -218,6 +232,48 @@
             content.classList.remove('scale-100');
             content.classList.add('scale-95');
             setTimeout(() => popup.classList.add('hidden'), 300);
+        };
+        // --- SISTEM CHAT GLOBAL ---
+        function loadGlobalChats() {
+            // Mengambil 50 pesan terbaru dari database
+            const qChat = query(collection(db, "global_chats"), orderBy("timestamp", "desc"), limit(50));
+            onSnapshot(qChat, (snap) => {
+                const chatBox = document.getElementById('chatBoxBox');
+                if (!chatBox) return;
+                
+                let messages = [];
+                snap.forEach(d => messages.push(d.data()));
+                messages.reverse(); // Membalikkan urutan agar chat baru berada di paling bawah
+                
+                let html = messages.map(data => {
+                    const isMe = data.username === auth.currentUser.email.split('@')[0];
+                    return `<div class="break-words mb-1 text-left">
+                                <span class="${isMe ? 'text-blue-400' : 'text-yellow-500'} font-bold">${data.username}:</span>
+                                <span class="text-slate-200">${data.message}</span>
+                            </div>`;
+                }).join('');
+                
+                chatBox.innerHTML = html || '<p class="text-slate-500 text-center py-4">Belum ada obrolan. Yuk mulai sapa yang lain!</p>';
+                chatBox.scrollTop = chatBox.scrollHeight; // Otomatis scroll ke pesan paling bawah
+            });
+        }
+
+        window.sendGlobalChat = async function() {
+            const input = document.getElementById('globalChatInput');
+            const text = input.value.trim();
+            if (!text) return; // Mencegah kirim chat kosong
+            
+            try {
+                const username = auth.currentUser.email.split('@')[0];
+                await addDoc(collection(db, "global_chats"), {
+                    username: username,
+                    message: text,
+                    timestamp: new Date()
+                });
+                input.value = ""; // Mengosongkan kolom input setelah kirim
+            } catch (e) {
+                console.error("Gagal mengirim chat:", e);
+            }
         };
 
         // --- FUNGSI AUTENTIKASI ---
@@ -292,7 +348,7 @@
             document.getElementById('dashboardView').classList.remove('hidden');
             document.getElementById('userMenu').classList.remove('hidden');
             document.getElementById('userDisplay').innerText = "ID: " + user.email.split('@')[0];
-
+loadGlobalChats();
             if (user.email === "admin@cvtaruhan.com") {
                 document.getElementById('financeButtons').classList.add('hidden');
                 document.getElementById('userActions').classList.add('hidden');
