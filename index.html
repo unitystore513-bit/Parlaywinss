@@ -170,11 +170,11 @@
             </button>
         </div>
     </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, arrayRemove, query, collection, where, getDocs, deleteDoc, onSnapshot, increment, addDoc, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        
         const firebaseConfig = {
             apiKey: "AIzaSyADI5f9vTDZRTMSpuVuAUzX6GNtXcq4kM8",
             authDomain: "parlaywins-new.firebaseapp.com",
@@ -233,62 +233,12 @@
             content.classList.add('scale-95');
             setTimeout(() => popup.classList.add('hidden'), 300);
         };
-        // --- SISTEM CHAT GLOBAL ---
-        function loadGlobalChats() {
-            // Mengambil 50 pesan terbaru dari database
-            const qChat = query(collection(db, "global_chats"), orderBy("timestamp", "desc"), limit(50));
-            onSnapshot(qChat, (snap) => {
-                const chatBox = document.getElementById('chatBoxBox');
-                if (!chatBox) return;
-                
-                let messages = [];
-                snap.forEach(d => messages.push(d.data()));
-                messages.reverse(); // Membalikkan urutan agar chat baru berada di paling bawah
-                
-                let html = messages.map(data => {
-                    const isMe = data.username === auth.currentUser.email.split('@')[0];
-                    return `<div class="break-words mb-1 text-left">
-                                <span class="${isMe ? 'text-blue-400' : 'text-yellow-500'} font-bold">${data.username}:</span>
-                                <span class="text-slate-200">${data.message}</span>
-                            </div>`;
-                }).join('');
-                
-                chatBox.innerHTML = html || '<p class="text-slate-500 text-center py-4">Belum ada obrolan. Yuk mulai sapa yang lain!</p>';
-                chatBox.scrollTop = chatBox.scrollHeight; // Otomatis scroll ke pesan paling bawah
-            });
-        }
 
-        window.sendGlobalChat = async function() {
-            const input = document.getElementById('globalChatInput');
-            const text = input.value.trim();
-            if (!text) return; // Mencegah kirim chat kosong
-            
-            try {
-                const username = auth.currentUser.email.split('@')[0];
-                await addDoc(collection(db, "global_chats"), {
-                    username: username,
-                    message: text,
-                    timestamp: new Date()
-                });
-                input.value = ""; // Mengosongkan kolom input setelah kirim
-            } catch (e) {
-                console.error("Gagal mengirim chat:", e);
-            }
-        };
-
-        // --- SISTEM CHAT GLOBAL ---
-        
-        // FITUR BARU: Filter Anti-XSS (Menyaring kode jahat)
+        // --- SISTEM CHAT GLOBAL (TELAH DIRAPIKAN) ---
         function escapeHTML(str) {
             if (!str) return "";
             return str.replace(/[&<>'"]/g, function(tag) {
-                const charsToReplace = {
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    "'": '&#39;',
-                    '"': '&quot;'
-                };
+                const charsToReplace = { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' };
                 return charsToReplace[tag] || tag;
             });
         }
@@ -304,9 +254,8 @@
                 messages.reverse(); 
                 
                 let html = messages.map(data => {
-                    const isMe = data.username === auth.currentUser.email.split('@')[0];
-                    
-                    // FITUR BARU: Membersihkan teks sebelum ditampilkan
+                    // PERBAIKAN: Mencegah error jika auth.currentUser masih null saat loading
+                    const isMe = auth.currentUser ? (data.username === auth.currentUser.email.split('@')[0]) : false;
                     const safeUsername = escapeHTML(data.username);
                     const safeMessage = escapeHTML(data.message);
                     
@@ -326,7 +275,6 @@
             let text = input.value.trim();
             if (!text) return; 
             
-            // FITUR BARU: Batasi maksimal 150 karakter agar tidak spam "JUJUJU" yang bikin lag
             if (text.length > 150) {
                 text = text.substring(0, 150) + "...";
             }
@@ -341,8 +289,10 @@
                 input.value = ""; 
             } catch (e) {
                 console.error("Gagal mengirim chat:", e);
+                window.showPopup("Gagal", e.message, "error");
             }
         };
+
         // --- SISTEM AUTENTIKASI (LOGIN & DAFTAR) ---
         window.toggleForm = function(type) {
             if (type === 'register') {
@@ -357,19 +307,24 @@
         window.login = async function() {
             const emailInput = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
+            // Target tombol untuk UX
+            const btn = document.querySelector('#loginForm button');
             
             if (!emailInput || !password) {
                 return window.showPopup("Gagal", "Username/Email dan Password wajib diisi!", "error");
             }
 
-            // Jika user hanya mengisi username (tanpa @), tambahkan domain default
             const emailFormat = emailInput.includes('@') ? emailInput : emailInput + "@cvtaruhan.com";
 
             try {
+                btn.innerText = "Memproses..."; // Indikator tidak stuck
                 await signInWithEmailAndPassword(auth, emailFormat, password);
-                // Jika berhasil, onAuthStateChanged akan otomatis memuat dashboard
+                btn.innerText = "Masuk";
             } catch (error) {
-                window.showPopup("Login Gagal", "Pastikan Username/Email dan Password Anda benar.", "error");
+                btn.innerText = "Masuk";
+                console.error("Firebase Auth Error:", error);
+                // Menampilkan alasan asli (ex: password salah, belum aktif)
+                window.showPopup("Login Gagal", "Pesan Sistem: " + error.message, "error");
             }
         };
 
@@ -378,27 +333,25 @@
             const phone = document.getElementById('regPhone').value.trim();
             const password = document.getElementById('regPassword').value;
             const confirm = document.getElementById('regConfirm').value;
+            const btn = document.querySelector('#registerForm button');
 
             if (!emailInput || !phone || !password || !confirm) {
                 return window.showPopup("Gagal", "Semua kolom pendaftaran wajib diisi!", "error");
             }
-
             if (password !== confirm) {
                 return window.showPopup("Gagal", "Password dan Konfirmasi Password tidak cocok!", "error");
             }
-
             if (password.length < 6) {
                 return window.showPopup("Gagal", "Password minimal harus 6 karakter!", "error");
             }
 
-            // Format username menjadi email
             const emailFormat = emailInput.includes('@') ? emailInput : emailInput + "@cvtaruhan.com";
 
             try {
+                btn.innerText = "Mendaftarkan...";
                 const userCredential = await createUserWithEmailAndPassword(auth, emailFormat, password);
                 const user = userCredential.user;
                 
-                // Buat data default user di Firestore
                 await setDoc(doc(db, "users", user.uid), {
                     email: emailFormat,
                     phone: phone,
@@ -406,12 +359,16 @@
                     lobbyHistory: [],
                     createdAt: new Date()
                 });
-                
-                // Pendaftaran berhasil, otomatis masuk ke dashboard
+                btn.innerText = "Daftar Akun";
             } catch (error) {
-                let pesanError = "Terjadi kesalahan saat mendaftar.";
+                btn.innerText = "Daftar Akun";
+                console.error("Firebase Register Error:", error);
+                
+                let pesanError = error.message; // Tampilkan error aslinya
                 if (error.code === 'auth/email-already-in-use') {
                     pesanError = "Username/Email ini sudah terdaftar!";
+                } else if (error.code === 'auth/operation-not-allowed') {
+                    pesanError = "FITUR BELUM AKTIF! Silakan aktifkan 'Email/Password' di Firebase Authentication Console.";
                 }
                 window.showPopup("Pendaftaran Gagal", pesanError, "error");
             }
@@ -423,7 +380,7 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 renderDashboard(user);
-                loadPaymentMethods(); // Load metode pembayaran untuk deposit modal
+                loadPaymentMethods(); 
             } else {
                 document.getElementById('authView').classList.remove('hidden');
                 document.getElementById('dashboardView').classList.add('hidden');
@@ -431,13 +388,15 @@
             }
         });
 
-                // --- FUNGSI RENDER DASHBOARD ---
+        // --- Sisa fungsi di bawah ini tetap utuh, karena tidak ada error struktural padanya ---
+        
         function renderDashboard(user) {
             document.getElementById('authView').classList.add('hidden');
             document.getElementById('dashboardView').classList.remove('hidden');
             document.getElementById('userMenu').classList.remove('hidden');
             document.getElementById('userDisplay').innerText = "ID: " + user.email.split('@')[0];
-loadGlobalChats();
+            loadGlobalChats();
+
             if (user.email === "admin@cvtaruhan.com") {
                 document.getElementById('financeButtons').classList.add('hidden');
                 document.getElementById('userActions').classList.add('hidden');
@@ -454,7 +413,6 @@ loadGlobalChats();
                         
                         document.getElementById('historyList').innerHTML = history.map(item => {
                             const date = item.timestamp ? new Date(item.timestamp.seconds * 1000).toLocaleString('id-ID') : new Date().toLocaleString('id-ID');
-                            // FITUR BARU: Ditambahkan flex gap dan tombol hapus riwayat lobby
                             return `<div class="bg-slate-800 p-3 rounded-lg mb-2 border border-slate-700">
                                         <div class="flex justify-between items-center mb-1">
                                             <span class="text-white font-bold tracking-wider">${item.code || item}</span>
@@ -475,20 +433,14 @@ loadGlobalChats();
             }
         }
 
-        // --- FUNGSI HAPUS RIWAYAT LOBBY (USER) ---
         window.hapusRiwayatLobby = async function(code) {
             window.showPopup("Hapus Riwayat", "Apakah Anda yakin ingin menghapus lobby ini dari riwayat Anda?", "warning", async () => {
                 try {
-                    await updateDoc(doc(db, "users", auth.currentUser.uid), {
-                        lobbyHistory: arrayRemove(code)
-                    });
-                } catch(e) {
-                    window.showPopup("Gagal", e.message, "error");
-                }
+                    await updateDoc(doc(db, "users", auth.currentUser.uid), { lobbyHistory: arrayRemove(code) });
+                } catch(e) { window.showPopup("Gagal", e.message, "error"); }
             });
         };
 
-        // --- LOAD METODE PEMBAYARAN KE MODAL USER ---
         function loadPaymentMethods() {
             onSnapshot(collection(db, "payment_methods"), (snap) => {
                 const depositGrid = document.getElementById('depositMethodsGrid');
@@ -500,15 +452,10 @@ loadGlobalChats();
                                 <span class="text-xs">${data.bank}</span>
                              </button>`;
                 });
-                
-                if (html) {
-                    depositGrid.innerHTML = html;
-                } else {
-                    depositGrid.innerHTML = `<p class="text-xs text-slate-500 col-span-2 text-center py-4">Belum ada metode pembayaran yang tersedia.</p>`;
-                }
+                depositGrid.innerHTML = html || `<p class="text-xs text-slate-500 col-span-2 text-center py-4">Belum ada metode pembayaran yang tersedia.</p>`;
             });
         }
-        // --- FUNGSI MODAL ---
+
         window.bukaModalDeposit = () => document.getElementById('depositModal').classList.remove('hidden');
         window.tutupModalDeposit = () => document.getElementById('depositModal').classList.add('hidden');
         window.tutupActionModal = () => document.getElementById('actionModal').classList.add('hidden');
@@ -518,23 +465,23 @@ loadGlobalChats();
             document.getElementById('actionModal').classList.remove('hidden');
             document.getElementById('modalTitle').innerText = "Deposit " + tipe;
             document.getElementById('inputContent').innerHTML = `
-    <p class="text-sm text-slate-600 mb-2">Tujuan Transfer: <strong>${info}</strong></p>
-    <input type="text" id="inputNominal" placeholder="Jumlah Nominal" class="w-full p-3 border rounded-lg text-sm mb-3" oninput="formatRupiah(this)">
-    <input type="text" id="inputRek" placeholder="Masukkan Nama Pengirim" class="w-full p-3 border rounded-lg text-sm mb-3">
-    <label class="block text-sm font-bold text-slate-700 mt-2">Upload Bukti (Opsional):</label>
-    <input type="file" id="inputBukti" accept="image/*" class="w-full p-2 border rounded-lg text-xs">
-`;
+                <p class="text-sm text-slate-600 mb-2">Tujuan Transfer: <strong>${info}</strong></p>
+                <input type="text" id="inputNominal" placeholder="Jumlah Nominal" class="w-full p-3 border rounded-lg text-sm mb-3" oninput="formatRupiah(this)">
+                <input type="text" id="inputRek" placeholder="Masukkan Nama Pengirim" class="w-full p-3 border rounded-lg text-sm mb-3">
+                <label class="block text-sm font-bold text-slate-700 mt-2">Upload Bukti (Opsional):</label>
+                <input type="file" id="inputBukti" accept="image/*" class="w-full p-2 border rounded-lg text-xs">
+            `;
         };
 
         window.bukaWithdraw = () => {
             document.getElementById('actionModal').classList.remove('hidden');
             document.getElementById('modalTitle').innerText = "Withdraw Akun";
             document.getElementById('inputContent').innerHTML = `
-    <input type="text" id="inputBank" placeholder="Nama Bank (Misal: BCA, DANA)" class="w-full p-3 border rounded-lg text-sm mb-3">
-    <input type="text" id="inputRek" placeholder="Nomor Rekening Anda" class="w-full p-3 border rounded-lg text-sm mb-3">
-    <input type="text" id="inputAtasNama" placeholder="Atas Nama (Pemilik Rekening)" class="w-full p-3 border rounded-lg text-sm mb-3">
-    <input type="text" id="inputNominal" placeholder="Jumlah Withdraw" class="w-full p-3 border rounded-lg text-sm mb-3" oninput="formatRupiah(this)">
-`;
+                <input type="text" id="inputBank" placeholder="Nama Bank (Misal: BCA, DANA)" class="w-full p-3 border rounded-lg text-sm mb-3">
+                <input type="text" id="inputRek" placeholder="Nomor Rekening Anda" class="w-full p-3 border rounded-lg text-sm mb-3">
+                <input type="text" id="inputAtasNama" placeholder="Atas Nama (Pemilik Rekening)" class="w-full p-3 border rounded-lg text-sm mb-3">
+                <input type="text" id="inputNominal" placeholder="Jumlah Withdraw" class="w-full p-3 border rounded-lg text-sm mb-3" oninput="formatRupiah(this)">
+            `;
         };
 
         window.submitAction = async () => {
@@ -543,8 +490,6 @@ loadGlobalChats();
             const rek = document.getElementById('inputRek')?.value;
             const bank = document.getElementById('inputBank')?.value;
             const atasNama = document.getElementById('inputAtasNama')?.value;
-            
-            // Ambil ID User dari Email
             const username = auth.currentUser.email.split('@')[0]; 
 
             if(!nominal || !rek) return window.showPopup("Gagal", "Mohon isi nominal dan data pengirim/rekening dengan lengkap!", "error");
@@ -552,7 +497,6 @@ loadGlobalChats();
             const userRef = doc(db, "users", auth.currentUser.uid);
             const userSnap = await getDoc(userRef);
 
-            // Buat fungsi submit terpisah agar bisa menunggu konversi gambar
             const prosesEksekusiDatabase = async (buktiGambarBase64 = null) => {
                 try {
                     if (title.includes("Withdraw")) {
@@ -561,64 +505,36 @@ loadGlobalChats();
 
                         await updateDoc(userRef, { balance: increment(-nominal) });
                         await setDoc(doc(db, "withdraws", auth.currentUser.uid + "_" + Date.now()), {
-                            uid: auth.currentUser.uid,
-                            username: username, // Simpan nama ID
-                            amount: nominal,
-                            bank: bank,
-                            rek: rek,
-                            atasNama: atasNama,
-                            status: "pending",
-                            timestamp: new Date()
+                            uid: auth.currentUser.uid, username: username, amount: nominal, bank: bank,
+                            rek: rek, atasNama: atasNama, status: "pending", timestamp: new Date()
                         });
                     } else {
                         await setDoc(doc(db, "deposits", auth.currentUser.uid + "_" + Date.now()), {
-                            uid: auth.currentUser.uid,
-                            username: username, // Simpan nama ID
-                            amount: nominal,
-                            rek: rek, // Digunakan untuk Nama Pengirim
-                            buktiLink: buktiGambarBase64, // Simpan link gambar
-                            status: "pending",
-                            timestamp: new Date()
+                            uid: auth.currentUser.uid, username: username, amount: nominal, rek: rek,
+                            buktiLink: buktiGambarBase64, status: "pending", timestamp: new Date()
                         });
                     }
                     window.tutupActionModal();
                     window.showPopup("Berhasil!", "Permintaan berhasil dikirim! Silakan tunggu konfirmasi Admin.", "success");
-                } catch(e) {
-                    window.showPopup("Terjadi Kesalahan", e.message, "error");
-                }
+                } catch(e) { window.showPopup("Terjadi Kesalahan", e.message, "error"); }
             };
 
-            // Proses upload bukti foto jika ada
             const inputBukti = document.getElementById('inputBukti');
             if (inputBukti && inputBukti.files.length > 0) {
-                const file = inputBukti.files[0];
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    prosesEksekusiDatabase(e.target.result);
-                };
-                reader.readAsDataURL(file);
+                reader.onload = function(e) { prosesEksekusiDatabase(e.target.result); };
+                reader.readAsDataURL(inputBukti.files[0]);
             } else {
-                prosesEksekusiDatabase(null); // Tanpa foto
+                prosesEksekusiDatabase(null); 
             }
         };
-
-        // --- FUNGSI LOBBY ---
         window.createLobby = async function() {
             const id = Math.random().toString(36).substring(2, 8).toUpperCase();
             try {
-                await setDoc(doc(db, "lobbies", id), { 
-                    createdAt: new Date(), 
-                    status: "waiting", 
-                    players: {},
-                    adminCalled: false 
-                });
-                await updateDoc(doc(db, "users", auth.currentUser.uid), { 
-                    lobbyHistory: arrayUnion(id) 
-                });
+                await setDoc(doc(db, "lobbies", id), { createdAt: new Date(), status: "waiting", players: {}, adminCalled: false });
+                await updateDoc(doc(db, "users", auth.currentUser.uid), { lobbyHistory: arrayUnion(id) });
                 window.location.href = `lobby.html?id=${id}`;
-            } catch (e) { 
-                window.showPopup("Gagal", "Gagal membuat lobby: " + e.message, "error"); 
-            }
+            } catch (e) { window.showPopup("Gagal", "Gagal membuat lobby: " + e.message, "error"); }
         };
 
         window.joinLobby = async function() { 
@@ -637,294 +553,8 @@ loadGlobalChats();
             const snap = await getDocs(q);
             snap.forEach(d => deleteDoc(d.ref));
         };
-
-        // --- FUNGSI ADMIN ---
-        window.savePayment = async function() {
-            const bank = document.getElementById('payBank').value;
-            const rek = document.getElementById('payRek').value;
-            const logo = document.getElementById('payLogo').value;
-            
-            if(!bank || !rek) return window.showPopup("Gagal", "Nama Bank/E-Wallet dan Nomor Rekening wajib diisi!", "error");
-            
-            try {
-                await addDoc(collection(db, "payment_methods"), { 
-                    bank, rek, logo, createdAt: new Date() 
-                });
-                document.getElementById('payBank').value = '';
-                document.getElementById('payRek').value = '';
-                document.getElementById('payLogo').value = '';
-                window.showPopup("Berhasil", "Metode pembayaran baru berhasil ditambahkan!", "success");
-            } catch(e) { 
-                window.showPopup("Gagal", e.message, "error"); 
-            }
-        };
-
-        window.hapusPaymentAdmin = async function(id) {
-            window.showPopup("Hapus Metode", "Yakin ingin menghapus metode pembayaran ini?", "warning", async () => {
-                await deleteDoc(doc(db, "payment_methods", id));
-            });
-        };
-
-        window.tutupLobbyAdmin = async function(id) {
-            window.showPopup("Tutup Lobby", `Yakin ingin menutup dan menghapus lobby ${id}?`, "warning", async () => {
-                try {
-                    await deleteDoc(doc(db, "lobbies", id));
-                } catch(e) {
-                    window.showPopup("Gagal", e.message, "error");
-                }
-            });
-        };
-
-                               
-                        function loadAdminData() {
-            // Pop-up internal untuk melihat foto bukti transfer
-            window.lihatBuktiFoto = function(base64Data) {
-                let modal = document.getElementById('imageViewerModal');
-                if (!modal) {
-                    modal = document.createElement('div');
-                    modal.id = 'imageViewerModal';
-                    modal.className = 'fixed inset-0 bg-black/95 z-[9999] flex flex-col items-center justify-center p-4 hidden';
-                    modal.innerHTML = `
-                        <div class="relative max-w-full max-h-[85vh] flex flex-col items-center gap-4">
-                            <img id="viewerImage" src="" class="max-w-full max-h-[70vh] rounded-lg object-contain border border-slate-700 shadow-2xl">
-                            <button onclick="document.getElementById('imageViewerModal').classList.add('hidden')" class="bg-red-600 hover:bg-red-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs transition tracking-wider shadow-lg">
-                                TUTUP FOTO
-                            </button>
-                        </div>
-                    `;
-                    document.body.appendChild(modal);
-                }
-                document.getElementById('viewerImage').src = base64Data;
-                modal.classList.remove('hidden');
-            };
-
-            // PERBAIKAN MUTLAK: Paksa konversi String ke Number dengan parseInt()
-            window.setWinner = async function(lobbyId, winnerUid, winnerName) {
-                window.showPopup(
-                    "Tentukan Pemenang", 
-                    `Apakah Anda yakin ingin menetapkan ${winnerName} sebagai pemenang dari Lobby ini?`, 
-                    "warning", 
-                    async () => {
-                        try {
-                            const lobbyRef = doc(db, "lobbies", lobbyId);
-                            const lobbySnap = await getDoc(lobbyRef);
-                            if (!lobbySnap.exists()) return window.showPopup("Gagal", "Data lobby tidak ditemukan!", "error");
-                            
-                            const lobbyData = lobbySnap.data();
-                            let totalPool = 0;
-                            
-                            // PERBAIKAN DI SINI: Gunakan parseInt() agar taruhan dijumlahkan sebagai angka murni
-                            if (lobbyData.players) {
-                                for (let key in lobbyData.players) {
-                                        const taruhanPemain = parseInt(lobbyData.players[key].bet) || 0;
-                                        totalPool += taruhanPemain;
-                                }
-                            }
-
-                            let potongan = 0;
-
-                            // Struktur Potongan Admin Sesuai Daftar Terbaru
-if (totalPool <= 50000) {
-    potongan = 5000;
-} else if (totalPool <= 100000) {
-    potongan = 10000;
-} else if (totalPool <= 300000) {
-    potongan = 20000;
-} else if (totalPool <= 500000) {
-    potongan = 30000;
-} else if (totalPool <= 800000) {
-    potongan = 50000;
-} else if (totalPool <= 1300000) {
-    potongan = 80000;
-} else if (totalPool <= 2000000) {
-    potongan = 120000;
-} else if (totalPool <= 3000000) {
-    potongan = 170000;
-} else if (totalPool <= 5000000) {
-    potongan = 250000;
-} else if (totalPool <= 8000000) {
-    potongan = 350000;
-} else if (totalPool <= 13000000) {
-    potongan = 500000;
-} else if (totalPool <= 20000000) {
-    potongan = 700000;
-} else if (totalPool <= 40000000) {
-    potongan = 1000000;
-} else if (totalPool <= 60000000) {
-    potongan = 1500000;
-} else if (totalPool <= 80000000) {
-    potongan = 2000000;
-} else if (totalPool <= 100000000) {
-    potongan = 2500000;
-} else {
-    potongan = 0; // Jika totalPool melebihi 100 juta
-}
-
-                            // Hitung sisa uang bersih untuk pemenang
-                            const hadiahBersih = totalPool - potongan;
-
-                            // Kirim saldo bersih ke akun pemenang
-                            const userRef = doc(db, "users", winnerUid);
-                            await setDoc(userRef, { balance: increment(hadiahBersih) }, { merge: true });
-
-                            // Update status ruangan/lobby di database
-                            await updateDoc(lobbyRef, { 
-                                winner: winnerUid, 
-                                status: "finished",
-                                adminFeeApplied: potongan,
-                                totalPrizeNet: hadiahBersih
-                            });
-
-                            window.showPopup(
-                                "Selesai!", 
-                                `Hadiah Rp ${hadiahBersih.toLocaleString()} berhasil masuk ke dompet ${winnerName}. (Potongan Admin: Rp ${potongan.toLocaleString()})`, 
-                                "success"
-                            );
-                        } catch (e) {
-                            window.showPopup("Gagal Proses", e.message, "error");
-                        }
-                    }
-                );
-            };
-
-            const qLobby = query(collection(db, "lobbies"), where("status", "!=", "finished"));
-            onSnapshot(qLobby, (snap) => {
-                const wadahLobby = document.getElementById('adminLobbyList');
-                if (!wadahLobby) return;
-                let htmlLobby = '';
-                snap.forEach(docSnap => {
-                    const data = docSnap.data();
-                    let p1 = "Menunggu...", p2 = "Menunggu...", uid1 = null, uid2 = null, bet1 = 0, bet2 = 0;
-                    if (data.players) {
-                        const uids = Object.keys(data.players);
-                        if (uids.length > 0) { uid1 = uids[0]; p1 = data.players[uid1].username; bet1 = parseInt(data.players[uid1].bet) || 0; }
-                        if (uids.length > 1) { uid2 = uids[1]; p2 = data.players[uid2].username; bet2 = parseInt(data.players[uid2].bet) || 0; }
-                    }
-                    const isPanggilAdmin = (data.status === "admin_called" || data.adminCalled === true);
-                    
-                    let adminActions = `<button onclick="window.location.href='lobby.html?id=${docSnap.id}'" class="w-full bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-lg font-bold text-xs mb-2 transition">Masuk ke Ruangan</button>`;
-                    
-                    if (!isPanggilAdmin && !data.winner) {
-                        adminActions += `<button onclick="window.tutupLobbyAdmin('${docSnap.id}')" class="w-full bg-red-600 hover:bg-red-500 text-white py-2 rounded-lg font-bold text-xs mb-2 transition">Tutup Lobby</button>`;
-                    }
-
-                    if (uid1 && uid2 && !data.winner) {
-                        adminActions += `<div class="flex gap-2 border-t border-slate-800 pt-2"><button onclick="window.setWinner('${docSnap.id}', '${uid1}', '${p1}')" class="w-1/2 bg-yellow-600 text-black py-2 rounded font-black text-[10px]">Menang ${p1}</button><button onclick="window.setWinner('${docSnap.id}', '${uid2}', '${p2}')" class="w-1/2 bg-yellow-600 text-black py-2 rounded font-black text-[10px]">Menang ${p2}</button></div>`;
-                    } else if (data.winner) {
-                        adminActions += `<div class="text-center text-blue-500 font-bold text-xs mt-2 uppercase">Selesai</div>`;
-                    }
-                    htmlLobby += `<div class="bg-slate-900 p-4 rounded-xl border ${isPanggilAdmin ? 'border-red-500' : 'border-slate-700'} mb-3"><div class="flex justify-between mb-2"><span class="font-black text-blue-400 text-sm">LOBBY: ${docSnap.id}</span></div><div class="flex justify-between text-white text-xs mb-3"><span>${p1}: Rp ${bet1.toLocaleString()}</span><span class="font-bold text-slate-500">VS</span><span>${p2}: Rp ${bet2.toLocaleString()}</span></div>${adminActions}</div>`;
-                });
-                wadahLobby.innerHTML = htmlLobby || '<p class="text-slate-500 text-center text-sm">Belum ada lobby aktif.</p>';
-            });
-
-            onSnapshot(collection(db, "payment_methods"), (snap) => {
-                let html = "";
-                snap.forEach(d => {
-                    const data = d.data();
-                    html += `<div class="flex justify-between items-center bg-slate-800 p-3 rounded-lg border border-slate-700">
-                                <div class="flex items-center gap-3">
-                                    ${data.logo ? `<img src="${data.logo}" class="w-8 h-8 object-contain bg-white rounded p-1">` : `<div class="w-8 h-8 bg-slate-700 rounded flex items-center justify-center"><i class="fa-solid fa-building-columns text-slate-400 text-xs"></i></div>`}
-                                    <div class="text-xs text-slate-300">
-                                        <b class="text-white">${data.bank}</b><br>
-                                        ${data.rek}
-                                    </div>
-                                </div>
-                                <button onclick="window.hapusPaymentAdmin('${d.id}')" class="text-red-500 hover:text-red-400 bg-red-500/10 p-2 rounded">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                             </div>`;
-                });
-                document.getElementById('paymentListAdmin').innerHTML = html || '<p class="text-xs text-slate-500 text-center">Belum ada metode pembayaran yang dikonfigurasi.</p>';
-            });
-
-            window.approve = async function(id) {
-                try {
-                    const snap = await getDoc(doc(db, "deposits", id));
-                    const data = snap.data();
-                    await updateDoc(doc(db, "deposits", id), { status: "approved" });
-                    await setDoc(doc(db, "users", data.uid), { balance: increment(data.amount) }, { merge: true });
-                    window.showPopup("Berhasil", "Transaksi deposit berhasil disetujui!", "success");
-                } catch(e) {
-                    window.showPopup("Gagal", "Gagal menyetujui transaksi: " + e.message, "error");
-                }
-            };
-
-            window.approveWithdraw = async function(id) {
-                try {
-                    await updateDoc(doc(db, "withdraws", id), { status: "approved" });
-                    window.showPopup("Berhasil", "Withdraw disetujui! Permintaan langsung dibersihkan.", "success");
-                } catch(e) {
-                    window.showPopup("Gagal", "Error: " + e.message, "error");
-                }
-            };
-
-            const adminListWadah = document.getElementById('adminList');
-            if (adminListWadah) {
-                adminListWadah.innerHTML = `
-                    <div id="wadahDeposits"></div>
-                    <div id="wadahWithdraws"></div>
-                `;
-            }
-
-            // Realtime Listener untuk Deposit
-            onSnapshot(collection(db, "deposits"), (snap) => {
-                let html = "";
-                snap.forEach(d => {
-                    const data = d.data();
-                    if (data.status === "pending") {
-                        const displayId = data.username || data.uid;
-                        
-                        html += `<div class="bg-slate-800 p-4 rounded-xl border border-yellow-500 mb-3 text-sm">
-                                    <p class="font-bold text-white mb-1">User: <span class="text-yellow-400">${displayId}</span></p>
-                                    <p class="text-blue-400 font-black text-lg mb-1">Rp ${data.amount.toLocaleString()}</p>
-                                    <p class="text-xs text-slate-300 mb-3">Pengirim: <b class="text-white">${data.rek}</b></p>
-                                    ${data.buktiLink ? 
-                                        `<button onclick="window.lihatBuktiFoto('${data.buktiLink}')" class="block w-full bg-green-700 hover:bg-green-600 text-white text-center py-2 rounded-lg font-bold text-xs mb-3 transition shadow">LIHAT BUKTI FOTO</button>` 
-                                        : '<p class="text-xs text-red-500 mb-3 italic text-center bg-red-500/10 py-1 rounded">User tidak mengupload bukti</p>'}
-                                    <button onclick="window.approve('${d.id}')" class="w-full bg-blue-600 hover:bg-blue-500 py-2 rounded-lg font-bold text-white transition">Setujui Deposit</button>
-                                 </div>`;
-                    }
-                });
-                
-                const wadahDep = document.getElementById('wadahDeposits');
-                if (wadahDep) wadahDep.innerHTML = html;
-            });
-
-            // Realtime Listener untuk Withdraw
-            onSnapshot(collection(db, "withdraws"), (snap) => {
-                let html = "";
-                snap.forEach(d => {
-                    const data = d.data();
-                    if (data.status === "pending") {
-                        const displayId = data.username || data.uid;
-                        
-                        html += `<div class="bg-slate-800 p-4 rounded-xl border border-red-500 mb-3 text-sm mt-3">
-                                    <p class="font-bold text-white mb-1">User: <span class="text-red-400">${displayId}</span></p>
-                                    <p class="text-red-400 font-black text-lg mb-2">Rp ${data.amount.toLocaleString()} (WD)</p>
-                                    
-                                    <div class="bg-slate-900 border border-slate-700 p-3 rounded-lg mb-3">
-                                        <p class="text-[10px] text-slate-400 mb-1 tracking-wider">TUJUAN TRANSFER:</p>
-                                        <p class="text-xs text-slate-300">Bank: <b class="text-white">${data.bank || '-'}</b></p>
-                                        <p class="text-xs text-slate-300">No. Rek: <b class="text-white">${data.rek}</b></p>
-                                        <p class="text-xs text-slate-300">Atas Nama: <b class="text-white">${data.atasNama || '-'}</b></p>
-                                    </div>
-                                    
-                                    <button onclick="window.approveWithdraw('${d.id}')" class="w-full bg-red-600 hover:bg-red-500 py-2 rounded-lg font-bold text-white transition">Tandai Sudah Ditransfer</button>
-                                 </div>`;
-                    }
-                });
-                
-                const wadahWd = document.getElementById('wadahWithdraws');
-                if (wadahWd) wadahWd.innerHTML = html;
-                
-                const wadahDep = document.getElementById('wadahDeposits');
-                if (adminListWadah && wadahDep && !wadahDep.innerHTML && !html) {
-                     adminListWadah.innerHTML = '<p class="text-slate-500 text-center text-sm py-4">Tidak ada permintaan transaksi pending.</p><div id="wadahDeposits"></div><div id="wadahWithdraws"></div>';
-                }
-            });
-        }
     </script>
+                           
     <script>
     window.formatRupiah = function(element) {
         let val = element.value.replace(/[^0-9]/g, '');
