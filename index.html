@@ -343,6 +343,79 @@
                 console.error("Gagal mengirim chat:", e);
             }
         };
+        // --- SISTEM AUTENTIKASI (LOGIN & DAFTAR) ---
+        window.toggleForm = function(type) {
+            if (type === 'register') {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('registerForm').classList.remove('hidden');
+            } else {
+                document.getElementById('registerForm').classList.add('hidden');
+                document.getElementById('loginForm').classList.remove('hidden');
+            }
+        };
+
+        window.login = async function() {
+            const emailInput = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            
+            if (!emailInput || !password) {
+                return window.showPopup("Gagal", "Username/Email dan Password wajib diisi!", "error");
+            }
+
+            // Jika user hanya mengisi username (tanpa @), tambahkan domain default
+            const emailFormat = emailInput.includes('@') ? emailInput : emailInput + "@cvtaruhan.com";
+
+            try {
+                await signInWithEmailAndPassword(auth, emailFormat, password);
+                // Jika berhasil, onAuthStateChanged akan otomatis memuat dashboard
+            } catch (error) {
+                window.showPopup("Login Gagal", "Pastikan Username/Email dan Password Anda benar.", "error");
+            }
+        };
+
+        window.register = async function() {
+            const emailInput = document.getElementById('regEmail').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regConfirm').value;
+
+            if (!emailInput || !phone || !password || !confirm) {
+                return window.showPopup("Gagal", "Semua kolom pendaftaran wajib diisi!", "error");
+            }
+
+            if (password !== confirm) {
+                return window.showPopup("Gagal", "Password dan Konfirmasi Password tidak cocok!", "error");
+            }
+
+            if (password.length < 6) {
+                return window.showPopup("Gagal", "Password minimal harus 6 karakter!", "error");
+            }
+
+            // Format username menjadi email
+            const emailFormat = emailInput.includes('@') ? emailInput : emailInput + "@cvtaruhan.com";
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, emailFormat, password);
+                const user = userCredential.user;
+                
+                // Buat data default user di Firestore
+                await setDoc(doc(db, "users", user.uid), {
+                    email: emailFormat,
+                    phone: phone,
+                    balance: 0,
+                    lobbyHistory: [],
+                    createdAt: new Date()
+                });
+                
+                // Pendaftaran berhasil, otomatis masuk ke dashboard
+            } catch (error) {
+                let pesanError = "Terjadi kesalahan saat mendaftar.";
+                if (error.code === 'auth/email-already-in-use') {
+                    pesanError = "Username/Email ini sudah terdaftar!";
+                }
+                window.showPopup("Pendaftaran Gagal", pesanError, "error");
+            }
+        };
 
         window.logout = function() { signOut(auth).then(() => location.reload()); };
 
